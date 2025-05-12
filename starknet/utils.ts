@@ -21,7 +21,7 @@ import * as bip39 from '@scure/bip39';
 import { hex as scureHex } from '@scure/base';
 
 export function sanitizeFelt252(hex: string): string {
-  if (BigInt(hex) >= constants.PRIME - BigInt(1)) {
+  if (BigInt(encode.sanitizeHex(hex)) >= constants.PRIME - BigInt(1)) {
     throw new Error("Hex string doesn't fit in felt252.");
   }
 

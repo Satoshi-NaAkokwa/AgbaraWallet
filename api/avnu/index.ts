@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
-interface TokenDto {
+export type TokenDto = {
   name: string;
   symbol: string;
   address: string;
@@ -18,14 +18,63 @@ interface TokenDto {
     starknetVolume24h: number;
   };
   tags: string[];
-}
+};
+
+export type AvnuGasTokenPrice = {
+  tokenAddress: string;
+  priceInETH: string;
+  priceInUSD: number;
+  decimals: number;
+};
+
+export type AvnuGasTokenPricesResponse = AvnuGasTokenPrice[];
+
+export type CallDto = {
+  contractAddress: string;
+  entrypoint: string;
+  calldata: string[];
+};
+
+export type BuildTypedDataRequest = {
+  userAddress: string;
+  calls: CallDto[];
+  gasTokenAddress?: string;
+  maxGasTokenAmount?: string;
+  accountClassHash?: string;
+};
+
+export type TypedData = {
+  types: Record<string, Array<{ name: string; type: string }>>;
+  domain: Record<string, any>;
+  primaryType: string;
+  message: Record<string, any>;
+};
+
+export type ExecuteRequest = {
+  userAddress: string;
+  signature: string[];
+  typedData: string; // YES, string. JSONified TypedData
+  deploymentData?: Record<string, any>;
+};
+
+export type ExecuteResponse = {
+  transactionHash: string;
+};
 
 export class AvnuApi {
-  private client: AxiosInstance;
+  private marketsClient: AxiosInstance;
 
-  constructor(baseUrl = 'https://starknet.impulse.avnu.fi') {
-    this.client = axios.create({
-      baseURL: baseUrl,
+  private paymasterClient: AxiosInstance;
+
+  constructor(marketsBaseUrl = 'https://starknet.impulse.avnu.fi', paymasterBaseUrl = 'https://starknet.api.avnu.fi') {
+    this.marketsClient = axios.create({
+      baseURL: marketsBaseUrl,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    this.paymasterClient = axios.create({
+      baseURL: paymasterBaseUrl,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -38,7 +87,31 @@ export class AvnuApi {
    * @returns Promise resolving to the token details.
    */
   async getTokenInfo(tokenAddress: string): Promise<TokenDto> {
-    const response: AxiosResponse<TokenDto> = await this.client.get(`/v1/tokens/${tokenAddress}`);
+    const response: AxiosResponse<TokenDto> = await this.marketsClient.get(`/v1/tokens/${tokenAddress}`);
+    return response.data;
+  }
+
+  /**
+   * Fetches the list of tokens supported by AVNU for gasless/paymaster transactions,
+   * along with their prices in ETH and USD.
+   * @returns A promise that resolves to an array of supported gas tokens and their prices.
+   */
+  public async getGasTokenPrices(): Promise<AvnuGasTokenPricesResponse> {
+    const response = await this.paymasterClient.get<AvnuGasTokenPricesResponse>('/paymaster/v1/gas-token-prices');
+    return response.data;
+  }
+
+  public async buildTypedData(request: BuildTypedDataRequest, askSignature = false): Promise<TypedData> {
+    const headers: Record<string, string> = {};
+    if (askSignature) headers['ask-signature'] = 'true';
+    const response = await this.paymasterClient.post<TypedData>('/paymaster/v1/build-typed-data', request, { headers });
+    return response.data;
+  }
+
+  public async execute(request: ExecuteRequest, askSignature = false): Promise<ExecuteResponse> {
+    const headers: Record<string, string> = {};
+    if (askSignature) headers['ask-signature'] = 'true';
+    const response = await this.paymasterClient.post<ExecuteResponse>('/paymaster/v1/execute', request, { headers });
     return response.data;
   }
 }
