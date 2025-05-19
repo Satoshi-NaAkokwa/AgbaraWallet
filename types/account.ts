@@ -76,9 +76,8 @@ export type CoinsMarket = {
   last_updated: string;
 };
 
-export type ExchangeRateList = {
-  [currency: string]: string;
-};
+type Currency = string;
+export type ExchangeRateList = Record<Currency, string | undefined>;
 
 export type ExchangeRateAvailableCurrencies = 'USD' | 'BTC' | 'STX';
 
