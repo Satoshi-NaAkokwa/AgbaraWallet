@@ -16,6 +16,6 @@ export const STARKNET_EKUBO_TOKEN_ADDRESS = '0x075afe6402ad5a5c20dd25e10ec3b3986
 export const STARKNET_WBTC_TOKEN_ADDRESS = '0x03fe2b97c1fd336e750087d68b9b867997fd64a2661ff3ca5a7c771641e8e7ac';
 
 export const networkNameToApi: Record<constants.NetworkName, string> = {
-  [constants.NetworkName.SN_MAIN]: 'https://free-rpc.nethermind.io/mainnet-juno/v0_8', // api-3.xverse.app/starknet/rpc
-  [constants.NetworkName.SN_SEPOLIA]: 'https://free-rpc.nethermind.io/sepolia-juno/v0_8',
+  [constants.NetworkName.SN_MAIN]: 'https://api-3.xverse.app/starknet/v1/rpc',
+  [constants.NetworkName.SN_SEPOLIA]: 'https://starknet-sepolia.public.blastapi.io/rpc/v0_8',
 };

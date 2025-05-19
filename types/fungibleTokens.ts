@@ -4,7 +4,7 @@ export interface BaseToken {
   image?: string;
 }
 
-export type FungibleTokenProtocol = 'stacks' | 'brc-20' | 'runes';
+export type FungibleTokenProtocol = 'stacks' | 'brc-20' | 'runes' | 'starknet';
 
 export type FungibleToken = BaseToken & {
   balance: string;

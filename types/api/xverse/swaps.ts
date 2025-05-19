@@ -1,4 +1,4 @@
-export type Protocol = 'runes' | 'brc20' | 'sip10' | 'btc' | 'stx';
+export type Protocol = 'runes' | 'brc20' | 'sip10' | 'btc' | 'stx' | 'starknet';
 
 export type Provider = {
   code: string;
