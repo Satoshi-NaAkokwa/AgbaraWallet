@@ -30,7 +30,6 @@ import {
   ExecuteStxOrderResponse,
   ExecuteUtxoOrderRequest,
   ExecuteUtxoOrderResponse,
-  FungibleTokenProtocol,
   GetDestinationTokensRequest,
   GetDestinationTokensResponse,
   GetListedUtxosRequest,
@@ -60,6 +59,7 @@ import {
   PlaceXcOrderRequest,
   PlaceXcOrderResponse,
   PrincipalToFungibleToken,
+  Protocol,
   SignedUrlResponse,
   SimplePriceResponse,
   StackerInfo,
@@ -199,10 +199,7 @@ export class XverseApi {
     return response.data;
   };
 
-  getTokenStatsAndInfo = async (
-    id: string,
-    protocol: FungibleTokenProtocol,
-  ): Promise<TokenStatsAndInfoResponseType> => {
+  getTokenStatsAndInfo = async (id: string, protocol: Protocol): Promise<TokenStatsAndInfoResponseType> => {
     const response = await this.client.get<TokenStatsAndInfoResponseType>('/v2/token-stats-and-info', {
       params: { id, protocol },
     });
