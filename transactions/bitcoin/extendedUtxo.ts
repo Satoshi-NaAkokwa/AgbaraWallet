@@ -1,4 +1,4 @@
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../../utils/bignumber';
 import { UtxoCache } from '../../api';
 import EsploraProvider from '../../api/esplora/esploraAPiProvider';
 import { UTXO, UtxoOrdinalBundle } from '../../types';

@@ -1,4 +1,4 @@
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../utils/bignumber';
 import { type FungibleToken, type FungibleTokenStates, type RuneBalance } from '../types';
 
 export const runeTokenToFungibleToken = (runeBalance: RuneBalance): FungibleToken => ({

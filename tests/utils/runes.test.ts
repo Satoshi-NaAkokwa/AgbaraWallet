@@ -1,4 +1,4 @@
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../../utils/bignumber';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getRunesClient } from '../../api/runes/provider';
 import { PsbtSummary } from '../../transactions/bitcoin/types';

@@ -38,7 +38,7 @@ import {
   sendBtcToTwoAddresses,
   consolidateBtc,
 } from '../../../mocks/btc.indexer.txs';
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../../../../utils/bignumber';
 import { enhanceTx, mapRuneToRuneInfo } from '../../../../api/btc';
 import { RuneInfo } from '../../../../types';
 

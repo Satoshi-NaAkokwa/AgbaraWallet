@@ -16,7 +16,7 @@ import {
   PayloadType,
   StacksTransactionWire,
 } from '@stacks/transactions';
-import { BigNumber } from 'bignumber.js';
+import { BigNumber } from '../../utils/bignumber';
 import { extractFromPayload, generateUnsignedTx, getFTInfoFromPostConditions, nextBestNonce } from '..';
 import { getContractInterface, XverseApi } from '../../api';
 import { STX_DECIMALS } from '../../constant';

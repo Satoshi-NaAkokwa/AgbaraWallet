@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getRuneInfoMock, runeBurnMinted, runeBurnPartial } from '../../../mocks/btc.indexer.txs';
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../../../../utils/bignumber';
 import { getRunesInfoDictionary, mapRuneToRuneInfo } from '../../../../api/btc';
 import { getRunesClient } from '../../../../api/runes/provider';
 import { ApiAddressTransaction, RuneInfo } from '../../../../types';

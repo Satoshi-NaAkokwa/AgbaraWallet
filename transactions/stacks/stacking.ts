@@ -9,7 +9,6 @@ import {
   standardPrincipalCV,
   uintCV,
 } from '@stacks/transactions';
-import BigNumber from 'bignumber.js';
 import { XverseApi } from '../../api';
 import { StacksNetwork, StacksTransactionWire } from '../../types';
 import { generateUnsignedTx } from './builders';

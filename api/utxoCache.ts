@@ -1,6 +1,6 @@
 import { Mutex } from 'async-mutex';
 import { isAxiosError } from 'axios';
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../utils/bignumber';
 import {
   ExtendedStorageAdapter,
   NetworkType,

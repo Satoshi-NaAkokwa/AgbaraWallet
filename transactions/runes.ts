@@ -1,5 +1,5 @@
 import { hex } from '@scure/base';
-import { BigNumber } from 'bignumber.js';
+import { BigNumber } from '../utils/bignumber';
 import { getRunesClient } from '../api';
 import { DEFAULT_DUST_VALUE } from '../constant';
 import { Edict } from '../types';

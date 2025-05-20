@@ -13,7 +13,7 @@ import {
   UIntCV,
 } from '@stacks/transactions';
 import axios from 'axios';
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../utils/bignumber';
 import { API_TIMEOUT_MILLI } from '../constant';
 import {
   Account,

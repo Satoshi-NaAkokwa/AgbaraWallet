@@ -1,5 +1,5 @@
 import { AxiosError, AxiosResponse } from 'axios';
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../../utils/bignumber';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { getUtxoOrdinalBundleIfFound, mapRareSatsAPIResponseToBundle } from '../../api/ordinals';
 import { Bundle, UtxoOrdinalBundleApi, UtxoRuneEntry } from '../../types/api/xverse/ordinals';

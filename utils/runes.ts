@@ -2,7 +2,6 @@ import { getRunesClient } from '../api';
 import { PsbtSummary, TransactionContext, TransactionSummary } from '../transactions/bitcoin';
 import { CreateEtchOrderRequest, FungibleToken, Marketplace, NetworkType, Override } from '../types';
 import { bigUtils } from './bignumber';
-import { type BigNumber } from 'bignumber.js';
 
 export type RuneBase = {
   runeName: string;

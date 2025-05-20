@@ -1,4 +1,4 @@
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../utils/bignumber';
 
 import xverseInscribeApi from '../api/xverseInscribe';
 import { CoreError } from '../utils/coreError';

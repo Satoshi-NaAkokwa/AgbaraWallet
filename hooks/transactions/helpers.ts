@@ -1,5 +1,5 @@
 import { deserializeTransaction } from '@stacks/transactions';
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../../utils/bignumber';
 import { RbfRecommendedFees, rbf } from '../../transactions';
 import {
   AppInfo,

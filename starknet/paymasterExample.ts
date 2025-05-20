@@ -9,7 +9,7 @@ import { STARKNET_STRK_TOKEN_ADDRESS } from './constants';
 import { NetworkType } from '../types';
 import { StarknetTokenBalancesRequest, StarknetTokenBalancesResponse } from '../types/api/xverse/starknet';
 import axios from 'axios';
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../utils/bignumber';
 import { XverseApi } from '../api/xverse';
 
 // bun run starknet/paymasterExample.ts

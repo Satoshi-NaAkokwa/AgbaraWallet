@@ -10,7 +10,7 @@ import {
   Transaction,
 } from '@stacks/stacks-blockchain-api-types';
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../../utils/bignumber';
 import { API_TIMEOUT_MILLI, HIRO_MAINNET_DEFAULT, HIRO_TESTNET_DEFAULT } from '../../constant';
 import { NftHistoryResponse, StacksMainnet, StacksNetwork } from '../../types';
 import { AxiosRateLimit } from '../../utils/axiosRateLimit';

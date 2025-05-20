@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../../utils/bignumber';
 import { API_TIMEOUT_MILLI, XVERSE_API_BASE_URL } from '../../constant';
 import { runeTokenToFungibleToken } from '../../fungibleTokens';
 import {

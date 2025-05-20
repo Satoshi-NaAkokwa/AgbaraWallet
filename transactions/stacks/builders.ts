@@ -30,7 +30,6 @@ import {
   standardPrincipalCV,
   uintCV,
 } from '@stacks/transactions';
-import BigNumber from 'bignumber.js';
 import { XverseApi } from '../../api';
 import { getStxAddressKeyChain } from '../../account';
 import { PostConditionsOptions, StacksMainnet, StacksNetwork, StacksTestnet } from '../../types';

@@ -1,5 +1,4 @@
 import axios, { isAxiosError } from 'axios';
-import BigNumber from 'bignumber.js';
 import EsploraApiProvider from '../api/esplora/esploraAPiProvider';
 import { OrdinalsApi } from '../api/ordinals/provider';
 import { API_TIMEOUT_MILLI, ORDINALS_URL, XVERSE_API_BASE_URL, XVERSE_INSCRIBE_URL } from '../constant';
@@ -22,7 +21,7 @@ import {
   UtxoOrdinalBundleApi,
   isApiSatributeKnown,
 } from '../types';
-import { JSONBigOnDemand } from '../utils/bignumber';
+import { JSONBigOnDemand, BigNumber } from '../utils/bignumber';
 import { parseBrc20TransactionData } from './helper';
 
 export function parseOrdinalTextContentData(content: string): string {

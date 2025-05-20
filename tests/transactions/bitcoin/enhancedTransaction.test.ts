@@ -1,5 +1,5 @@
 import * as btc from '@scure/btc-signer';
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../../../utils/bignumber';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getRunesClient } from '../../../api/runes/provider';
 import {

@@ -15,7 +15,7 @@ import {
 import { argentXContractClassHashV0_4_0, starknetCoinType, networkNameToApi } from './constants';
 import { safePromise } from '../utils';
 import { grindKey } from '@scure/starknet';
-import BigNumber from 'bignumber.js';
+import { BigNumber } from 'bignumber.js';
 import * as bip32 from '@scure/bip32';
 import * as bip39 from '@scure/bip39';
 import { hex as scureHex } from '@scure/base';

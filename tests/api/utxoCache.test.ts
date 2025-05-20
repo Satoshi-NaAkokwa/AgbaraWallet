@@ -6,7 +6,7 @@ import { UtxoCache, UtxoCacheStruct } from '../../api/utxoCache';
 
 import { getAddressUtxoOrdinalBundles, getUtxoOrdinalBundle } from '../../api/ordinals';
 
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../../utils/bignumber';
 import { ExtendedStorageAdapter, UtxoRuneEntry } from '../../types';
 import { JSONBig } from '../../utils/bignumber';
 

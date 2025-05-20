@@ -1,6 +1,6 @@
 import * as btc from '@scure/btc-signer';
 import { CancelToken } from 'axios';
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../utils/bignumber';
 import xverseInscribeApi from '../api/xverseInscribe';
 import { KeystoneTransport } from '../keystone';
 import { LedgerTransport } from '../ledger';

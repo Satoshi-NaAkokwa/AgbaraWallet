@@ -1,4 +1,4 @@
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../utils/bignumber';
 
 const satsToBtc = (sats: BigNumber): BigNumber => sats.multipliedBy(0.00000001);
 

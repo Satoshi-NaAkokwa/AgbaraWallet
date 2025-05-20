@@ -1,5 +1,5 @@
 import { type StacksNetwork } from '@stacks/network';
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../utils/bignumber';
 import {
   Brc20HistoryTransactionData,
   Brc20TxHistoryItem,

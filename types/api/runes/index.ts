@@ -1,5 +1,3 @@
-import { type BigNumber } from 'bignumber.js';
-
 type BigNullable = BigNumber | null;
 
 export type EncodePayload = {

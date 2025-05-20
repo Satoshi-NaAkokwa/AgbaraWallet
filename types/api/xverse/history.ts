@@ -1,5 +1,3 @@
-import BigNumber from 'bignumber.js';
-
 // API Types
 export type ApiAddressTransaction = {
   txid: string;

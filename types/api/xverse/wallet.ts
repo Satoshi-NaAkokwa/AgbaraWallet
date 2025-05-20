@@ -1,5 +1,4 @@
 import { HDKey } from '@scure/bip32';
-import BigNumber from 'bignumber.js';
 import { ContractCall, TransactionPostCondition, TransactionStatus, TransactionType } from '../shared';
 import { StxMempoolTransactionData, TransactionData } from './transaction';
 
