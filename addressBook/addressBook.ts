@@ -55,8 +55,8 @@ export class AddressBook {
       this.network === 'Mainnet'
         ? ValidationNetwork.mainnet
         : this.network === 'Regtest'
-        ? ValidationNetwork.regtest
-        : ValidationNetwork.testnet;
+          ? ValidationNetwork.regtest
+          : ValidationNetwork.testnet;
 
     if (!validate(validateAddress, validationNetwork)) {
       throw new CoreError('Address is invalid', ErrorCodes.InvalidAddress);

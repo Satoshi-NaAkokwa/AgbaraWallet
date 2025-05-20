@@ -20,12 +20,15 @@ const getUtxosWithRuneBalance = async (extendedUtxos: ExtendedUtxo[], runeName: 
   });
 
   // get only utxos with positive balance of desired rune
-  const runeUtxos = runeUtxosRaw.reduce((acc, utxo) => {
-    if (!!utxo.balance && utxo.balance.gt(0)) {
-      acc.push(utxo as { utxo: ExtendedUtxo; balance: BigNumber });
-    }
-    return acc;
-  }, [] as { utxo: ExtendedUtxo; balance: BigNumber }[]);
+  const runeUtxos = runeUtxosRaw.reduce(
+    (acc, utxo) => {
+      if (!!utxo.balance && utxo.balance.gt(0)) {
+        acc.push(utxo as { utxo: ExtendedUtxo; balance: BigNumber });
+      }
+      return acc;
+    },
+    [] as { utxo: ExtendedUtxo; balance: BigNumber }[],
+  );
 
   return runeUtxos;
 };
@@ -46,11 +49,14 @@ export const sendManyRunes = async (
     throw new Error('Amount must be positive');
   }
 
-  const runeTotalsToSend = recipients.reduce((acc, { runeName, amount }) => {
-    const normalizedRuneName = normalizeRuneName(runeName);
-    acc[normalizedRuneName] = BigNumber(acc[normalizedRuneName] ?? 0).plus(amount.toString());
-    return acc;
-  }, {} as Record<string, BigNumber>);
+  const runeTotalsToSend = recipients.reduce(
+    (acc, { runeName, amount }) => {
+      const normalizedRuneName = normalizeRuneName(runeName);
+      acc[normalizedRuneName] = BigNumber(acc[normalizedRuneName] ?? 0).plus(amount.toString());
+      return acc;
+    },
+    {} as Record<string, BigNumber>,
+  );
 
   const allocatedRunes: Record<string, BigNumber> = {};
 

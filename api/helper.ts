@@ -250,7 +250,7 @@ export function mapTransferTransactionData({
     incoming: senderAddress !== stxAddress,
     amount: new BigNumber(
       postConditions.find((x) => x !== undefined)?.type === 'fungible'
-        ? postConditions.find((x) => x !== undefined)?.amount ?? 0
+        ? (postConditions.find((x) => x !== undefined)?.amount ?? 0)
         : 0,
     ),
     post_conditions: [],

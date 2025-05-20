@@ -10,7 +10,6 @@ import {
 import {
   Address,
   BtcAddressBalanceResponse,
-  BtcAddressMempool,
   BtcTransactionBroadcastResponse,
   EsploraTransaction,
   NetworkType,

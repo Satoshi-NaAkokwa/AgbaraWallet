@@ -7,6 +7,10 @@
  * Usage: node pin_all_deps.js
  */
 
+/* eslint-disable no-prototype-builtins */
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
+
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');

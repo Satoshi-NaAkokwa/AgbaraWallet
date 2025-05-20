@@ -1,4 +1,6 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
+
 const fs = require('fs');
 
 const coverageSummary = JSON.parse(fs.readFileSync('./coverage/coverage-summary.json', 'utf8'));

@@ -17,13 +17,13 @@ export const createInMemoryStorage = (
       notifyListeners({ [key]: { oldValue, newValue: value } });
     },
     get(key: string) {
-      return store.hasOwnProperty(key) ? store[key] : null;
+      return Object.hasOwn(store, key) ? store[key] : null;
     },
 
     getMany<T extends string>(...keys: T[]) {
       const result: Partial<Record<T, string>> = {};
       for (const key of keys) {
-        if (store.hasOwnProperty(key)) {
+        if (Object.hasOwn(store, key)) {
           result[key] = store[key];
         }
       }
@@ -37,7 +37,7 @@ export const createInMemoryStorage = (
     },
 
     remove(key: string) {
-      if (store.hasOwnProperty(key)) {
+      if (Object.hasOwn(store, key)) {
         const oldValue = store[key];
         delete store[key];
         notifyListeners({ [key]: { oldValue } });

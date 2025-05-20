@@ -1,4 +1,0 @@
-node_modules/
-dist/
-vitest.config.ts
-scripts/pin_all_deps.js

@@ -1,11 +1,12 @@
-Reactive Persistent Store
-=========================
+# Reactive Persistent Store
 
 The reactive persistent store is a custom implementation of a persistent store that is catered to our needs. It is designed to replace the use of Redux and Zustand and all other dependencies required to make them persistent and to span across multiple tabs, while abstracting the persistence layer, allowing us to use this store both in the browser and mobile.
 
 # Usage
-1. Define a global instance of the store manager in  your app, powered by any implementation of ExtendedStoreManager.
-e.g. for extension and chrome storage
+
+1. Define a global instance of the store manager in your app, powered by any implementation of ExtendedStoreManager.
+   e.g. for extension and chrome storage
+
 ```typescript
 import { PersistentStoreManager, type ExtendedStorageAdapter } from '@secretkeylabs/xverse-core';
 import chromeStorage from '@utils/chromeStorage';
@@ -23,10 +24,11 @@ export const globalStoreManager = new PersistentStoreManager(localStorageAdapter
 ```
 
 e.g. for mobile and react-native-mmkv
-```typescript
-import {MMKV} from 'react-native-mmkv';
 
-import {PersistentStoreManager, StorageAdapter} from './persistentStoreManager';
+```typescript
+import { MMKV } from 'react-native-mmkv';
+
+import { PersistentStoreManager, StorageAdapter } from './persistentStoreManager';
 
 export const storage = new MMKV();
 
@@ -49,9 +51,11 @@ const storageAdapter: StorageAdapter = {
 
 export const globalStoreManager = new PersistentStoreManager(storageAdapter);
 ```
+
 2. Migrate data from old store if needed and initialize the store manager in your app.
 
 Note that if you do not initialize the store manager, it will throw an error when you try to use it for reads.
+
 ```typescript
 if ((await globalStoreManager.isStoreBootstrapped('activeAccount')) === false) {
   await globalStoreManager.setStoreValue('activeAccount', {
@@ -65,7 +69,9 @@ if ((await globalStoreManager.isStoreBootstrapped('activeAccount')) === false) {
 
 await globalStoreManager.initialise();
 ```
+
 3. Create a hook to use the store manager in your components.
+
 ```typescript
 import type { Store, StoreMutators, StoreSchema, StoreUtils } from '@secretkeylabs/xverse-core';
 import { globalStoreManager } from '@stores/persistentStoreManager';
@@ -98,15 +104,12 @@ const shallowCompare = <T>(a: T, b: T) => {
 
 export const useStore = <T extends Store, S = StoreSchema<T>>(
   store: T,
-  selector: (store: StoreSchema<T>, utils: StoreUtils<T>) => S = (storeData: StoreSchema<T>) =>
-    storeData as S,
+  selector: (store: StoreSchema<T>, utils: StoreUtils<T>) => S = (storeData: StoreSchema<T>) => storeData as S,
 ): UseStoreReturn<T, S> => {
   const actions = useMemo(() => globalStoreManager.getStoreMutators(store), [store]);
   const utils = useMemo(() => globalStoreManager.getStoreUtils(store), [store]);
 
-  const [dataLocal, setDataLocal] = useState<S>(() =>
-    selector(globalStoreManager.getStoreValue(store), utils),
-  );
+  const [dataLocal, setDataLocal] = useState<S>(() => selector(globalStoreManager.getStoreValue(store), utils));
 
   useEffect(() => {
     let isMounted = true;
@@ -133,7 +136,9 @@ export const useStore = <T extends Store, S = StoreSchema<T>>(
   return { data: dataLocal, actions, utils };
 };
 ```
+
 4. Use the hook in your components.
+
 ```typescript
 import { useStore } from '@hooks';
 import type { Account } from '@secretkeylabs/xverse-core';
@@ -160,6 +165,7 @@ export default AccountBalance;
 ```
 
 # Defining a Store
+
 Stores are defined in the `stores` folder. Each store is a separate file and should export ana object that follows the Store interface, unwrapping it using the `inferStoreDefinition` utility function. New stores also need to be added to the `storeDefinitions` variable in the `persistentStoreManager` file. The store manager is responsible for managing the stores and their state.
 
 These store definitions are used to define the structure of the store and the types of data it can hold. The store manager uses these definitions to ensure that the data is stored and retrieved correctly.

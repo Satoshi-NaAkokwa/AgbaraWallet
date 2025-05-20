@@ -84,7 +84,7 @@ export const txPayloadToRequest = (
     anchorMode: anchorMode,
   };
   switch (payload.payloadType) {
-    case PayloadType.TokenTransfer:
+    case PayloadType.TokenTransfer: {
       const stxTransferPayload: Partial<STXTransferPayload> = {
         ...transactionRequest,
         txType: TransactionTypes.STXTransfer,
@@ -96,7 +96,8 @@ export const txPayloadToRequest = (
         memo: cleanMemoString(payload.memo.content),
       };
       return stxTransferPayload;
-    case PayloadType.ContractCall:
+    }
+    case PayloadType.ContractCall: {
       const contractCallPayload: Partial<ContractCallPayload> = {
         ...transactionRequest,
         txType: TransactionTypes.ContractCall,
@@ -106,8 +107,9 @@ export const txPayloadToRequest = (
         functionName: payload.functionName.content,
       };
       return contractCallPayload;
+    }
     case PayloadType.SmartContract:
-    case PayloadType.VersionedSmartContract:
+    case PayloadType.VersionedSmartContract: {
       const contractDeployPayload: Partial<ContractDeployPayload> = {
         ...transactionRequest,
         txType: TransactionTypes.ContractDeploy,
@@ -115,6 +117,7 @@ export const txPayloadToRequest = (
         codeBody: payload.codeBody.content,
       };
       return contractDeployPayload;
+    }
     default:
       throw new Error('Unsupported tx type');
   }

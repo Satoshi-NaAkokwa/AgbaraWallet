@@ -80,7 +80,6 @@ export const Satributes = [
 export type SatributesType = (typeof Satributes)[number];
 
 // ({} & string) is a workaround to support our types and also allow any string for unsupported types
-// eslint-disable-next-line @typescript-eslint/ban-types
 export type RareSatsTypeApi = RodarmorRareSatsType | SatributesType | ({} & string);
 
 export type RareSatsType = RodarmorRareSatsType | SatributesType;

@@ -86,8 +86,8 @@ describe('sendMaxBtc', () => {
           getSummary: async () =>
             ({
               dustValue: 1000,
-            } as any),
-        } as any),
+            }) as any,
+        }) as any,
     );
 
     const { transaction, dustFiltered } = await sendMaxBtc(contextMock, recipientAddress, 2, true);
@@ -125,8 +125,8 @@ describe('sendMaxBtc', () => {
           getSummary: async () =>
             ({
               dustValue: 900,
-            } as any),
-        } as any),
+            }) as any,
+        }) as any,
     );
 
     const { transaction, dustFiltered } = await sendMaxBtc(contextMock, recipientAddress, 2, true);
@@ -164,8 +164,8 @@ describe('sendMaxBtc', () => {
           getSummary: async () =>
             ({
               dustValue: 3000,
-            } as any),
-        } as any),
+            }) as any,
+        }) as any,
     );
 
     await expect(() => sendMaxBtc(contextMock, recipientAddress, 2, true)).rejects.toThrow('All UTXOs are dust');

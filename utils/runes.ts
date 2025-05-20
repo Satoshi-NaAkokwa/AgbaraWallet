@@ -123,26 +123,29 @@ const parseSummaryWithBurnRuneScript = async (
 
   const inputsHadRunes = runeInputs.length > 0;
 
-  const burns = runeInputs.reduce((acc, input) => {
-    const inputAddress = input.input.extendedUtxo.address;
-    const inputBalances = input.balances;
+  const burns = runeInputs.reduce(
+    (acc, input) => {
+      const inputAddress = input.input.extendedUtxo.address;
+      const inputBalances = input.balances;
 
-    for (const runeName in inputBalances) {
-      const addressRuneKey = `${inputAddress}:${runeName}`;
+      for (const runeName in inputBalances) {
+        const addressRuneKey = `${inputAddress}:${runeName}`;
 
-      if (acc[addressRuneKey] === undefined) {
-        acc[addressRuneKey] = {
-          runeName,
-          amount: BigInt(inputBalances[runeName].toFixed()),
-          sourceAddresses: [inputAddress],
-        };
-      } else {
-        acc[addressRuneKey].amount += BigInt(inputBalances[runeName].toFixed());
+        if (acc[addressRuneKey] === undefined) {
+          acc[addressRuneKey] = {
+            runeName,
+            amount: BigInt(inputBalances[runeName].toFixed()),
+            sourceAddresses: [inputAddress],
+          };
+        } else {
+          acc[addressRuneKey].amount += BigInt(inputBalances[runeName].toFixed());
+        }
       }
-    }
 
-    return acc;
-  }, {} as Record<string, Omit<RuneBurn, 'runeId' | 'divisibility' | 'symbol' | 'inscriptionId'>>);
+      return acc;
+    },
+    {} as Record<string, Omit<RuneBurn, 'runeId' | 'divisibility' | 'symbol' | 'inscriptionId'>>,
+  );
 
   const embellishedBurns: RuneBurn[] = [];
 
@@ -183,22 +186,25 @@ const parseSummaryWithRuneScript = async (
   const burns: RuneBurn[] = [];
 
   // calculate initial unallocated balance without mint
-  const unallocatedBalance = runeInputs.reduce((acc, input) => {
-    for (const runeName in input.balances) {
-      const amount = BigInt(input.balances[runeName].toFixed());
-      const sourceAddress = input.input.extendedUtxo.address;
-      if (runeName in acc) {
-        acc[runeName].amount += amount;
-        acc[runeName].sourceAddresses.add(sourceAddress);
-      } else {
-        acc[runeName] = {
-          amount,
-          sourceAddresses: new Set([sourceAddress]),
-        };
+  const unallocatedBalance = runeInputs.reduce(
+    (acc, input) => {
+      for (const runeName in input.balances) {
+        const amount = BigInt(input.balances[runeName].toFixed());
+        const sourceAddress = input.input.extendedUtxo.address;
+        if (runeName in acc) {
+          acc[runeName].amount += amount;
+          acc[runeName].sourceAddresses.add(sourceAddress);
+        } else {
+          acc[runeName] = {
+            amount,
+            sourceAddresses: new Set([sourceAddress]),
+          };
+        }
       }
-    }
-    return acc;
-  }, {} as Record<string, { amount: bigint; sourceAddresses: Set<string> }>);
+      return acc;
+    },
+    {} as Record<string, { amount: bigint; sourceAddresses: Set<string> }>,
+  );
 
   // parse mint and add to unallocated balance if valid
   let mint: RuneMint | undefined = undefined;
@@ -255,27 +261,30 @@ const parseSummaryWithRuneScript = async (
 
   const transfersByRuneAndAddress = runeInputs
     .filter((r) => r.isUserAddress)
-    .reduce((acc, input) => {
-      const inputAddress = input.input.extendedUtxo.address;
+    .reduce(
+      (acc, input) => {
+        const inputAddress = input.input.extendedUtxo.address;
 
-      for (const runeName in input.balances) {
-        const balance = BigInt(input.balances[runeName].toFixed());
+        for (const runeName in input.balances) {
+          const balance = BigInt(input.balances[runeName].toFixed());
 
-        acc[runeName] ||= {};
+          acc[runeName] ||= {};
 
-        if (!(inputAddress in acc[runeName])) {
-          acc[runeName][inputAddress] = {
-            sourceAddress: inputAddress,
-            runeName,
-            amount: balance,
-          };
-        } else {
-          acc[runeName][inputAddress].amount += balance;
+          if (!(inputAddress in acc[runeName])) {
+            acc[runeName][inputAddress] = {
+              sourceAddress: inputAddress,
+              runeName,
+              amount: balance,
+            };
+          } else {
+            acc[runeName][inputAddress].amount += balance;
+          }
         }
-      }
 
-      return acc;
-    }, {} as Record<string, Record<string, PartialTransfer>>);
+        return acc;
+      },
+      {} as Record<string, Record<string, PartialTransfer>>,
+    );
 
   // process edicts into receipts if not burnt on script
   const allocated = {} as Record<
@@ -552,11 +561,14 @@ const parseSummaryWithRuneScript = async (
   }
 
   // calculate hasSufficientBalance to transfers from receipts and unallocatedBalance
-  const burnt = burns.reduce((acc, burn) => {
-    acc[burn.runeName] = acc[burn.runeName] || 0n;
-    acc[burn.runeName] += burn.amount;
-    return acc;
-  }, {} as Record<string, bigint>);
+  const burnt = burns.reduce(
+    (acc, burn) => {
+      acc[burn.runeName] = acc[burn.runeName] || 0n;
+      acc[burn.runeName] += burn.amount;
+      return acc;
+    },
+    {} as Record<string, bigint>,
+  );
 
   const transfers: RuneTransfer[] = [];
 

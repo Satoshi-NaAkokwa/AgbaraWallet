@@ -249,20 +249,23 @@ export const sendOrdinalsWithSplit = async (
     }),
   );
 
-  const utxoToRecipientsMap = embellishedRecipients.reduce((acc, { location, toAddress }) => {
-    const [transactionId, vout, offsetStr] = location.split(':');
-    const outPoint = `${transactionId}:${vout}`;
-    const offset = +offsetStr;
+  const utxoToRecipientsMap = embellishedRecipients.reduce(
+    (acc, { location, toAddress }) => {
+      const [transactionId, vout, offsetStr] = location.split(':');
+      const outPoint = `${transactionId}:${vout}`;
+      const offset = +offsetStr;
 
-    if (!acc[outPoint]) {
-      acc[outPoint] = [];
-    }
+      if (!acc[outPoint]) {
+        acc[outPoint] = [];
+      }
 
-    acc[outPoint].push({ toAddress, offset, location });
-    acc[outPoint].sort((a, b) => a.offset - b.offset);
+      acc[outPoint].push({ toAddress, offset, location });
+      acc[outPoint].sort((a, b) => a.offset - b.offset);
 
-    return acc;
-  }, {} as Record<string, { toAddress: string; offset: number; location: string }[]>);
+      return acc;
+    },
+    {} as Record<string, { toAddress: string; offset: number; location: string }[]>,
+  );
 
   const actions: (SplitUtxoAction | SendUtxoAction)[] = [];
 

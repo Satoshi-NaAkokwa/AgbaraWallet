@@ -30,7 +30,7 @@ export function parseOrdinalTextContentData(content: string): string {
     if (contentData.p) {
       // check for sns protocol
       if (contentData.p === 'sns') {
-        return contentData.hasOwnProperty('name') ? contentData.name : content;
+        return Object.hasOwn(contentData, 'name') ? contentData.name : content;
       } else {
         return content;
       }
@@ -67,10 +67,13 @@ export async function getOrdinalsByAddress(
   ]);
   const ordinals: BtcOrdinal[] = [];
 
-  const utxoMap = addressUTXOs.reduce((acc, utxo) => {
-    acc[`${utxo.txid}:${utxo.vout}`] = utxo;
-    return acc;
-  }, {} as Record<string, UTXO>);
+  const utxoMap = addressUTXOs.reduce(
+    (acc, utxo) => {
+      acc[`${utxo.txid}:${utxo.vout}`] = utxo;
+      return acc;
+    },
+    {} as Record<string, UTXO>,
+  );
 
   inscriptions.forEach((inscription) => {
     const utxo = utxoMap[inscription.output];

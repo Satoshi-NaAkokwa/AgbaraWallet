@@ -116,13 +116,16 @@ const generateSatributeKey = (satribute: Omit<IOSatribute, 'offset'>) => {
 };
 
 const aggregateSatributes = (satributes: Omit<IOSatribute, 'offset'>[]): Omit<IOSatribute, 'offset'>[] => {
-  const aggregatedMap = satributes.reduce((acc, satribute) => {
-    const key = generateSatributeKey(satribute);
-    acc[key] ||= { ...satribute, amount: 0 };
-    acc[key].amount += satribute.amount;
+  const aggregatedMap = satributes.reduce(
+    (acc, satribute) => {
+      const key = generateSatributeKey(satribute);
+      acc[key] ||= { ...satribute, amount: 0 };
+      acc[key].amount += satribute.amount;
 
-    return acc;
-  }, {} as Record<string, Omit<IOSatribute, 'offset'>>);
+      return acc;
+    },
+    {} as Record<string, Omit<IOSatribute, 'offset'>>,
+  );
 
   return Object.values(aggregatedMap);
 };
@@ -131,44 +134,56 @@ const diffSatributes = (
   mainCollection: Omit<IOSatribute, 'offset'>[],
   diffCollection: Omit<IOSatribute, 'offset'>[],
 ): Omit<IOSatribute, 'offset'>[] => {
-  const diffSatributeAmounts = aggregateSatributes(diffCollection).reduce((acc, satribute) => {
-    const key = generateSatributeKey(satribute);
-    acc[key] ||= 0;
-    acc[key] += satribute.amount;
-    return acc;
-  }, {} as Record<string, number>);
+  const diffSatributeAmounts = aggregateSatributes(diffCollection).reduce(
+    (acc, satribute) => {
+      const key = generateSatributeKey(satribute);
+      acc[key] ||= 0;
+      acc[key] += satribute.amount;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
-  return aggregateSatributes(mainCollection).reduce((acc, satribute) => {
-    const key = generateSatributeKey(satribute);
-    const amountDiff = satribute.amount - (diffSatributeAmounts[key] ?? 0);
+  return aggregateSatributes(mainCollection).reduce(
+    (acc, satribute) => {
+      const key = generateSatributeKey(satribute);
+      const amountDiff = satribute.amount - (diffSatributeAmounts[key] ?? 0);
 
-    if (amountDiff > 0) {
-      acc.push({
-        ...satribute,
-        amount: amountDiff,
-      });
-    }
+      if (amountDiff > 0) {
+        acc.push({
+          ...satribute,
+          amount: amountDiff,
+        });
+      }
 
-    return acc;
-  }, [] as Omit<IOSatribute, 'offset'>[]);
+      return acc;
+    },
+    [] as Omit<IOSatribute, 'offset'>[],
+  );
 };
 
 const aggregateRunes = (runes: IORune[]): IORune[] => {
-  const aggregatedRunes = runes.reduce((acc, rune) => {
-    acc[rune.runeName] ||= { ...rune, amount: 0n };
-    acc[rune.runeName].amount += rune.amount;
-    return acc;
-  }, {} as Record<string, IORune>);
+  const aggregatedRunes = runes.reduce(
+    (acc, rune) => {
+      acc[rune.runeName] ||= { ...rune, amount: 0n };
+      acc[rune.runeName].amount += rune.amount;
+      return acc;
+    },
+    {} as Record<string, IORune>,
+  );
 
   return Object.values(aggregatedRunes);
 };
 
 const diffRunes = (mainCollection: IORune[], diffCollection: IORune[]): IORune[] => {
-  const diffRuneAmounts = aggregateRunes(diffCollection).reduce((acc, rune) => {
-    acc[rune.runeName] ||= 0n;
-    acc[rune.runeName] += rune.amount;
-    return acc;
-  }, {} as Record<string, bigint>);
+  const diffRuneAmounts = aggregateRunes(diffCollection).reduce(
+    (acc, rune) => {
+      acc[rune.runeName] ||= 0n;
+      acc[rune.runeName] += rune.amount;
+      return acc;
+    },
+    {} as Record<string, bigint>,
+  );
 
   return aggregateRunes(mainCollection).reduce((acc, rune) => {
     const amountDiff = rune.amount - (diffRuneAmounts[rune.runeName] ?? 0n);

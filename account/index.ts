@@ -9,6 +9,7 @@ import {
   BTC_TAPROOT_PATH_PURPOSE,
   BTC_WRAPPED_SEGWIT_PATH_PURPOSE,
   STX_PATH_PURPOSE,
+  GAIA_HUB_URL,
 } from '../constant';
 import { createWalletGaiaConfig, deriveWalletConfigKey, updateWalletConfig } from '../gaia';
 import { getBtcNetworkDefinition } from '../transactions/btcNetwork';
@@ -24,7 +25,6 @@ import {
 } from '../types';
 import { ECPair, ECPairInterface } from '../utils/ecpair';
 import { DerivationType, WalletId } from '../vaults';
-import { GAIA_HUB_URL } from './../constant';
 import { getAccountStrkAddresses } from './starknet';
 
 function getStxDerivationPath(derivationType: DerivationType, index: bigint) {
@@ -427,7 +427,7 @@ export const getAccountAddressDetails = (account: Account, btcPaymentAddressType
         ordinalsXpub,
       };
     }
-    case 'native':
+    case 'native': {
       const address = account.btcAddresses.native;
       if (!address) throw new Error('Native Segwit address not found');
       return {
@@ -438,6 +438,7 @@ export const getAccountAddressDetails = (account: Account, btcPaymentAddressType
         ordinalsPublicKey,
         ordinalsXpub,
       };
+    }
     default:
       throw new Error('Unsupported payment address type');
   }

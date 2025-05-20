@@ -41,8 +41,8 @@ export class SoftwareAddressRegistrar extends BaseAddressRegistrar {
       type === AddressType.p2sh
         ? BTC_WRAPPED_SEGWIT_PATH_PURPOSE
         : type === AddressType.p2wpkh
-        ? BTC_SEGWIT_PATH_PURPOSE
-        : BTC_TAPROOT_PATH_PURPOSE;
+          ? BTC_SEGWIT_PATH_PURPOSE
+          : BTC_TAPROOT_PATH_PURPOSE;
 
     const { rootNode, derivationType } = await this.vault.SeedVault.getWalletRootNode(account.walletId);
 
