@@ -1,5 +1,4 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import { BigNumber } from '../../utils/bignumber';
 import { API_TIMEOUT_MILLI, XVERSE_API_BASE_URL } from '../../constant';
 import { runeTokenToFungibleToken } from '../../fungibleTokens';
 import {
@@ -76,6 +75,13 @@ import {
   TopTokensResponse,
 } from '../../types';
 import {
+  CollectionDetailsResponse,
+  GetAddressCollectionOrdinalsResponse,
+  GetAddressCollectionStacksResponse,
+  ListCollectionsRequest,
+  ListCollectionsResponse,
+} from '../../types/api/xverse/collections';
+import {
   StarknetTokenBalancesRequest,
   StarknetTokenBalancesResponse,
   StarknetTransactionListRequest,
@@ -91,6 +97,7 @@ import {
   TokenMarketDataV3,
 } from '../../types/api/xverse/v3';
 import { AxiosRateLimit } from '../../utils/axiosRateLimit';
+import { BigNumber } from '../../utils/bignumber';
 import { getXClientVersion } from '../../utils/xClientVersion';
 import { MasterVault } from '../../vaults';
 import AddressRegistrars from './addressRegistrar';
@@ -295,6 +302,73 @@ export class XverseApi {
       limit,
       offset,
       filters,
+    });
+    return response.data;
+  };
+
+  getAllCollections = async ({
+    ordinalsAddress,
+    stacksAddress,
+    filters,
+    limit = 20,
+    offset = 0,
+    currency = 'USD',
+  }: ListCollectionsRequest): Promise<ListCollectionsResponse> => {
+    const response = await this.client.post<ListCollectionsResponse>(`/v1/nft/collections`, {
+      ordinalsAddress,
+      stacksAddress,
+      limit,
+      offset,
+      filters,
+      currency,
+    });
+    return response.data;
+  };
+
+  getOrdinalCollectionDetails = async (collectionId: string): Promise<CollectionDetailsResponse> => {
+    const response = await this.client.get<CollectionDetailsResponse>(
+      `/v1/nft/ordinals/collections/${collectionId}/info`,
+    );
+    return response.data;
+  };
+
+  getStacksCollectionDetails = async (collectionId: string): Promise<CollectionDetailsResponse> => {
+    const response = await this.client.get<CollectionDetailsResponse>(
+      `/v1/nft/stacks/collections/${collectionId}/info`,
+    );
+    return response.data;
+  };
+
+  getAddressCollectionOrdinals = async (
+    address: string,
+    collectionId: string,
+    offset?: number,
+    limit?: number,
+    filters?: CollectionsListFilters,
+    currency = 'USD',
+  ): Promise<GetAddressCollectionOrdinalsResponse> => {
+    const response = await this.client.post(`/v1/nft/ordinals/address/${address}/collections/${collectionId}`, {
+      limit,
+      offset,
+      filters,
+      currency,
+    });
+    return response.data;
+  };
+
+  getAddressCollectionStacks = async (
+    address: string,
+    collectionId: string,
+    offset?: number,
+    limit?: number,
+    filters?: CollectionsListFilters,
+    currency = 'USD',
+  ): Promise<GetAddressCollectionStacksResponse> => {
+    const response = await this.client.post(`/v1/nft/stacks/address/${address}/collections/${collectionId}`, {
+      limit,
+      offset,
+      filters,
+      currency,
     });
     return response.data;
   };
