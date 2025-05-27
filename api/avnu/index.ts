@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
-export type TokenDto = {
+export type StarknetAvnuTokenDto = {
   name: string;
   symbol: string;
   address: string;
@@ -86,8 +86,8 @@ export class AvnuApi {
    * @param tokenAddress The Starknet token address (hex format).
    * @returns Promise resolving to the token details.
    */
-  async getTokenInfo(tokenAddress: string): Promise<TokenDto> {
-    const response: AxiosResponse<TokenDto> = await this.marketsClient.get(`/v1/tokens/${tokenAddress}`);
+  async getTokenInfo(tokenAddress: string): Promise<StarknetAvnuTokenDto> {
+    const response: AxiosResponse<StarknetAvnuTokenDto> = await this.marketsClient.get(`/v1/tokens/${tokenAddress}`);
     return response.data;
   }
 

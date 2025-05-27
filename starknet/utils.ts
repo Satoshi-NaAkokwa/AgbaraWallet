@@ -297,8 +297,7 @@ export async function sendTx(target: string, entrypoint: string, calldata: strin
   const address = getExpectedAccountContractAddress({ publicKey, contractDescription });
   const account = new Account(
     {
-      // 'https://api-3.xverse.app/starknet/v1/rpc' needs starknet_specVersion
-      nodeUrl: 'https://free-rpc.nethermind.io/mainnet-juno/v0_8',
+      nodeUrl: networkNameToApi.SN_MAIN,
     },
     address,
     privateKey,

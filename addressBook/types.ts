@@ -1,5 +1,4 @@
-// TODO: Add Starknet
-export type AddressBookEntryChain = 'bitcoin' | 'stacks';
+export type AddressBookEntryChain = 'bitcoin' | 'stacks' | 'starknet';
 
 export type AddressBookEntry = {
   id: string;

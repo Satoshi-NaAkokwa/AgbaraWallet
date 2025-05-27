@@ -5,7 +5,7 @@ import { num, CallData, Account, AccountInterface, Call, cairo, RpcProvider } fr
 import { grindKey } from '@scure/starknet';
 import { getStarknetFeeOptions, FeeOption, executePaymasterTransaction } from './paymaster';
 import { AvnuApi, CallDto } from '../api/avnu';
-import { STARKNET_STRK_TOKEN_ADDRESS } from './constants';
+import { networkNameToApi, STARKNET_STRK_TOKEN_ADDRESS } from './constants';
 import { NetworkType } from '../types';
 import { StarknetTokenBalancesRequest, StarknetTokenBalancesResponse } from '../types/api/xverse/starknet';
 import axios from 'axios';
@@ -91,7 +91,7 @@ async function main() {
   const privateKeyHex = `0x${Buffer.from(privateKey).toString('hex')}`;
 
   const provider = new RpcProvider({
-    nodeUrl: 'https://free-rpc.nethermind.io/mainnet-juno/v0_8',
+    nodeUrl: networkNameToApi.SN_MAIN,
   });
   const knownAccountAddress = '0x035a1dcb17b4fa158d080bde9eba5b4cacbd854a71590fc28e50df6318d94022';
 

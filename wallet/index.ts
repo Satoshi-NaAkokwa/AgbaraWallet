@@ -14,6 +14,8 @@ import { ENTROPY_BYTES } from '../constant';
 import { getBtcNetworkDefinition } from '../transactions/btcNetwork';
 import { type NetworkType } from '../types';
 import { DerivationType, WalletId } from '../vaults';
+import { safeCall } from '../utils';
+import { validateAndParseAddress } from 'starknet';
 
 export { hashMessage };
 
@@ -68,6 +70,11 @@ export function validateBtcAddressIsTaproot(btcAddress: string): boolean {
   } catch {
     return false;
   }
+}
+
+export function validateStarknetAddress(address: string): boolean {
+  const [error] = safeCall(() => validateAndParseAddress(address));
+  return error === null;
 }
 
 const getBtcAddressBalanceAndHistory = async (btcClient: EsploraProvider, address: string | undefined) => {
