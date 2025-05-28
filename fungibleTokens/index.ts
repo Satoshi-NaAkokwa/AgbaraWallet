@@ -96,11 +96,11 @@ export const isRunesTx = ({ fromToken, toToken }: { fromToken: FungibleToken; to
   (fromToken.protocol === 'runes' || toToken.protocol === 'runes') &&
   (fromToken.principal === 'BTC' || toToken.principal === 'BTC');
 
-export const isStxTx = ({ fromToken, toToken }: { fromToken: FungibleToken; toToken: FungibleToken }): boolean =>
-  fromToken.protocol === 'stacks' ||
-  fromToken.principal === 'STX' ||
-  toToken.protocol === 'stacks' ||
-  toToken.principal === 'STX';
+export const isStxTx = ({ fromToken, toToken }: { fromToken?: FungibleToken; toToken?: FungibleToken }): boolean =>
+  fromToken?.protocol === 'stacks' ||
+  fromToken?.principal === 'STX' ||
+  toToken?.protocol === 'stacks' ||
+  toToken?.principal === 'STX';
 
 export const isMotherToken = (token?: FungibleToken) => {
   const identifier = token?.principal;
