@@ -20,6 +20,7 @@ export * from './currency';
 export * from './encryption';
 export * from './formatting';
 export * from './fungibleTokens';
+export * from './swaps';
 export * from './gaia';
 export * from './hooks';
 export * from './keystone';

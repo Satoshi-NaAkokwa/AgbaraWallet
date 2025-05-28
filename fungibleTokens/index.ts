@@ -57,18 +57,6 @@ export const getFungibleTokenStates = ({
   };
 };
 
-export const mapFtProtocolToProtocol = (ft: FungibleToken): Protocol => {
-  if (ft.principal === 'BTC') return 'btc';
-  if (ft.principal === 'STX') return 'stx';
-  const protocolMap: Record<FungibleTokenProtocol, Protocol> = {
-    runes: 'runes',
-    stacks: 'sip10',
-    starknet: 'starknet',
-    'brc-20': 'brc20',
-  };
-  return protocolMap[ft.protocol];
-};
-
 export const mapProtocolToFtProtocol = (protocol: Protocol): FungibleTokenProtocol => {
   const protocolMap: Record<Protocol, FungibleTokenProtocol> = {
     btc: 'runes',
@@ -96,49 +84,41 @@ export const mapTokenToFt = (token: Token): FungibleToken => ({
   runeInscriptionId: token.logo,
 });
 
-export const mapFtToToken = (ft: FungibleToken): Token => ({
-  ticker: ft.principal,
-  protocol: mapFtProtocolToProtocol(ft),
-  divisibility: ft.decimals ? Number(ft.decimals) : 0,
-  symbol: ft.protocol === 'runes' ? ft.runeSymbol || undefined : ft.ticker || undefined,
-  name: ft.name,
-  logo: ft.image ?? ft.runeInscriptionId ?? ft.runeSymbol ?? undefined,
-});
+export const mapFtToCurrencyType = (ft?: FungibleToken): CurrencyTypes => {
+  const principalToCurrencyTypeMap: Record<string, CurrencyTypes> = {
+    BTC: 'BTC',
+    STX: 'STX',
+  };
+  return ft ? (principalToCurrencyTypeMap[ft.principal] ?? 'FT') : 'FT';
+};
 
-export const getProtocolFromFtProtocolAndCurrencyTypes = (
-  currency: CurrencyTypes,
-  fungibleTokenProtocol?: FungibleTokenProtocol,
-): Protocol => {
-  if (fungibleTokenProtocol) {
-    switch (fungibleTokenProtocol) {
-      case 'stacks':
-        return 'stx';
-      case 'runes':
-        return 'runes';
-      case 'starknet':
-        return 'starknet';
-      case 'brc-20':
-        return 'brc20';
-      default:
-    }
+export const isRunesTx = ({ fromToken, toToken }: { fromToken: FungibleToken; toToken: FungibleToken }): boolean =>
+  (fromToken.protocol === 'runes' || toToken.protocol === 'runes') &&
+  (fromToken.principal === 'BTC' || toToken.principal === 'BTC');
+
+export const isStxTx = ({ fromToken, toToken }: { fromToken: FungibleToken; toToken: FungibleToken }): boolean =>
+  fromToken.protocol === 'stacks' ||
+  fromToken.principal === 'STX' ||
+  toToken.protocol === 'stacks' ||
+  toToken.principal === 'STX';
+
+export const isMotherToken = (token?: FungibleToken) => {
+  const identifier = token?.principal;
+  return identifier === 'BTC' || identifier === 'STX';
+};
+
+export const getTrackingIdentifier = (token?: FungibleToken): string => {
+  if (!token) return '';
+
+  const identifier = token.principal;
+
+  if (isMotherToken(token)) {
+    return identifier;
   }
 
-  switch (currency) {
-    case 'BTC':
-      return 'btc';
-    case 'STX':
-      return 'stx';
-    case 'FT':
-    case 'NFT':
-      return 'sip10';
-    case 'brc20-Ordinal':
-      return 'brc20';
-    case 'Ordinal':
-    case 'RareSat':
-      return 'runes';
-    case 'SN':
-      return 'starknet';
-    default:
-      throw new Error('Unknown Currency', { cause: currency satisfies never });
+  if (token.protocol === 'stacks') {
+    return token.ticker || token.name || identifier;
   }
+
+  return token.name || identifier;
 };
