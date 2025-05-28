@@ -4,13 +4,11 @@ export interface BaseToken {
   image?: string;
 }
 
-export type FungibleTokenProtocol = 'stacks' | 'brc-20' | 'runes' | 'starknet';
+export type CurrencyTypes = 'STX' | 'BTC' | 'FT' | 'NFT' | 'Ordinal' | 'brc20-Ordinal' | 'RareSat' | 'SN';
+
+export type FungibleTokenProtocol = 'runes' | 'stacks' | 'starknet' | 'brc-20';
 
 export type FungibleToken = BaseToken & {
-  balance: string;
-  total_sent: string;
-  total_received: string;
-
   /**
    * Originally used to identify the Stacks contract issuing a token, and is now
    * used as a context-specific general-purpose ID of the token's definition:
@@ -25,6 +23,10 @@ export type FungibleToken = BaseToken & {
    * - BRC-20: The ticker, as defined by the protocol's `tick` property.
    */
   principal: string;
+  protocol: FungibleTokenProtocol;
+  balance: string;
+  total_sent: string;
+  total_received: string;
   assetName: string;
   decimals?: number;
   /**
@@ -35,7 +37,6 @@ export type FungibleToken = BaseToken & {
   tokenFiatRate?: number | null;
   runeSymbol?: string | null;
   runeInscriptionId?: string | null;
-  protocol?: FungibleTokenProtocol;
   priceChangePercentage24h?: string | null;
   currentPrice?: string | null;
 };
