@@ -28,14 +28,17 @@ export enum CollectionType {
   STACKS_NFT = 'STACKS_NFT',
 }
 
+export type CollectionThumbnail = {
+  type: string;
+  ref: string;
+  refType: 'id' | 'url';
+};
+
 export type Collection = {
   id: string;
   name: string;
   type: CollectionType;
-  thumbnail?: {
-    url: string;
-    type: string;
-  };
+  thumbnail?: CollectionThumbnail;
   itemsOwned: number;
   floorPrice: CollectionPriceData;
   portfolioValue: CollectionPriceData;
