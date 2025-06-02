@@ -13,3 +13,4 @@ export * from './stacksSponsor';
 export * from './utxoCache';
 export * from './xverse';
 export * from './avnu';
+export * from './onramper/provider';

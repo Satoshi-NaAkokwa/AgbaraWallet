@@ -179,3 +179,5 @@ export const supportedCoins = [
 export const ORDINALS_FT_INDEXER_API_URL = 'https://unisat.io/brc20-api-v2/address';
 
 export const GAMMA_COLLECTION_API = 'https://api.gamma.io/nft-data-service/v1/collections';
+
+export const ONRAMPER_API_URL = 'https://api.onramper.com';
