@@ -2,8 +2,9 @@ import { AddressType } from 'bitcoin-address-validation';
 import { signMessageBip322 } from '../../../connect';
 import { BTC_SEGWIT_PATH_PURPOSE, BTC_TAPROOT_PATH_PURPOSE, BTC_WRAPPED_SEGWIT_PATH_PURPOSE } from '../../../constant';
 import { Account, NetworkType } from '../../../types';
-import { MasterVault } from '../../../vaults';
+import { DerivationType, MasterVault } from '../../../vaults';
 import { BaseAddressRegistrar } from './base';
+import { HDKey } from '@scure/bip32';
 
 export class SoftwareAddressRegistrar extends BaseAddressRegistrar {
   private vault: MasterVault;
@@ -12,6 +13,31 @@ export class SoftwareAddressRegistrar extends BaseAddressRegistrar {
     super(accessToken, network);
     this.vault = vault;
   }
+
+  batchHydrate = async (
+    accounts: Account[],
+    config?: {
+      rootNode: HDKey;
+      derivationType: DerivationType;
+    },
+  ): Promise<void> => {
+    // check walletId matches in all accounts
+    const walletId = accounts[0].walletId;
+    const isThereAnyAccountWithDifferentWalletId = accounts.some((account) => account.walletId !== walletId);
+    if (!walletId || isThereAnyAccountWithDifferentWalletId) {
+      throw new Error('All accounts must belong to the same wallet');
+    }
+
+    const { rootNode, derivationType } = config ?? (await this.vault.SeedVault.getWalletRootNode(walletId));
+
+    for (const account of accounts) {
+      await this.hydrateInternal(account, AddressType.p2sh, { rootNode, derivationType });
+      await this.hydrateInternal(account, AddressType.p2wpkh, { rootNode, derivationType });
+      await this.hydrateInternal(account, AddressType.p2tr, { rootNode, derivationType });
+    }
+
+    this.IsFinalized = true;
+  };
 
   hydrate = async (account: Account): Promise<void> => {
     await this.hydrateInternal(account, AddressType.p2sh);
@@ -24,6 +50,10 @@ export class SoftwareAddressRegistrar extends BaseAddressRegistrar {
   private hydrateInternal = async (
     account: Account,
     type: AddressType.p2sh | AddressType.p2wpkh | AddressType.p2tr,
+    config?: {
+      rootNode: HDKey;
+      derivationType: DerivationType;
+    },
   ): Promise<void> => {
     if (account.accountType !== 'software') {
       throw new Error('Invalid account type for software registrar');
@@ -44,7 +74,11 @@ export class SoftwareAddressRegistrar extends BaseAddressRegistrar {
           ? BTC_SEGWIT_PATH_PURPOSE
           : BTC_TAPROOT_PATH_PURPOSE;
 
-    const { rootNode, derivationType } = await this.vault.SeedVault.getWalletRootNode(account.walletId);
+    const { rootNode, derivationType } = config ?? (await this.vault.SeedVault.getWalletRootNode(account.walletId));
+
+    if (!rootNode || !derivationType) {
+      throw new Error('Root node or derivation type not found');
+    }
 
     const chain = this.network === 'Mainnet' ? 0 : 1;
     const accountIndex = derivationType === 'account' ? account.id : 0;

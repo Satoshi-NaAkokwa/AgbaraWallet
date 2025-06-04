@@ -99,9 +99,10 @@ import {
 import { AxiosRateLimit } from '../../utils/axiosRateLimit';
 import { BigNumber } from '../../utils/bignumber';
 import { getXClientVersion } from '../../utils/xClientVersion';
-import { MasterVault } from '../../vaults';
+import { DerivationType, MasterVault } from '../../vaults';
 import AddressRegistrars from './addressRegistrar';
 import { AuthenticatedClient } from './authenticatedClient';
+import { HDKey } from '@scure/bip32';
 const produceHistoricalDataObject = (timestamp: number, price: number) => ({
   x: timestamp,
   y: price,
@@ -485,6 +486,48 @@ export class XverseApi {
       }
 
       return this.authenticatedClient.extendSoftwareAccountScope(account);
+    },
+
+    batchEnsureSoftwareAccountRegistered: async (
+      accounts: Account[],
+      config?: {
+        rootNode: HDKey;
+        derivationType: DerivationType;
+      },
+    ) => {
+      // check walletId matches in all accounts
+      const walletId = accounts[0].walletId;
+      const isThereAnyAccountWithDifferentWalletId = accounts.some((account) => account.walletId !== walletId);
+      if (isThereAnyAccountWithDifferentWalletId) {
+        throw new Error('All accounts must belong to the same wallet');
+      }
+
+      const addresses = accounts
+        .map((account) => Object.values(account.btcAddresses).map((btcItem) => btcItem.address))
+        .flat();
+      const alreadyAuthorized = await this.authenticatedClient.hasScope(addresses);
+
+      if (alreadyAuthorized) {
+        return;
+      }
+
+      // is not all in scope, we batch check scope
+      const batchSize = 3;
+      const batches: Account[][] = [];
+      for (let i = 0; i < accounts.length; i += batchSize) {
+        batches.push(accounts.slice(i, i + batchSize));
+      }
+      const scopeChecks = await Promise.all(
+        batches.map((batch) =>
+          this.authenticatedClient.hasScope(batch.flatMap((a) => Object.values(a.btcAddresses).map((b) => b.address))),
+        ),
+      );
+
+      // we batch extend the scope for the ones that are not in scope
+      const toRegister = batches.filter((_, i) => !scopeChecks[i]);
+      for (const batch of toRegister) {
+        await this.authenticatedClient.batchExtendSoftwareAccountScope(batch, config);
+      }
     },
   };
 

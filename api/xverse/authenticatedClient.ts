@@ -11,10 +11,11 @@ import axios, {
 import { AddressType } from 'bitcoin-address-validation';
 import { signMessageBip322 } from '../../connect';
 import { Account, NetworkType } from '../../types';
-import { keyValueVaultKeys, MasterVault } from '../../vaults';
+import { DerivationType, keyValueVaultKeys, MasterVault } from '../../vaults';
 import { BaseAddressRegistrar } from './addressRegistrar/base';
 import { LedgerAddressRegistrar } from './addressRegistrar/ledger';
 import { SoftwareAddressRegistrar } from './addressRegistrar/software';
+import { HDKey } from '@scure/bip32';
 
 const tokenUrl = '/v1/auth/token';
 const challengeUrl = '/v1/auth/challenge';
@@ -170,6 +171,21 @@ export class AuthenticatedClient extends Axios {
     }));
 
     await this.post('/v1/auth/extendScope', { scope: { addresses } } as ExtendRequest);
+  };
+
+  batchExtendSoftwareAccountScope = async (
+    accounts: Account[],
+    config?: {
+      rootNode: HDKey;
+      derivationType: DerivationType;
+    },
+  ): Promise<void> => {
+    // we refresh tokens here to ensure access token has long expiry time as it will act as our challenge
+    await this.refreshTokens({ force: true });
+    const accessToken = await this.getAccessToken();
+    const registrar = new SoftwareAddressRegistrar(accessToken, this.network, this.vault);
+    await registrar.batchHydrate(accounts, config);
+    await this.extend(registrar);
   };
 
   extendSoftwareAccountScope = async (account: Account): Promise<void> => {
