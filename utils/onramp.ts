@@ -122,7 +122,7 @@ export const getDefaultPaymentMethod = (
   const recommended = paymentMethods.find((item) => item.paymentTypeId === defaultPaymentMethodId);
   const creditCard = paymentMethods.find((item) => item.paymentTypeId === 'creditcard');
 
-  return recommended || creditCard || paymentMethods[0];
+  return creditCard || recommended || paymentMethods[0];
 };
 
 const isErrorQuote = (quote: BuyQuote): quote is BuyQuoteError => {
