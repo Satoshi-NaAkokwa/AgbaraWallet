@@ -6,6 +6,7 @@ import { CoreError } from '../utils/coreError';
 import { keyValueVaultKeys, MasterVault } from '../vaults';
 import { ErrorCodes } from './errors';
 import { AddressBookEntry, AddressBookEntryChain } from './types';
+import { getValidatedStarknetAddress } from '../starknet/address-validation';
 
 const MAX_NAME_LENGTH = 20;
 
@@ -106,9 +107,10 @@ export class AddressBook {
     | { isValid: false; chain?: undefined; validatedAddress?: undefined }
     | { isValid: true; chain: AddressBookEntryChain; validatedAddress: string } => {
     const chainChecks = [
-      { chain: 'stacks' as const, checkFunction: this.getValidatedStxAddress },
-      { chain: 'bitcoin' as const, checkFunction: this.getValidatedBtcAddress },
-    ];
+      { chain: 'stacks', checkFunction: this.getValidatedStxAddress },
+      { chain: 'bitcoin', checkFunction: this.getValidatedBtcAddress },
+      { chain: 'starknet', checkFunction: getValidatedStarknetAddress },
+    ] as const;
 
     for (const { chain, checkFunction } of chainChecks) {
       try {

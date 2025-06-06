@@ -2,6 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AddressBook, ErrorCodes } from '../../addressBook';
 import { KeyValueVaultKey, MasterVault } from '../../vaults';
 import { walletAccounts } from '../mocks/restore.mock';
+import { contractType } from '../../starknet';
+
+const DEMO_STARKNET_ADDRESS = walletAccounts?.[0]?.strkAddresses?.[contractType.AX040W0G]?.address as string;
 
 describe('Address Book', () => {
   const masterVault = {
@@ -48,6 +51,26 @@ describe('Address Book', () => {
     ]);
   });
 
+  it('should add and get Starknet addresses', async () => {
+    const addressBook = new AddressBook(masterVault, 'Mainnet');
+    await addressBook.addEntry({
+      address: DEMO_STARKNET_ADDRESS,
+      name: 'Alice Starknet',
+    });
+
+    const entries = await addressBook.getEntries();
+
+    expect(entries).toEqual([
+      {
+        id: expect.any(String),
+        address: DEMO_STARKNET_ADDRESS,
+        name: 'Alice Starknet',
+        chain: 'starknet',
+        unixDateAdded: expect.any(Number),
+      },
+    ]);
+  });
+
   it('should edit an address in the address book', async () => {
     const addressBook = new AddressBook(masterVault, 'Mainnet');
 
@@ -62,6 +85,11 @@ describe('Address Book', () => {
     await addressBook.addEntry({
       address: walletAccounts[1].stxAddress,
       name: 'Rick',
+    });
+
+    await addressBook.addEntry({
+      address: DEMO_STARKNET_ADDRESS,
+      name: 'Sarah',
     });
 
     let entries = await addressBook.getEntries();
@@ -86,6 +114,13 @@ describe('Address Book', () => {
         address: walletAccounts[1].stxAddress,
         name: 'Rick',
         chain: 'stacks',
+        unixDateAdded: expect.any(Number),
+      },
+      {
+        id: expect.any(String),
+        address: DEMO_STARKNET_ADDRESS,
+        name: 'Sarah',
+        chain: 'starknet',
         unixDateAdded: expect.any(Number),
       },
     ]);
@@ -116,6 +151,13 @@ describe('Address Book', () => {
         chain: 'stacks',
         unixDateAdded: expect.any(Number),
       },
+      {
+        id: expect.any(String),
+        address: DEMO_STARKNET_ADDRESS,
+        name: 'Sarah',
+        chain: 'starknet',
+        unixDateAdded: expect.any(Number),
+      },
     ]);
 
     await addressBook.editEntry(entry0Id, { address: walletAccounts[0].stxAddress });
@@ -142,6 +184,13 @@ describe('Address Book', () => {
         address: walletAccounts[1].stxAddress,
         name: 'Rick',
         chain: 'stacks',
+        unixDateAdded: expect.any(Number),
+      },
+      {
+        id: expect.any(String),
+        address: DEMO_STARKNET_ADDRESS,
+        name: 'Sarah',
+        chain: 'starknet',
         unixDateAdded: expect.any(Number),
       },
     ]);
@@ -264,6 +313,39 @@ describe('Address Book', () => {
     ]);
   });
 
+  it('should be able to add same Starknet address to different networks', async () => {
+    const addressBookMainnet = new AddressBook(masterVault, 'Mainnet');
+    const addressBookTestnet = new AddressBook(masterVault, 'Testnet');
+
+    await addressBookMainnet.addEntry({
+      address: DEMO_STARKNET_ADDRESS,
+      name: 'Alice Starknet',
+    });
+    await addressBookTestnet.addEntry({
+      address: DEMO_STARKNET_ADDRESS,
+      name: 'Alice Starknet',
+    });
+
+    expect(addressBookMainnet.getEntries()).resolves.toEqual([
+      {
+        id: expect.any(String),
+        address: DEMO_STARKNET_ADDRESS,
+        name: 'Alice Starknet',
+        chain: 'starknet',
+        unixDateAdded: expect.any(Number),
+      },
+    ]);
+    expect(addressBookTestnet.getEntries()).resolves.toEqual([
+      {
+        id: expect.any(String),
+        address: DEMO_STARKNET_ADDRESS,
+        name: 'Alice Starknet',
+        chain: 'starknet',
+        unixDateAdded: expect.any(Number),
+      },
+    ]);
+  });
+
   it('clearing one network leaves others intact', async () => {
     const addressBookMainnet = new AddressBook(masterVault, 'Mainnet');
     const addressBookSignet = new AddressBook(masterVault, 'Signet');
@@ -348,6 +430,13 @@ describe('Address Book', () => {
       }),
     ).rejects.toThrowCoreError('addEntry: Invalid address', ErrorCodes.InvalidAddress);
 
+    await expect(() =>
+      addressBookTestnet.addEntry({
+        address: 'random',
+        name: 'Invalid Starknet',
+      }),
+    ).rejects.toThrowCoreError('addEntry: Invalid address', ErrorCodes.InvalidAddress);
+
     const addressBookMainnet = new AddressBook(masterVault, 'Mainnet');
 
     // adding testnet address for mainnet
@@ -371,6 +460,22 @@ describe('Address Book', () => {
       addressBook.addEntry({
         address: walletAccounts[0].btcAddresses.taproot.address,
         name: 'Bob',
+      }),
+    ).rejects.toThrowCoreError('addEntry: An entry with this address already exists', ErrorCodes.AddressAlreadyExists);
+  });
+
+  it('should throw on adding an existing Starknet address', async () => {
+    const addressBook = new AddressBook(masterVault, 'Mainnet');
+
+    await addressBook.addEntry({
+      address: DEMO_STARKNET_ADDRESS,
+      name: 'Alice Starknet',
+    });
+
+    await expect(() =>
+      addressBook.addEntry({
+        address: DEMO_STARKNET_ADDRESS,
+        name: 'Bob Starknet',
       }),
     ).rejects.toThrowCoreError('addEntry: An entry with this address already exists', ErrorCodes.AddressAlreadyExists);
   });
@@ -472,7 +577,17 @@ describe('Address Book', () => {
       validatedAddress: walletAccounts[0].stxAddress,
     });
 
+    expect(addressBook.getAddressDetails(DEMO_STARKNET_ADDRESS)).toEqual({
+      isValid: true,
+      chain: 'starknet',
+      validatedAddress: DEMO_STARKNET_ADDRESS,
+    });
+
     expect(addressBook.getAddressDetails('invalid')).toEqual({
+      isValid: false,
+    });
+
+    expect(addressBook.getAddressDetails('random')).toEqual({
       isValid: false,
     });
 
@@ -493,6 +608,12 @@ describe('Address Book', () => {
       isValid: true,
       chain: 'bitcoin',
       validatedAddress: 'tb1qjudrq5ug6m4pv9ugur6hmay7j3l6vr3tdqdqdj',
+    });
+
+    expect(addressBookTestnet.getAddressDetails(DEMO_STARKNET_ADDRESS)).toEqual({
+      isValid: true,
+      chain: 'starknet',
+      validatedAddress: DEMO_STARKNET_ADDRESS,
     });
   });
 });

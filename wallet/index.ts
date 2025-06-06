@@ -11,11 +11,11 @@ import { getAccountFromRootNode } from '../account';
 import { StacksApiProvider } from '../api';
 import EsploraProvider from '../api/esplora/esploraAPiProvider';
 import { ENTROPY_BYTES } from '../constant';
+import { getValidatedStarknetAddress } from '../starknet';
 import { getBtcNetworkDefinition } from '../transactions/btcNetwork';
 import { type NetworkType } from '../types';
-import { DerivationType, WalletId } from '../vaults';
 import { safeCall } from '../utils';
-import { validateAndParseAddress } from 'starknet';
+import { DerivationType, WalletId } from '../vaults';
 
 export { hashMessage };
 
@@ -73,7 +73,7 @@ export function validateBtcAddressIsTaproot(btcAddress: string): boolean {
 }
 
 export function validateStarknetAddress(address: string): boolean {
-  const [error] = safeCall(() => validateAndParseAddress(address));
+  const [error] = safeCall(() => getValidatedStarknetAddress(address));
   return error === null;
 }
 
