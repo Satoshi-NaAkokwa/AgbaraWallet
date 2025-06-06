@@ -25,6 +25,7 @@ export type Token = TokenBasic & {
   logo?: string;
   name?: string;
   symbol?: string;
+  contract?: string;
   divisibility: number;
 };
 

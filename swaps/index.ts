@@ -3,15 +3,18 @@ import { CurrencyTypes, FungibleTokenProtocol, Protocol, Token } from '../types'
 
 export const BAD_QUOTE_PERCENTAGE = 0.25;
 
+export const supportedSwapProtocols: Protocol[] = ['runes', 'sip10']; // add more protocols here e.g. starknet in future
+
+const protocolMap: Record<FungibleTokenProtocol, Protocol> = {
+  runes: 'runes',
+  stacks: 'sip10',
+  starknet: 'starknet',
+  'brc-20': 'brc20',
+};
+
 export const mapFtProtocolToProtocol = (ft: FungibleToken): Protocol => {
   if (ft.principal === 'BTC') return 'btc';
   if (ft.principal === 'STX') return 'stx';
-  const protocolMap: Record<FungibleTokenProtocol, Protocol> = {
-    runes: 'runes',
-    stacks: 'sip10',
-    starknet: 'starknet',
-    'brc-20': 'brc20',
-  };
   return protocolMap[ft.protocol];
 };
 
@@ -22,6 +25,7 @@ export const mapFtToToken = (ft: FungibleToken): Token => ({
   symbol: ft.protocol === 'runes' ? ft.runeSymbol || undefined : ft.ticker || undefined,
   name: ft.name,
   logo: ft.image ?? ft.runeInscriptionId ?? ft.runeSymbol ?? undefined,
+  ...(ft.protocol === 'stacks' && { contract: ft.principal }),
 });
 
 export const mapFtToTokenBasic = (token: FungibleToken): TokenBasic => ({
@@ -78,4 +82,46 @@ export const getProviderDetails = (amm: Quote) => {
     name: amm.provider.name,
     logo: amm.provider.logo,
   };
+};
+
+export const getProtocolSelectorLabel = (protocol?: Protocol, fromToken?: FungibleToken): string => {
+  if (protocol === 'runes') {
+    if (fromToken?.principal === 'BTC') {
+      return 'Runes';
+    }
+    if (fromToken?.principal === 'STX') {
+      return 'Bitcoin';
+    }
+    return 'Bitcoin & Runes';
+  }
+  if (protocol === 'sip10') {
+    if (fromToken?.principal === 'BTC') {
+      return 'Stacks';
+    }
+    if (fromToken?.principal === 'STX') {
+      return 'SIP-10';
+    }
+    return 'Stacks & SIP-10';
+  }
+  return ''; // only runes and sip10 supported
+};
+
+export const getProtocolSelectorChain = (token: FungibleToken | undefined): Protocol => {
+  if (!token) {
+    return supportedSwapProtocols[0];
+  }
+  return protocolMap[token.protocol];
+};
+
+export const shouldResetSelectedFrom = (toProtocol: Protocol, fromToken?: FungibleToken): boolean => {
+  if (fromToken) {
+    const { protocol: fromProtocol, principal: fromPrincipal } = fromToken;
+    if (fromProtocol === 'stacks' && toProtocol !== 'sip10' && fromPrincipal !== 'STX') {
+      return true;
+    }
+    if (fromProtocol === 'runes' && toProtocol !== 'runes' && fromPrincipal !== 'BTC') {
+      return true;
+    }
+  }
+  return false;
 };
