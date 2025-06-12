@@ -1,5 +1,6 @@
 import type { FungibleToken, Quote, TokenBasic } from '../types';
 import { CurrencyTypes, FungibleTokenProtocol, Protocol, Token } from '../types';
+import { BigNumber } from '../utils/bignumber';
 
 export const BAD_QUOTE_PERCENTAGE = 0.25;
 
@@ -124,4 +125,80 @@ export const shouldResetSelectedFrom = (toProtocol: Protocol, fromToken?: Fungib
     }
   }
   return false;
+};
+
+/**
+ * Generic function to calculate percentage difference between quotes.
+ * Works for both regular quotes (receiveAmount) and UTXO quotes (floorRate).
+ *
+ * @param quotes - Array of quotes sorted appropriately for the quote type. Note that you NEED to sort your array FIRST. First index is ALWAYS the BEST.
+ * @param index - Index of the quote to compare
+ * @param valueKey - The property key to compare ('receiveAmount' or 'floorRate')
+ * @param bestLabel - The label to return for the best quote
+ * @param higherIsBetter - If true, higher values are better (receiveAmount). If false, lower values are better (floorRate)
+ * @returns String indicating if it's the best quote or the percentage difference
+ */
+export const getQuotePercentageDifference = <T extends Record<string, string>>(
+  quotes: T[],
+  index: number,
+  valueKey: keyof T,
+  bestLabel: string = 'BEST',
+  higherIsBetter = true,
+): string => {
+  // !quotes.length should never happen, since both FE only consume this when the array is not empty
+  if (!quotes.length || index < 0 || index >= quotes.length) {
+    return '0.00%';
+  }
+
+  if (quotes.length === 1) {
+    return '';
+  }
+
+  if (index === 0) {
+    return bestLabel;
+  }
+
+  const bestValue = new BigNumber(quotes[0]?.[valueKey] ?? 0);
+  const currentValue = new BigNumber(quotes[index]?.[valueKey] ?? 0);
+
+  let percentageDifference: BigNumber;
+  if (higherIsBetter) {
+    const difference = bestValue.minus(currentValue);
+    percentageDifference = difference.div(bestValue).times(100);
+  } else {
+    const difference = currentValue.minus(bestValue);
+    percentageDifference = difference.div(bestValue).times(100);
+  }
+
+  if (percentageDifference.isZero() || percentageDifference.isNaN() || !percentageDifference.isFinite()) {
+    return '0.00%';
+  }
+
+  if (higherIsBetter) {
+    return `-${percentageDifference.abs().toFixed(2)}%`;
+  }
+
+  return `+${percentageDifference.abs().toFixed(2)}%`;
+};
+
+/**
+ * Convenience function for regular quotes (receiveAmount - higher is better)
+ */
+export const getReceiveAmountQuotePercentageDifference = (
+  quotes: Array<{ receiveAmount: string }>,
+  index: number,
+  bestLabel: string = 'BEST',
+): string => {
+  return getQuotePercentageDifference(quotes, index, 'receiveAmount', bestLabel, true);
+};
+
+/**
+ * Convenience function for UTXO quotes (floorRate - lower is better)
+ */
+export const getUtxoQuotePercentageDifference = (
+  quotes: Array<{ floorRate: string }>,
+  index: number,
+  bestLabel: string = 'BEST',
+): string => {
+  return getQuotePercentageDifference(quotes, index, 'floorRate', bestLabel, false);
 };
