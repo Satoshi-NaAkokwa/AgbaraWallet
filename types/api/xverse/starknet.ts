@@ -19,6 +19,7 @@ export interface StarknetTransactionListResponse {
 
 export interface StarknetTokenBalancesRequest {
   walletAddress: string;
+  currency?: string;
 }
 
 // htps://docs.blastapi.io/blast-documentation/apis-documentation/builder-api/starknet/wallet/getwallettokenbalances
@@ -33,6 +34,11 @@ export interface StarknetTokenBalance {
   transactionHash: string;
   transactionIndex: number;
   logIndex: number;
+  // avnu data
+  image: string;
+  tokenFiatRate: number;
+  tokenFiatRateCurrency: string;
+  priceChangePercentage24h: number;
 }
 
 export interface StarknetTokenBalancesResponse {

@@ -10,4 +10,5 @@ export * from './sponsor';
 export * from './stacking';
 export * from './swaps';
 export * from './transaction';
+export * from './starknet';
 export * from './wallet';

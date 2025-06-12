@@ -12,9 +12,7 @@ import {
   AddressHashMode,
   deserializePostConditionWire,
 } from '@stacks/transactions';
-import { BigNumber } from '../../utils/bignumber';
-import { btcToSats, getBtcFiatEquivalent, getStxFiatEquivalent, stxToMicrostacks } from '../../currency';
-import { FungibleToken, PostConditionsOptions } from '../../types';
+import { PostConditionsOptions } from '../../types';
 
 export function makeNonFungiblePostCondition(options: PostConditionsOptions): PostCondition {
   const { contractAddress, contractName, assetName, stxAddress, amount } = options;
@@ -28,32 +26,6 @@ export function makeFungiblePostCondition(options: PostConditionsOptions): PostC
   const { contractAddress, contractName, assetName, stxAddress, amount } = options;
 
   return Pc.principal(stxAddress).willSendEq(amount).ft(`${contractAddress}.${contractName}`, assetName);
-}
-
-export function getFiatEquivalent(
-  value: number, // TODO - change to BigNumber
-  currencyType: string, // TODO - should introduce typing here
-  stxBtcRate: BigNumber,
-  btcFiatRate: BigNumber,
-  fungibleToken?: FungibleToken,
-) {
-  if ((currencyType === 'FT' && !fungibleToken?.tokenFiatRate) || currencyType === 'NFT') {
-    return '';
-  }
-  if (!value) return '0';
-  switch (currencyType) {
-    case 'STX':
-      return getStxFiatEquivalent(stxToMicrostacks(new BigNumber(value)), stxBtcRate, btcFiatRate).toFixed(2);
-    case 'BTC':
-      return getBtcFiatEquivalent(btcToSats(new BigNumber(value)), btcFiatRate).toFixed(2);
-    case 'FT':
-      if (fungibleToken?.tokenFiatRate) {
-        return new BigNumber(value).multipliedBy(fungibleToken.tokenFiatRate).toFixed(2);
-      }
-      break;
-    default:
-      return '';
-  }
 }
 
 function removeHexPrefix(hexString: string): string {
