@@ -15,6 +15,7 @@ export type FeeOption = {
   isNativeFee?: boolean;
   priceInUSD?: number;
   avnuRawPriceInETH?: string;
+  imageUrl?: string;
 };
 
 /**
@@ -80,6 +81,7 @@ export async function getStarknetFeeOptions(
       isNativeFee: true,
       priceInUSD: ethAvnuInfo.priceInUSD,
       avnuRawPriceInETH: ethAvnuInfo.priceInETH,
+      imageUrl: ethBalanceInfo.image,
     });
   } else if (nativeFeeUnit === 'FRI') {
     // Native fee is in STRK (FRI)
@@ -102,6 +104,7 @@ export async function getStarknetFeeOptions(
       isNativeFee: true,
       priceInUSD: strkAvnuInfo.priceInUSD,
       avnuRawPriceInETH: strkAvnuInfo.priceInETH,
+      imageUrl: strkBalanceInfo.image,
     });
 
     if (strkAvnuInfo.priceInETH && typeof strkAvnuInfo.decimals === 'number') {
@@ -141,6 +144,7 @@ export async function getStarknetFeeOptions(
         userBalance: userBalanceInfo.balance,
         priceInUSD: avnuToken.priceInUSD,
         avnuRawPriceInETH: avnuToken.priceInETH,
+        imageUrl: userBalanceInfo.image,
       });
     }
   }
