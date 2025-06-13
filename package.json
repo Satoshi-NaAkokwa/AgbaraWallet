@@ -67,6 +67,7 @@
   "author": "",
   "devDependencies": {
     "@eslint/js": "9.26.0",
+    "@stacks/blockchain-api-client": "8.11.1",
     "@types/json-bigint": "1.0.4",
     "@types/react": "18.2.18",
     "@typescript-eslint/eslint-plugin": "8.32.0",

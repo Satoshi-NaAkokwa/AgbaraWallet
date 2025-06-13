@@ -1,18 +1,24 @@
-export interface StarknetTransactionListRequest {
-  address: string;
-  offset?: number;
-  limit?: number;
+export interface StarknetHistoryRequest {
+  walletAddress: string;
+  contractAddress?: string;
+  pageKey?: string;
+  pageSize?: string;
 }
 
 export interface StarknetTransaction {
+  contractAddress: string;
+  fromAddress: string;
+  toAddress: string;
+  amount: string;
+  blockNumber: number;
+  blockTimestamp: string;
   transactionHash: string;
-  transactionIndex: number;
-  blockHash: string;
 }
 
 // https://docs.blastapi.io/blast-documentation/apis-documentation/builder-api/starknet/transaction/gettransaction-1
-export interface StarknetTransactionListResponse {
-  transactions: StarknetTransaction[];
+export interface StarknetHistoryResponse {
+  walletAddress: string;
+  tokenTransfers: StarknetTransaction[];
   count: number;
   nextPageKey: string;
 }

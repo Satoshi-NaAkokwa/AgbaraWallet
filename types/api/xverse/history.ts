@@ -1,3 +1,7 @@
+import type { OperationResponse } from '@stacks/blockchain-api-client';
+import { StarknetTransaction } from '.';
+import { Rune } from '../runes';
+
 // API Types
 export type ApiAddressTransaction = {
   txid: string;
@@ -147,3 +151,48 @@ export type BtcTxHistory = {
   offset: number;
   limit: number;
 };
+
+// Global Tx History
+export type OpaqueCursor = string;
+
+type StacksTransaction = OperationResponse['/extended/v2/addresses/{address}/transactions']['results'][number];
+
+type StacksTransactionEvents =
+  OperationResponse['/extended/v2/addresses/{address}/transactions/{tx_id}/events']['results'];
+
+type BitcoinResponseTransaction = { type: 'bitcoin'; data: ApiAddressTransaction };
+type StacksResponseTransaction = {
+  type: 'stacks';
+  data: StacksTransaction;
+  events: StacksTransactionEvents;
+};
+type StarknetResponseTransaction = { type: 'starknet'; data: StarknetTransaction };
+
+export type ResponseTransaction = BitcoinResponseTransaction | StacksResponseTransaction | StarknetResponseTransaction;
+
+export type GlobalTransactionsHistoryResponse = {
+  cursor: OpaqueCursor;
+  transactions: ResponseTransaction[];
+  metadata: {
+    /**
+     * Runes data for all runes referenced in `transactions`.
+     */
+    runes?: Record<string, Rune>;
+  };
+};
+
+export type GlobalTransactionsHistoryRequest =
+  | {
+      type: 'initial';
+      addresses: {
+        bitcoin?: string[];
+        stacks?: string;
+        starknet?: string;
+      };
+      limit: number;
+    }
+  | {
+      type: 'cursor';
+      cursor: string;
+      limit: number;
+    };

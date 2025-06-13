@@ -41,6 +41,7 @@ import {
   GetSourceTokensRequest,
   GetUtxosRequest,
   GetUtxosResponse,
+  GlobalTransactionsHistoryResponse,
   HistoricalDataParamsPeriod,
   HistoricalDataResponsePrices,
   Inscription,
@@ -81,12 +82,7 @@ import {
   ListCollectionsRequest,
   ListCollectionsResponse,
 } from '../../types/api/xverse/collections';
-import {
-  StarknetTokenBalancesRequest,
-  StarknetTokenBalancesResponse,
-  StarknetTransactionListRequest,
-  StarknetTransactionListResponse,
-} from '../../types/api/xverse/starknet';
+import { StarknetTokenBalancesRequest, StarknetTokenBalancesResponse } from '../../types/api/xverse/starknet';
 import {
   GetBrc20BalanceBody,
   GetBrc20MarketDataBody,
@@ -598,10 +594,17 @@ export class XverseApi {
   };
 
   starknet = {
-    getTransactionList: async (body: StarknetTransactionListRequest): Promise<StarknetTransactionListResponse> => {
-      const response = await this.client.get<StarknetTransactionListResponse>(`/starknet/v1/listTransactions`, {
-        params: body,
-      });
+    getHistory: async (params: {
+      address: string;
+      limit: number;
+      cursor?: string;
+      contractAddress?: string;
+    }): Promise<GlobalTransactionsHistoryResponse> => {
+      const { address, ...body } = params;
+      const response = await this.client.post<GlobalTransactionsHistoryResponse>(
+        `/v1/starknet/address/${address}/history`,
+        body,
+      );
       return response.data;
     },
     getTokenBalances: async (body: StarknetTokenBalancesRequest): Promise<StarknetTokenBalancesResponse> => {
