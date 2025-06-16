@@ -1,10 +1,12 @@
 import type { FungibleToken, Quote, TokenBasic } from '../types';
 import { CurrencyTypes, FungibleTokenProtocol, Protocol, Token } from '../types';
 import { BigNumber } from '../utils/bignumber';
+import { STARKNET_STRK_TOKEN_ADDRESS } from '../starknet';
 
 export const BAD_QUOTE_PERCENTAGE = 0.25;
 
-export const supportedSwapProtocols: Protocol[] = ['runes', 'sip10']; // add more protocols here e.g. starknet in future
+// add more protocols here
+export const supportedSwapProtocols: Protocol[] = ['runes', 'sip10', 'starknet'];
 
 const protocolMap: Record<FungibleTokenProtocol, Protocol> = {
   runes: 'runes',
@@ -20,7 +22,7 @@ export const mapFtProtocolToProtocol = (ft: FungibleToken): Protocol => {
 };
 
 export const mapFtToToken = (ft: FungibleToken): Token => ({
-  ticker: ft.principal,
+  ticker: isStrk(ft.principal) ? 'STRK' : ft.principal,
   protocol: mapFtProtocolToProtocol(ft),
   divisibility: ft.decimals ? Number(ft.decimals) : 0,
   symbol: ft.protocol === 'runes' ? ft.runeSymbol || undefined : ft.ticker || undefined,
@@ -29,9 +31,9 @@ export const mapFtToToken = (ft: FungibleToken): Token => ({
   ...(ft.protocol === 'stacks' && { contract: ft.principal }),
 });
 
-export const mapFtToTokenBasic = (token: FungibleToken): TokenBasic => ({
-  ticker: token.principal,
-  protocol: mapFtProtocolToProtocol(token),
+export const mapFtToTokenBasic = (ft: FungibleToken): TokenBasic => ({
+  ticker: isStrk(ft.principal) ? 'STRK' : ft.principal,
+  protocol: mapFtProtocolToProtocol(ft),
 });
 
 export const getProtocolFromFtProtocolAndCurrencyTypes = (
@@ -90,7 +92,7 @@ export const getProtocolSelectorLabel = (protocol?: Protocol, fromToken?: Fungib
     if (fromToken?.principal === 'BTC') {
       return 'Runes';
     }
-    if (fromToken?.principal === 'STX') {
+    if (fromToken?.principal === 'STX' || isStrk(fromToken?.principal ?? '')) {
       return 'Bitcoin';
     }
     return 'Bitcoin & Runes';
@@ -104,12 +106,18 @@ export const getProtocolSelectorLabel = (protocol?: Protocol, fromToken?: Fungib
     }
     return 'Stacks & SIP-10';
   }
-  return ''; // only runes and sip10 supported
+  if (protocol === 'starknet') {
+    return 'Starknet';
+  }
+  return '';
 };
 
 export const getProtocolSelectorChain = (token: FungibleToken | undefined): Protocol => {
   if (!token) {
     return supportedSwapProtocols[0];
+  }
+  if (token.protocol === 'starknet') {
+    return 'runes'; // can only swap STRK to BTC
   }
   return protocolMap[token.protocol];
 };
@@ -117,15 +125,77 @@ export const getProtocolSelectorChain = (token: FungibleToken | undefined): Prot
 export const shouldResetSelectedFrom = (toProtocol: Protocol, fromToken?: FungibleToken): boolean => {
   if (fromToken) {
     const { protocol: fromProtocol, principal: fromPrincipal } = fromToken;
-    if (fromProtocol === 'stacks' && toProtocol !== 'sip10' && fromPrincipal !== 'STX') {
-      return true;
+    if (fromProtocol === 'stacks') {
+      if (toProtocol === 'runes' && fromPrincipal !== 'STX') {
+        return true;
+      }
+      if (toProtocol === 'starknet') {
+        return true;
+      }
     }
     if (fromProtocol === 'runes' && toProtocol !== 'runes' && fromPrincipal !== 'BTC') {
+      return true;
+    }
+    if (fromProtocol === 'starknet' && toProtocol !== 'runes') {
       return true;
     }
   }
   return false;
 };
+
+export const filterFromTokensList = (fromTokens: FungibleToken[], to?: FungibleToken): FungibleToken[] => {
+  if (!to) {
+    return fromTokens;
+  }
+  const filteredList = fromTokens.filter((token) => {
+    if (token.protocol === to.protocol) {
+      return token.principal !== to.principal;
+    }
+    return true;
+  });
+
+  if (to.principal === 'STX') {
+    return filteredList.filter((token) => token.protocol === 'stacks' || token.principal === 'BTC');
+  }
+  if (to.protocol === 'stacks') {
+    return filteredList.filter((token) => token.protocol === 'stacks');
+  }
+  if (to.principal === 'BTC') {
+    return filteredList.filter(
+      (token) => token.protocol === 'runes' || token.principal === 'STX' || isStrk(token.principal),
+    );
+  }
+  if (to.protocol === 'runes') {
+    return filteredList.filter((token) => token.protocol === 'runes');
+  }
+  if (to.protocol === 'starknet') {
+    return filteredList.filter((token) => token.principal === 'BTC');
+  }
+  return [];
+};
+
+export const filterToTokensList = (toTokens: Token[], protocol: Protocol, from?: TokenBasic): Token[] => {
+  const filteredResponse = from ? toTokens.filter((s) => s.ticker !== from.ticker) : toTokens;
+
+  if (protocol === 'runes') {
+    if (['STRK', 'STX'].includes(from?.ticker ?? '')) {
+      return filteredResponse.filter((ft) => ft.ticker === 'BTC');
+    }
+    return filteredResponse.filter((ft) => ft.protocol === 'runes' || ft.ticker === 'BTC');
+  }
+  if (protocol === 'sip10') {
+    if (from?.ticker === 'BTC') {
+      return filteredResponse.filter((ft) => ft.ticker === 'STX');
+    }
+    return filteredResponse.filter((ft) => ft.protocol === 'sip10' || ft.ticker === 'STX');
+  }
+  if (protocol === 'starknet') {
+    return filteredResponse.filter((ft) => isStrk(ft.ticker));
+  }
+  return [];
+};
+
+export const isStrk = (principal: string) => [STARKNET_STRK_TOKEN_ADDRESS, 'STRK'].includes(principal);
 
 /**
  * Generic function to calculate percentage difference between quotes.

@@ -162,6 +162,11 @@ export class XverseApi {
     return new BigNumber(response.data.stxBtcRate.toString());
   };
 
+  fetchStrkToBtcRate = async (): Promise<BigNumber> => {
+    const response = await this.client.get('/v1/prices/strk/btc', { timeout: API_TIMEOUT_MILLI });
+    return new BigNumber(response.data.strkBtcRate.toString());
+  };
+
   fetchBtcToCurrencyRate = async ({ fiatCurrency }: { fiatCurrency: SupportedCurrency }): Promise<BigNumber> => {
     const response = await this.client.get(`/v1/prices/btc/${fiatCurrency}`, { timeout: API_TIMEOUT_MILLI });
     return new BigNumber(response.data.btcFiatRate.toString());
