@@ -14,3 +14,4 @@ export * from './utxoCache';
 export * from './xverse';
 export * from './avnu';
 export * from './onramper/provider';
+export { enhanceTx as enhanceBtcTx } from './btc';

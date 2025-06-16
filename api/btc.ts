@@ -269,9 +269,22 @@ const getRunesTxType = (runes: RunesActivity): RunesTxType => {
   return runeTypes.size > 1 ? 'trade' : firstRuneType;
 };
 
+export const mapRuneToRuneInfo = (rune: Rune): RuneInfo => ({
+  symbol: rune.entry.symbol,
+  name: rune.entry.spaced_rune,
+  divisibility: rune.entry.divisibility,
+  inscriptionId: rune.parent ?? '',
+});
+
+const getRuneMetadata = (runeId: string, runesInfoDictionary: Map<string, RuneInfo> | Record<string, Rune>) => {
+  return runesInfoDictionary instanceof Map
+    ? runesInfoDictionary.get(runeId)
+    : mapRuneToRuneInfo(runesInfoDictionary[runeId]);
+};
+
 const getRunesObjectForTxWithRuneAssets = (
   tx: ApiAddressTransaction,
-  runesInfoDictionary: Map<string, RuneInfo>,
+  runesInfoDictionary: Map<string, RuneInfo> | Record<string, Rune>,
   txType: RunesTxType,
 ): EnhancedRunesOwnActivity => {
   const ownRuneIdsSet = new Set<string>();
@@ -283,7 +296,7 @@ const getRunesObjectForTxWithRuneAssets = (
       ownRuneIdsSet.add(rune.runeId);
       return {
         ...rune,
-        ...runesInfoDictionary.get(rune.runeId),
+        ...getRuneMetadata(rune.runeId, runesInfoDictionary),
       };
     });
 
@@ -299,7 +312,7 @@ const getRunesObjectForTxWithRuneAssets = (
         received: '0',
         outgoing: '0',
         incoming: '0',
-        ...runesInfoDictionary.get(rune.runeId),
+        ...getRuneMetadata(rune.runeId, runesInfoDictionary),
       });
     }
   });
@@ -339,7 +352,7 @@ export const enhanceTx = ({
 }: {
   tx: ApiAddressTransaction;
   addresses: AccountBtcAddresses;
-  runesInfoDictionary: Map<string, RuneInfo>;
+  runesInfoDictionary: Map<string, RuneInfo> | Record<string, Rune>;
 }): EnhancedTx => {
   const assetInTx = getAssetsInTx(tx);
   const baseTxObject = {
@@ -397,13 +410,6 @@ export const enhanceTx = ({
     addressesInTx: getAddressesInTx(tx, addresses, txType),
   };
 };
-
-export const mapRuneToRuneInfo = (rune: Rune): RuneInfo => ({
-  symbol: rune.entry.symbol,
-  name: rune.entry.spaced_rune,
-  divisibility: rune.entry.divisibility,
-  inscriptionId: rune.parent ?? '',
-});
 
 export const getRunesInfoDictionary = async ({
   txs,

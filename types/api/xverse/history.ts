@@ -187,7 +187,10 @@ export type GlobalTransactionsHistoryRequest =
       addresses: {
         bitcoin?: string[];
         stacks?: string;
-        starknet?: string;
+        starknet?: {
+          address: string;
+          contractAddress?: string;
+        };
       };
       limit: number;
     }

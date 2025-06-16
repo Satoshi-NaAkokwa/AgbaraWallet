@@ -41,6 +41,7 @@ import {
   GetSourceTokensRequest,
   GetUtxosRequest,
   GetUtxosResponse,
+  GlobalTransactionsHistoryRequest,
   GlobalTransactionsHistoryResponse,
   HistoricalDataParamsPeriod,
   HistoricalDataResponsePrices,
@@ -558,6 +559,42 @@ export class XverseApi {
     ): Promise<ApiAddressHistoryResult> => {
       const addresses = Object.values(account.btcAddresses).map((a) => a.address);
       return this.account.fetchAddressBtcHistory(addresses, options);
+    },
+
+    getGlobalTxHistory: async (params: {
+      cursor: string | undefined;
+      addresses: {
+        bitcoin?: string[];
+        stacks?: string;
+        starknet?: string;
+      };
+      limit: number;
+    }): Promise<GlobalTransactionsHistoryResponse> => {
+      if (!params.cursor && !params.addresses.bitcoin && !params.addresses.stacks && !params.addresses.starknet) {
+        throw new Error('At least one address is required');
+      }
+
+      const body: GlobalTransactionsHistoryRequest = params.cursor
+        ? {
+            type: 'cursor',
+            cursor: params.cursor,
+            limit: params.limit,
+          }
+        : {
+            type: 'initial',
+            addresses: {
+              bitcoin: params.addresses.bitcoin,
+              stacks: params.addresses.stacks,
+              starknet: params.addresses.starknet
+                ? {
+                    address: params.addresses.starknet,
+                  }
+                : undefined,
+            },
+            limit: params.limit,
+          };
+      const result = await this.authenticatedClient.post('/v2/global-history', body);
+      return result.data;
     },
   };
 
