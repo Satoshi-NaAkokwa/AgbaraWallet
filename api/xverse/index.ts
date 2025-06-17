@@ -100,6 +100,7 @@ import { DerivationType, MasterVault } from '../../vaults';
 import AddressRegistrars from './addressRegistrar';
 import { AuthenticatedClient } from './authenticatedClient';
 import { HDKey } from '@scure/bip32';
+import { validateAndParseAddress } from 'starknet';
 const produceHistoricalDataObject = (timestamp: number, price: number) => ({
   x: timestamp,
   y: price,
@@ -647,13 +648,48 @@ export class XverseApi {
         `/v1/starknet/address/${address}/history`,
         body,
       );
-      return response.data;
+
+      // Normalize Starknet transaction addresses
+      const normalizedResponse: GlobalTransactionsHistoryResponse = {
+        ...response.data,
+        transactions: response.data.transactions.map((transaction) => {
+          if (transaction.type === 'starknet') {
+            try {
+              return {
+                ...transaction,
+                data: {
+                  ...transaction.data,
+                  contractAddress: validateAndParseAddress(transaction.data.contractAddress),
+                  fromAddress: validateAndParseAddress(transaction.data.fromAddress),
+                  toAddress: validateAndParseAddress(transaction.data.toAddress),
+                },
+              };
+            } catch (error) {
+              console.warn('Failed to normalize Starknet addresses:', error);
+              return transaction;
+            }
+          }
+          return transaction;
+        }),
+      };
+
+      return normalizedResponse;
     },
+
     getTokenBalances: async (body: StarknetTokenBalancesRequest): Promise<StarknetTokenBalancesResponse> => {
       const response = await this.client.get<StarknetTokenBalancesResponse>('/starknet/v1/tokenBalances', {
         params: body,
       });
-      return response.data;
+
+      // Normalize the contract addresses
+      const normalizedResponse: StarknetTokenBalancesResponse = {
+        ...response.data,
+        tokenBalances: response.data.tokenBalances.map((token) => ({
+          ...token,
+          contractAddress: validateAndParseAddress(token.contractAddress),
+        })),
+      };
+      return normalizedResponse;
     },
   };
 

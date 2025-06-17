@@ -1,5 +1,5 @@
 import { AvnuApi, AvnuGasTokenPrice } from '../api/avnu';
-import { AccountInterface, Call, num } from 'starknet';
+import { AccountInterface, Call, num, validateAndParseAddress } from 'starknet';
 import { XverseApi } from '../api';
 import { StarknetTokenBalance } from '../types/api/xverse/starknet';
 import { STARKNET_ETH_TOKEN_ADDRESS, STARKNET_STRK_TOKEN_ADDRESS } from './constants';
@@ -136,7 +136,7 @@ export async function getStarknetFeeOptions(
       const estimatedFeeInErc20 = (totalFeeInEthEquivalentWei * 10n ** erc20Decimals) / priceOf1Erc20InEthWei;
 
       feeOptions.push({
-        tokenAddress: avnuToken.tokenAddress,
+        tokenAddress: validateAndParseAddress(avnuToken.tokenAddress),
         name: userBalanceInfo.contractName,
         symbol: userBalanceInfo.contractSymbol,
         decimals: parseInt(userBalanceInfo.contractDecimals, 10),
