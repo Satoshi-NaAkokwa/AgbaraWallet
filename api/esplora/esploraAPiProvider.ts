@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-import axiosRetry from 'axios-retry';
+import axiosRetry, { exponentialDelay } from 'axios-retry';
 import {
   XVERSE_BTC_BASE_URI_MAINNET,
   XVERSE_BTC_BASE_URI_REGTEST,
@@ -71,7 +71,7 @@ export class BitcoinEsploraApiProvider {
 
     axiosRetry(this.bitcoinApi, {
       retries: 1,
-      retryDelay: axiosRetry.exponentialDelay,
+      retryDelay: exponentialDelay,
       retryCondition: (error) => {
         if (error?.response?.status === 429 || (error?.response?.status ?? 0) >= 500) {
           return true;

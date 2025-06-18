@@ -28,7 +28,7 @@ export async function getNftsCollectionData(collectionId: string): Promise<NftCo
       timeout: API_TIMEOUT_MILLI,
     });
     return response.data;
-  } catch (error) {
+  } catch (_error) {
     return undefined;
   }
 }

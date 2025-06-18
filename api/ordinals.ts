@@ -37,7 +37,7 @@ export function parseOrdinalTextContentData(content: string): string {
     } else {
       return content;
     }
-  } catch (error) {
+  } catch (_error) {
     return content;
   }
 }
@@ -114,7 +114,7 @@ export async function getTextOrdinalContent(network: NetworkType, inscriptionId:
       transformResponse: [(data) => parseOrdinalTextContentData(data)],
     })
     .then((response) => response!.data)
-    .catch((error) => {
+    .catch((_error) => {
       return '';
     });
 }
@@ -169,7 +169,7 @@ export async function getOrdinalsFtBalance(network: NetworkType, address: string
         return [];
       }
     })
-    .catch((error) => {
+    .catch((_error) => {
       return [];
     });
 }

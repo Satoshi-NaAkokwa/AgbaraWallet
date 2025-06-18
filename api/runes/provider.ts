@@ -55,7 +55,7 @@ const getRuneInfoFromCache = (runeNameOrId: string | bigint, network: NetworkTyp
       return runeInfoCache.byId.get(runeId);
     }
     return runeInfoCache.byName[runeNameOrId.toUpperCase()];
-  } catch (e) {
+  } catch (_e) {
     return undefined;
   }
 };
@@ -145,7 +145,7 @@ export class RunesApi {
 
     const release = await mutex.acquire();
     try {
-      let response: AxiosResponse<Rune, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+      let response: AxiosResponse<Rune, any>;
 
       if (typeof runeNameOrId === 'bigint') {
         const blockHeight = runeNameOrId >> 16n;

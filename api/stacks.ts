@@ -51,7 +51,7 @@ import {
   parseStxTransactionData,
 } from './helper';
 import { MempoolFeePriorities } from '@stacks/stacks-blockchain-api-types';
-import StacksApiProvider from './stacksApi';
+import { StacksApiProvider } from './stacksApi';
 import { safePromise } from '../utils';
 import { getOwner, getPrimaryName } from 'bns-v2-sdk';
 
@@ -324,7 +324,7 @@ export async function getContractInterface(
     });
 
     return response.data;
-  } catch (err) {
+  } catch (_err) {
     return null;
   }
 }
@@ -393,7 +393,7 @@ export async function getStacksInfo(network: string) {
       timeout: API_TIMEOUT_MILLI,
     });
     return response?.data;
-  } catch (err) {
+  } catch (_err) {
     return undefined;
   }
 }
@@ -454,7 +454,7 @@ export async function fetchCoinMetaData(contract: string, network: StacksNetwork
       timeout: API_TIMEOUT_MILLI,
     });
     return response?.data;
-  } catch (err) {
+  } catch (_err) {
     return undefined;
   }
 }

@@ -402,7 +402,7 @@ export async function createWalletAccount(
       gaiaHubConfig,
       configPrivateKey: walletConfigKey,
     });
-  } catch (err) {
+  } catch (_err) {
     // noop
   }
 
