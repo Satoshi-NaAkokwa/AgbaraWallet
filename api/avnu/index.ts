@@ -57,11 +57,19 @@ export type TypedData = {
   message: Record<string, any>;
 };
 
+export type DeploymentData = {
+  class_hash: string;
+  salt: string;
+  unique: string;
+  calldata: string[];
+  sigdata?: string[];
+};
+
 export type ExecuteRequest = {
   userAddress: string;
   signature: string[];
   typedData: string; // YES, string. JSONified TypedData
-  deploymentData?: Record<string, any>;
+  deploymentData?: DeploymentData;
 };
 
 export type ExecuteResponse = {
