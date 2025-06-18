@@ -103,7 +103,7 @@
     "@stacks/stacking": "7.0.6",
     "@stacks/storage": "7.0.6",
     "@stacks/transactions": "7.0.6",
-    "@stacks/wallet-sdk": "7.0.6",
+    "@stacks/wallet-sdk": "7.1.2",
     "bignumber.js": "9.3.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
