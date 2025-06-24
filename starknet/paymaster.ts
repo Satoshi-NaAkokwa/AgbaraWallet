@@ -153,8 +153,8 @@ export async function getStarknetFeeOptions(
   // 3. Calculate fee for other ERC20 tokens the user has and are supported by AVNU
   for (const avnuToken of avnuGasTokens) {
     const sanitizedAvnuTokenAddress = sanitizeFelt252(avnuToken.tokenAddress);
-    if (sanitizedAvnuTokenAddress === sanitizedEthAddress || sanitizedAvnuTokenAddress === sanitizedStrkAddress) {
-      continue; // Skip native tokens already added
+    if (sanitizedAvnuTokenAddress === sanitizedStrkAddress) {
+      continue; // Skip native STRK token
     }
 
     const userBalanceInfo = userBalancesMap.get(sanitizedAvnuTokenAddress);
