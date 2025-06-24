@@ -1,7 +1,7 @@
 import { FormatterArg } from '..';
 import { BNCrypto } from '../helpers';
 
-const strkMaxDecimals = 6;
+const strkMaxDecimals = 18;
 
 const commonBNOptions = {
   decimalSeparator: '.',
