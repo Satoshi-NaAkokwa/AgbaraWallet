@@ -12,12 +12,12 @@ export type Currency =
   // | 'crypto/bitcoin/bitcoin'
   // | 'crypto/stacks/stacks'
   // | 'crypto/stacks/sbtc'
-  'crypto/starknet/starknet';
+  'crypto/starknet/starknet-token' | 'crypto/starknet/generic';
 
 export type Amount = string | number | bigint;
 
 export type BaseOptions<Unit extends string = 'default'> = {
-  locale?: string;
+  locale?: string | string[];
   currencyDisplay?: Intl.NumberFormatOptions['currencyDisplay'];
   unit?: Unit;
 };
@@ -30,7 +30,8 @@ export type FormatterArg<Unit extends string = 'default', SpecificOptions extend
 type FormatterArgs = {
   'fiat/united-states-dollar': FormatterArg<'dollar' | 'cent'>;
   'crypto/bitcoin/bitcoin': FormatterArg<'bitcoin' | 'satoshi'>;
-  'crypto/starknet/starknet': FormatterArg<'starknet' | 'fri'>;
+  'crypto/starknet/starknet-token': FormatterArg<'starknet' | 'fri'>;
+  'crypto/starknet/generic': FormatterArg<'default', { unitName: string; decimals: number }>;
 };
 
 type Formatter<C extends Currency> = (args: FormatterArgs[C]) => string;
@@ -40,7 +41,8 @@ type Formatters = {
 };
 
 const formatters: Formatters = {
-  'crypto/starknet/starknet': cryptoStarknetStarknetFormatter,
+  'crypto/starknet/starknet-token': cryptoStarknetStarknetFormatter,
+  'crypto/starknet/generic': cryptoStarknetStarknetFormatter,
 };
 
 export function format<C extends Currency>({
@@ -55,7 +57,7 @@ export function format<C extends Currency>({
   return formatters[currency]({
     amount,
     options,
-  });
+  } as any);
 }
 
 export * from './helpers';

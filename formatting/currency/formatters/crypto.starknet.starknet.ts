@@ -1,30 +1,25 @@
 import { FormatterArg } from '..';
 import { BNCrypto } from '../helpers';
+import { getIntlFormat, getStandardFormat } from './common';
 
-const strkMaxDecimals = 18;
-
-const commonBNOptions = {
-  decimalSeparator: '.',
-  groupSeparator: ',',
-};
-
-export function cryptoStarknetStarknetFormatter({
-  amount,
-  options: { unit } = { unit: 'starknet' },
-}: FormatterArg<'starknet' | 'fri'>): string {
+export function cryptoStarknetStarknetFormatter({ amount, options }: FormatterArg<'starknet' | 'fri'>): string {
+  const unit = options?.unit ?? 'starknet';
   const amountString = amount.toString();
   const amountBN = BNCrypto(amountString);
 
-  if (unit === 'starknet') {
-    const amountBNStrk = amountBN.dividedBy(1e18);
-    return amountBNStrk.toFormat(strkMaxDecimals, {
-      ...commonBNOptions,
-      suffix: ' STRK',
-    });
+  switch (unit) {
+    case 'fri': {
+      const standardFormat = getStandardFormat(amountBN, 0);
+      const intlFormat = getIntlFormat(standardFormat, options?.locale);
+      return intlFormat + ' fri';
+    }
+    case 'starknet': {
+      const amountBNStrk = amountBN.dividedBy(1e18);
+      const standardFormat = getStandardFormat(amountBNStrk, 18);
+      const intlFormat = getIntlFormat(standardFormat, options?.locale);
+      return intlFormat + ' STRK';
+    }
+    default:
+      throw new Error(`Unexpected unit: "${unit satisfies never}"`);
   }
-
-  return amountBN.toFormat(0, {
-    ...commonBNOptions,
-    suffix: ' fri',
-  });
 }

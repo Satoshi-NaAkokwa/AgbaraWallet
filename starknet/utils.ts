@@ -185,7 +185,6 @@ export function createAX040W0GContractDescription({ publicKey }: { publicKey: Ui
 // support is being added to the wallet.
 export const accountContractTemplateCreators = {
   [contractType.AX040W0G]: createAX040W0GContractDescription,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } satisfies Record<AccountContractTemplateName, (...args: any[]) => ContractDescription>;
 
 type GetExpectedAccountContractAddress = {
@@ -252,7 +251,7 @@ export async function deployAccount({ privateKey, contractDescription, network }
 export function friToStrkFormatted(fri: bigint): string {
   const friBN = new BigNumber(fri.toString());
   const strkBN = friBN.dividedBy(1e18);
-  return strkBN.toString();
+  return strkBN.toFixed();
 }
 
 export type CheckIsDeployedArgs = {
