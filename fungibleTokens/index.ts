@@ -8,6 +8,7 @@ import {
   type RuneBalance,
   Token,
 } from '../types';
+import { STARKNET_WBTC_TOKEN_ADDRESS } from '../starknet/constants';
 
 export const runeTokenToFungibleToken = (runeBalance: RuneBalance): FungibleToken => ({
   name: runeBalance.runeName,
@@ -25,6 +26,16 @@ export const runeTokenToFungibleToken = (runeBalance: RuneBalance): FungibleToke
   priceChangePercentage24h: runeBalance.priceChangePercentage24h?.toString(),
   currentPrice: runeBalance.currentPrice?.toString(),
 });
+
+/**
+ * Determines if a token should have its balance constraint removed
+ * This function can be extended to add more tokens that don't require balance
+ */
+const shouldRemoveBalanceConstraintForToken = (fungibleToken: FungibleToken): boolean => {
+  const tokensWithoutBalanceConstraint: string[] = [STARKNET_WBTC_TOKEN_ADDRESS];
+
+  return tokensWithoutBalanceConstraint.includes(fungibleToken.principal);
+};
 
 /**
  * Logic for determining the derived UI state of a fungible token
@@ -46,9 +57,14 @@ export const getFungibleTokenStates = ({
   const hasBalance = new BigNumber(fungibleToken.balance).gt(0);
   const isSpam = showSpamTokens ? false : !!spamTokens?.includes(fungibleToken.principal);
   const isUserEnabled = manageTokens?.[fungibleToken.principal]; // true=enabled, false=disabled, undefined=not set
-  const isDefaultEnabled = fungibleToken.supported && hasBalance && !isSpam;
+
+  // Determine if this token should have balance constraint removed
+  const shouldRemoveBalanceConstraint = shouldRemoveBalanceConstraintForToken(fungibleToken);
+
+  const isDefaultEnabled = fungibleToken.supported && (shouldRemoveBalanceConstraint || hasBalance) && !isSpam;
+
   const isEnabled = isUserEnabled || !!(isUserEnabled === undefined && isDefaultEnabled);
-  const showToggle = isEnabled || (hasBalance && !isSpam);
+  const showToggle = isEnabled || ((hasBalance || shouldRemoveBalanceConstraint) && !isSpam);
 
   return {
     isSpam,
