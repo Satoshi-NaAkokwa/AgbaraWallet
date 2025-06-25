@@ -24,6 +24,8 @@ export enum AnalyticsEvents {
   BackupWalletLater = 'backup_wallet_later',
   InitiateBuyFlow = 'initiate_buy_flow',
   InitiateSendFlow = 'initiate_send_flow',
+  SetTokenSendRecipient = 'set_token_send_recipient',
+  SetTokenSendAmountFee = 'set_token_send_amount_fee',
   InitiateReceiveFlow = 'initiate_receive_flow',
   VisitCollectiblesTab = 'visit_collectibles_tab',
   VisitStackingTab = 'visit_stacking_tab',
@@ -94,10 +96,14 @@ export type AnalyticsEventProperties = {
     requestedAddress: string[];
   } & CommonProps;
   [AnalyticsEvents.TransactionConfirmed]: {
-    protocol: 'brc20' | 'sip10' | 'bitcoin' | 'stacks' | 'runes' | 'ordinals' | 'rare-sats' | 'stacks-nfts';
+    protocol: 'brc20' | 'sip10' | 'bitcoin' | 'stacks' | 'runes' | 'ordinals' | 'rare-sats' | 'stacks-nfts' | 'erc20';
     action: 'inscribe' | 'transfer' | 'sign-message' | 'sign-psbt' | 'sign-batch-psbt';
     repeat?: number;
     batch?: number;
+    selectedToken_principal?: string;
+    selectedToken_name?: string;
+    source?: 'dashboard' | 'token' | 'qr_scan';
+    usedAddressBook?: boolean;
   } & CommonProps;
   [AnalyticsEvents.InitiateSwapFlow]: TokenSelection;
   [AnalyticsEvents.FetchSwapQuote]: SwapAmountEvent;
@@ -111,13 +117,26 @@ export type AnalyticsEventProperties = {
   [AnalyticsEvents.RestoreWallet]: RestoreWalletProps;
   [AnalyticsEvents.InitiateBuyFlow]: { source: 'dashboard' | 'token' | 'send_stx' | 'send_btc'; selectedToken: string };
   [AnalyticsEvents.InitiateSendFlow]: {
-    source: 'dashboard' | 'token' | 'send_stx' | 'send_btc' | 'send_brc20' | 'send_sip10';
-    selectedToken: string;
+    source: 'dashboard' | 'token' | 'qr_scan';
+    selectedToken_principal: string;
+    selectedToken_name: string;
+  };
+  [AnalyticsEvents.SetTokenSendRecipient]: {
+    source: 'dashboard' | 'token' | 'qr_scan';
+    selectedToken_principal: string;
+    selectedToken_name: string;
+    usedAddressBook: boolean;
+  };
+  [AnalyticsEvents.SetTokenSendAmountFee]: {
+    source: 'dashboard' | 'token' | 'qr_scan';
+    selectedToken_principal: string;
+    selectedToken_name: string;
   };
   [AnalyticsEvents.InitiateReceiveFlow]: {
-    source: 'dashboard' | 'token' | 'send_stx' | 'send_btc' | 'collectibles';
-    addressType: 'stx' | 'btc_payment' | 'btc_ordinals';
-    selectedToken?: string;
+    source: 'dashboard' | 'token' | 'collectibles';
+    addressType: 'stx' | 'btc_payment' | 'btc_ordinals' | 'erc20';
+    selectedToken_principal?: string;
+    selectedToken_name?: string;
   };
   [AnalyticsEvents.ClickQuickAmountButton]: {
     amount: number;
