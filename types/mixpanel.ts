@@ -96,8 +96,17 @@ export type AnalyticsEventProperties = {
     requestedAddress: string[];
   } & CommonProps;
   [AnalyticsEvents.TransactionConfirmed]: {
-    protocol: 'brc20' | 'sip10' | 'bitcoin' | 'stacks' | 'runes' | 'ordinals' | 'rare-sats' | 'stacks-nfts' | 'erc20';
-    action: 'inscribe' | 'transfer' | 'sign-message' | 'sign-psbt' | 'sign-batch-psbt';
+    protocol:
+      | 'brc20'
+      | 'sip10'
+      | 'bitcoin'
+      | 'stacks'
+      | 'runes'
+      | 'ordinals'
+      | 'rare_sats'
+      | 'stacks_nfts'
+      | 'starknet_erc20';
+    action: 'inscribe' | 'transfer' | 'sign_message' | 'sign_psbt' | 'sign_batch_psbt';
     repeat?: number;
     batch?: number;
     selectedToken_principal?: string;
@@ -118,6 +127,7 @@ export type AnalyticsEventProperties = {
   [AnalyticsEvents.InitiateBuyFlow]: { source: 'dashboard' | 'token' | 'send_stx' | 'send_btc'; selectedToken: string };
   [AnalyticsEvents.InitiateSendFlow]: {
     source: 'dashboard' | 'token' | 'qr_scan';
+    addressType: 'stx' | 'btc_payment' | 'btc_ordinals' | 'starknet';
     selectedToken_principal: string;
     selectedToken_name: string;
   };
@@ -134,7 +144,7 @@ export type AnalyticsEventProperties = {
   };
   [AnalyticsEvents.InitiateReceiveFlow]: {
     source: 'dashboard' | 'token' | 'collectibles';
-    addressType: 'stx' | 'btc_payment' | 'btc_ordinals' | 'erc20';
+    addressType: 'stx' | 'btc_payment' | 'btc_ordinals' | 'starknet';
     selectedToken_principal?: string;
     selectedToken_name?: string;
   };
