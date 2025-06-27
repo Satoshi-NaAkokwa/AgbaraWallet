@@ -11,3 +11,4 @@ export * from './transactionSummary';
 export * from './typing';
 export * from './xClientVersion';
 export * from './onramp';
+export * from './date';

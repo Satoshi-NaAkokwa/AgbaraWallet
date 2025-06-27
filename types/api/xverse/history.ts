@@ -155,13 +155,14 @@ export type BtcTxHistory = {
 // Global Tx History
 export type OpaqueCursor = string;
 
-type StacksTransaction = OperationResponse['/extended/v2/addresses/{address}/transactions']['results'][number];
+export type StacksTransaction = OperationResponse['/extended/v2/addresses/{address}/transactions']['results'][number];
 
-type StacksTransactionEvents =
+export type StacksTransactionEvents =
   OperationResponse['/extended/v2/addresses/{address}/transactions/{tx_id}/events']['results'];
+export type StacksTransactionEvent = StacksTransactionEvents[0];
 
 type BitcoinResponseTransaction = { type: 'bitcoin'; data: ApiAddressTransaction };
-type StacksResponseTransaction = {
+export type StacksResponseTransaction = {
   type: 'stacks';
   data: StacksTransaction;
   events: StacksTransactionEvents;

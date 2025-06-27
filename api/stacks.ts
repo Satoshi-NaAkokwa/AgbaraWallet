@@ -55,8 +55,8 @@ import { StacksApiProvider } from './stacksApi';
 import { safePromise } from '../utils';
 import { getOwner, getPrimaryName } from 'bns-v2-sdk';
 
-// TODO: these methods needs to be refactored
-// reference https://github.com/secretkeylabs/xverse-core/pull/217/files#r1298242728
+/* @deprecated use xverseApi.account.getGlobalTxHistory
+ * reference https://github.com/secretkeylabs/xverse-core/pull/217/files#r1298242728 */
 export async function getConfirmedTransactions({
   stxAddress,
   network,
@@ -119,6 +119,7 @@ export async function getMempoolTransactions({
   };
 }
 
+/* @deprecated xverse-api now support Transaction History using api-v2, use xverseApi.account.getGlobalTxHistory */
 export async function getTransferTransactions(
   stxAddress: string,
   network: StacksNetwork,
@@ -144,6 +145,7 @@ export async function getTransferTransactions(
   return transactions;
 }
 
+/* @deprecated use xverseApi.account.getGlobalTxHistory instead */
 export async function fetchStxAddressData(
   stxAddress: string,
   network: StacksNetwork,

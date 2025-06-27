@@ -41,6 +41,7 @@
     "bn.js": "5.2.1",
     "bns-v2-sdk": "1.4.2",
     "c32check": "2.0.0",
+    "date-fns": "2.30.0",
     "ecdsa-sig-formatter": "1.0.11",
     "ecpair": "2.1.0",
     "json-bigint": "1.0.0",
