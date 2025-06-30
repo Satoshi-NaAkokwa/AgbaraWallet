@@ -42,7 +42,7 @@ describe('account from seed phrase', () => {
       masterPubKey: '024d30279814a0e609534af1d1969b7c24a6918029e1f9cb2134a427ebfb1f17c3',
       strkAddresses: {
         'argent-x-v0_4_0-with-0-guardians': {
-          address: '0x0243daaefed758fb26c5c925f2f63d70cd50c776c4af6d5e4fa805d3174256a0',
+          address: '0x010c1b27d0a93a9a0d72bbad1557f42548adc32aa0ac36974f8fbee3e855869f',
         },
       },
       stxAddress: 'SP1FWDM2J68TZBYCGR0VRTB3FFDAR5GP19PHB7M3Y',
@@ -80,7 +80,7 @@ describe('account from seed phrase', () => {
       masterPubKey: '024d30279814a0e609534af1d1969b7c24a6918029e1f9cb2134a427ebfb1f17c3',
       strkAddresses: {
         'argent-x-v0_4_0-with-0-guardians': {
-          address: '0x0243daaefed758fb26c5c925f2f63d70cd50c776c4af6d5e4fa805d3174256a0',
+          address: '0x010c1b27d0a93a9a0d72bbad1557f42548adc32aa0ac36974f8fbee3e855869f',
         },
       },
       stxAddress: 'SP27YCF0YG7KRY1X0CFJKYTB3C902ZZ84GS7WJ17G',
@@ -118,7 +118,7 @@ describe('account from seed phrase', () => {
       masterPubKey: '024d30279814a0e609534af1d1969b7c24a6918029e1f9cb2134a427ebfb1f17c3',
       strkAddresses: {
         'argent-x-v0_4_0-with-0-guardians': {
-          address: '0x06462ab7c0b54be2a4efa89fa94b4becfc33c78bb96949e83c9f35a07c488396',
+          address: '0x01d97973f29ba492160a59090ab3c4cfde2e2c34dc8720d16def149f809d7d8e',
         },
       },
       stxAddress: 'ST147ST7ESA3RES888QQMV6AK7GZK93ZR75HPGC8G',

@@ -17,7 +17,7 @@ export const walletAccounts: Account[] = [
     masterPubKey: '024d30279814a0e609534af1d1969b7c24a6918029e1f9cb2134a427ebfb1f17c3',
     strkAddresses: {
       'argent-x-v0_4_0-with-0-guardians': {
-        address: '0x06462ab7c0b54be2a4efa89fa94b4becfc33c78bb96949e83c9f35a07c488396',
+        address: '0x01d97973f29ba492160a59090ab3c4cfde2e2c34dc8720d16def149f809d7d8e',
       },
     },
     stxAddress: 'SP147ST7ESA3RES888QQMV6AK7GZK93ZR74A0GM7V',
@@ -44,7 +44,7 @@ export const walletAccounts: Account[] = [
     masterPubKey: '024d30279814a0e609534af1d1969b7c24a6918029e1f9cb2134a427ebfb1f17c3',
     strkAddresses: {
       'argent-x-v0_4_0-with-0-guardians': {
-        address: '0x037f0b4029cd71e40ea940dc1f224b94b1f559b2f68ff74dabf4cf06ddc962c6',
+        address: '0x053b1ace0e8bdcfffccc55b330b89a0def3e43e15a62d7c55bf9acf396952479',
       },
     },
     stxAddress: 'SP1BKESAFFV8ACW007HACXB93VHRFHP83BT24Z3NF',

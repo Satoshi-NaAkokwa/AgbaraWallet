@@ -5,7 +5,7 @@ import { constants } from 'starknet';
 // The account contract can be recompiled for cheaper gas (Cairo Native).
 // Argent hasn't done so yet, on 17th April the ETA on their side was 3+ months out
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export const argentXContractClassHashV0_4_0 = '0x036078334509b514626504edc9fb252328d1a240e4e948bef8d0c08dff45927f';
+export const argentXContractClassHashV0_4_0 = '0x663fc01a0dbe1bacc4cd2a4c856eb9784b255a20988aa33d4d52b6fc20bd024';
 
 // https://github.com/satoshilabs/slips/blob/master/slip-0044.md
 export const starknetCoinType = "9004'";
