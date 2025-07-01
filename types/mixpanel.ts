@@ -37,6 +37,15 @@ export enum AnalyticsEvents {
   ClickQuoteOption = 'click_quote_option',
   OnrampSuccessful = 'onramp_successful',
   OnrampFailure = 'onramp_failure',
+
+  // Revamped Receive flow events
+  ClickCopyAccountButton = 'click_copy_account_button',
+  ClickShowAllAddresses = 'click_show_all_addresses',
+  ClickHideAddresses = 'click_hide_addresses',
+  ClickCopyAddress = 'click_copy_address',
+  ClickReceiveOption = 'click_receive_option',
+  ClickCopyQrAddress = 'click_copy_qr_address',
+  ClickShareQrButton = 'click_share_qr_button',
 }
 
 type CommonProps = {
@@ -71,6 +80,9 @@ type BaseSwapEvent = {
   toPrincipal?: string;
   fromPrincipal?: string;
 };
+
+export type AddressType = 'stx' | 'btc_payment' | 'btc_ordinals' | 'starknet';
+export type BaseSource = 'dashboard' | 'token';
 
 interface SwapAmountEvent extends BaseSwapEvent {
   toTokenAmount?: string;
@@ -126,25 +138,25 @@ export type AnalyticsEventProperties = {
   [AnalyticsEvents.RestoreWallet]: RestoreWalletProps;
   [AnalyticsEvents.InitiateBuyFlow]: { source: 'dashboard' | 'token' | 'send_stx' | 'send_btc'; selectedToken: string };
   [AnalyticsEvents.InitiateSendFlow]: {
-    source: 'dashboard' | 'token' | 'qr_scan';
-    addressType: 'stx' | 'btc_payment' | 'btc_ordinals' | 'starknet';
+    source: BaseSource | 'qr_scan';
+    addressType: AddressType;
     selectedToken_principal: string;
     selectedToken_name: string;
   };
   [AnalyticsEvents.SetTokenSendRecipient]: {
-    source: 'dashboard' | 'token' | 'qr_scan';
+    source: BaseSource | 'qr_scan';
     selectedToken_principal: string;
     selectedToken_name: string;
     usedAddressBook: boolean;
   };
   [AnalyticsEvents.SetTokenSendAmountFee]: {
-    source: 'dashboard' | 'token' | 'qr_scan';
+    source: BaseSource | 'qr_scan';
     selectedToken_principal: string;
     selectedToken_name: string;
   };
   [AnalyticsEvents.InitiateReceiveFlow]: {
-    source: 'dashboard' | 'token' | 'collectibles';
-    addressType: 'stx' | 'btc_payment' | 'btc_ordinals' | 'starknet';
+    source: BaseSource | 'collectibles';
+    addressType: AddressType;
     selectedToken_principal?: string;
     selectedToken_name?: string;
   };
@@ -161,5 +173,17 @@ export type AnalyticsEventProperties = {
     amount: number;
     currency: SupportedCurrency;
     crypto: string;
+  };
+  [AnalyticsEvents.ClickCopyAddress]: {
+    address_type: AddressType | undefined;
+  };
+  [AnalyticsEvents.ClickReceiveOption]: {
+    option: 'coins_and_tokens' | 'collectibles';
+  };
+  [AnalyticsEvents.ClickCopyQrAddress]: {
+    asset_type: AddressType | undefined;
+  };
+  [AnalyticsEvents.ClickShareQrButton]: {
+    asset_type: AddressType | undefined;
   };
 };
