@@ -307,18 +307,21 @@ export async function sendTx(target: string, entrypoint: string, calldata: strin
   let justDeployed = false;
 
   if (!(await checkIsDeployed(account)).isDeployed) {
-    await account.deployAccount({
+    const { transaction_hash: deployTransactionHash } = await account.deployAccount({
       classHash: contractDescription.classHash,
       constructorCalldata: contractDescription.constructorCalldata,
       contractAddress: address,
       addressSalt: encode.sanitizeHex(encode.buf2hex(publicKey)),
     });
+    console.log('Account deployment transaction sent; ', deployTransactionHash);
+    await account.waitForTransaction(deployTransactionHash);
+    console.log('Account deployment transaction confirmed', deployTransactionHash);
     justDeployed = true;
   }
 
   const { transaction_hash: transactionHash } = await account.execute(
     [{ contractAddress: target, calldata: calldata, entrypoint }],
-    { nonce: justDeployed ? 0 : await account.getNonce() },
+    { nonce: justDeployed ? 1 : await account.getNonce() },
   );
 
   return transactionHash;
