@@ -443,3 +443,5 @@ export const getAccountAddressDetails = (account: Account, btcPaymentAddressType
       throw new Error('Unsupported payment address type');
   }
 };
+
+export { getAccountStrkAddresses };
