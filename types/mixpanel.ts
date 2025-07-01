@@ -46,6 +46,10 @@ export enum AnalyticsEvents {
   ClickReceiveOption = 'click_receive_option',
   ClickCopyQrAddress = 'click_copy_qr_address',
   ClickShareQrButton = 'click_share_qr_button',
+
+  // Feature announcement
+  FeatureAnnouncementCTAClick = 'feature_announcement_cta_click',
+  FeatureAnnouncementDismissClick = 'feature_announcement_dismiss_click',
 }
 
 type CommonProps = {
@@ -185,5 +189,11 @@ export type AnalyticsEventProperties = {
   };
   [AnalyticsEvents.ClickShareQrButton]: {
     asset_type: AddressType | undefined;
+  };
+  [AnalyticsEvents.FeatureAnnouncementCTAClick]: {
+    feature: string;
+  };
+  [AnalyticsEvents.FeatureAnnouncementDismissClick]: {
+    feature: string;
   };
 };
