@@ -127,7 +127,7 @@ export type AnalyticsEventProperties = {
     batch?: number;
     selectedToken_principal?: string;
     selectedToken_name?: string;
-    source?: 'dashboard' | 'token' | 'qr_scan';
+    source?: BaseSource | 'qr_scan';
     usedAddressBook?: boolean;
   } & CommonProps;
   [AnalyticsEvents.InitiateSwapFlow]: TokenSelection;
@@ -140,7 +140,7 @@ export type AnalyticsEventProperties = {
   [AnalyticsEvents.SetupWallet]: SetupWalletProps;
   [AnalyticsEvents.BackupWallet]: BackupWalletProps;
   [AnalyticsEvents.RestoreWallet]: RestoreWalletProps;
-  [AnalyticsEvents.InitiateBuyFlow]: { source: 'dashboard' | 'token' | 'send_stx' | 'send_btc'; selectedToken: string };
+  [AnalyticsEvents.InitiateBuyFlow]: { source: BaseSource | 'send_stx' | 'send_btc'; selectedToken: string };
   [AnalyticsEvents.InitiateSendFlow]: {
     source: BaseSource | 'qr_scan';
     addressType: AddressType;
@@ -159,7 +159,7 @@ export type AnalyticsEventProperties = {
     selectedToken_name: string;
   };
   [AnalyticsEvents.InitiateReceiveFlow]: {
-    source: BaseSource | 'collectibles';
+    source: BaseSource | 'collectibles' | 'activity' | 'earn';
     addressType: AddressType;
     selectedToken_principal?: string;
     selectedToken_name?: string;
@@ -178,8 +178,12 @@ export type AnalyticsEventProperties = {
     currency: SupportedCurrency;
     crypto: string;
   };
+  [AnalyticsEvents.ClickCopyAccountButton]: {
+    source?: BaseSource | 'collectibles' | 'activity' | 'earn';
+  };
   [AnalyticsEvents.ClickCopyAddress]: {
     address_type: AddressType | undefined;
+    source?: BaseSource | 'collectibles' | 'activity' | 'earn';
   };
   [AnalyticsEvents.ClickReceiveOption]: {
     option: 'coins_and_tokens' | 'collectibles';
