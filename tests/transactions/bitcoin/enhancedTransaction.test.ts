@@ -158,21 +158,23 @@ describe('EnhancedTransaction summary', () => {
       ],
     });
 
+    const sendUtxoSatRanges = [
+      {
+        offset: 0,
+        range: { start: 1000, end: 1001 },
+        inscriptions: [{ id: 'inscriptionId', content_type: 'image', inscription_number: 1 }],
+        satributes: [],
+      },
+      { offset: 1, range: { start: 1001, end: 1100 }, inscriptions: [], satributes: ['PIZZA'] },
+    ];
     const sendUtxoInputs = [
       {
         address: 'myAddress',
         utxo: { value: 100 },
         getBundleData: vi.fn().mockResolvedValue({
-          sat_ranges: [
-            {
-              offset: 0,
-              range: { start: 1000, end: 1001 },
-              inscriptions: [{ id: 'inscriptionId', content_type: 'image', inscription_number: 1 }],
-              satributes: [],
-            },
-            { offset: 1, range: { start: 1001, end: 1100 }, inscriptions: [], satributes: ['PIZZA'] },
-          ],
+          sat_ranges: sendUtxoSatRanges,
         }),
+        sat_ranges_for_test: sendUtxoSatRanges,
       } as any,
     ];
     vi.mocked(applySendUtxoActions).mockResolvedValueOnce({
@@ -188,32 +190,34 @@ describe('EnhancedTransaction summary', () => {
       ],
     });
 
+    const splitSatRanges = [
+      {
+        offset: 0,
+        range: { start: 100, end: 101 },
+        inscriptions: [{ id: 'inscriptionId2', inscription_number: 2, content_type: 'text' }],
+        satributes: [],
+      },
+      {
+        offset: 1000,
+        range: { start: 201, end: 202 },
+        inscriptions: [{ id: 'inscriptionId3', inscription_number: 3, content_type: 'text' }],
+        satributes: [],
+      },
+      {
+        offset: 1001,
+        range: { start: 3001, end: 4000 },
+        inscriptions: [],
+        satributes: ['VINTAGE'],
+      },
+    ];
     const splitInputs = [
       {
         address: 'myAddress',
         utxo: { value: 2000 },
         getBundleData: vi.fn().mockResolvedValue({
-          sat_ranges: [
-            {
-              offset: 0,
-              range: { start: 100, end: 101 },
-              inscriptions: [{ id: 'inscriptionId2', inscription_number: 2, content_type: 'text' }],
-              satributes: [],
-            },
-            {
-              offset: 1000,
-              range: { start: 201, end: 202 },
-              inscriptions: [{ id: 'inscriptionId3', inscription_number: 3, content_type: 'text' }],
-              satributes: [],
-            },
-            {
-              offset: 1001,
-              range: { start: 3001, end: 4000 },
-              inscriptions: [],
-              satributes: ['VINTAGE'],
-            },
-          ],
+          sat_ranges: splitSatRanges,
         }),
+        sat_ranges_for_test: splitSatRanges,
       } as any,
     ];
     vi.mocked(applySplitUtxoActions).mockResolvedValueOnce({
@@ -236,55 +240,64 @@ describe('EnhancedTransaction summary', () => {
       ],
     });
 
+    const sendBtcSatRanges = [
+      [
+        {
+          offset: 0,
+          range: { start: 100, end: 101 },
+          inscriptions: [{ id: 'inscriptionId4', inscription_number: 4, content_type: 'video' }],
+          satributes: [],
+        },
+      ],
+      [],
+      [
+        {
+          offset: 100,
+          range: { start: 800, end: 801 },
+          inscriptions: [{ id: 'inscriptionId5', inscription_number: 5, content_type: 'json' }],
+          satributes: [],
+        },
+        {
+          offset: 200,
+          range: { start: 10000, end: 10100 },
+          inscriptions: [],
+          satributes: ['VINTAGE', 'ALPHA'],
+        },
+        {
+          offset: 1800,
+          range: { start: 10000, end: 10100 },
+          inscriptions: [],
+          satributes: ['VINTAGE', 'ALPHA', 'BLOCK9'],
+        },
+      ],
+    ];
     const sendBtcInputs = [
       {
         address: 'myAddress',
         utxo: { value: 1000 },
         getBundleData: vi.fn().mockResolvedValue({
-          sat_ranges: [
-            {
-              offset: 0,
-              range: { start: 100, end: 101 },
-              inscriptions: [{ id: 'inscriptionId4', inscription_number: 4, content_type: 'video' }],
-              satributes: [],
-            },
-          ],
+          sat_ranges: sendBtcSatRanges[0],
         }),
+        sat_ranges_for_test: sendBtcSatRanges[0],
       } as any,
       {
         address: 'myAddress',
         utxo: { value: 1000 },
         getBundleData: vi.fn().mockResolvedValue({
-          sat_ranges: [],
+          sat_ranges: sendBtcSatRanges[1],
         }),
+        sat_ranges_for_test: sendBtcSatRanges[1],
       } as any,
       {
         address: 'myAddress',
         utxo: { value: 2000 },
         getBundleData: vi.fn().mockResolvedValue({
-          sat_ranges: [
-            {
-              offset: 100,
-              range: { start: 800, end: 801 },
-              inscriptions: [{ id: 'inscriptionId5', inscription_number: 5, content_type: 'json' }],
-              satributes: [],
-            },
-            {
-              offset: 200,
-              range: { start: 10000, end: 10100 },
-              inscriptions: [],
-              satributes: ['VINTAGE', 'ALPHA'],
-            },
-            {
-              offset: 1800,
-              range: { start: 10000, end: 10100 },
-              inscriptions: [],
-              satributes: ['VINTAGE', 'ALPHA', 'BLOCK9'],
-            },
-          ],
+          sat_ranges: sendBtcSatRanges[2],
         }),
-      } as any,
+        sat_ranges_for_test: sendBtcSatRanges[2],
+      },
     ];
+
     vi.mocked(applySendBtcActionsAndFee).mockResolvedValueOnce({
       inputs: sendBtcInputs,
       outputs: [
@@ -347,7 +360,7 @@ describe('EnhancedTransaction summary', () => {
       inputs: [...sendUtxoInputs, ...splitInputs, ...sendBtcInputs].map((i) => ({
         extendedUtxo: i,
         sigHash: 1,
-        inscriptions: i.getBundleData.mock.results[0].value.sat_ranges.flatMap((s: any) =>
+        inscriptions: i.sat_ranges_for_test.flatMap((s: any) =>
           s.inscriptions.map((insc: any) => ({
             contentType: insc.content_type,
             fromAddress: 'myAddress',
@@ -356,7 +369,7 @@ describe('EnhancedTransaction summary', () => {
             offset: s.offset,
           })),
         ),
-        satributes: i.getBundleData.mock.results[0].value.sat_ranges
+        satributes: i.sat_ranges_for_test
           .map((sr: any) => ({
             types: sr.satributes,
             amount: sr.range.end - sr.range.start,

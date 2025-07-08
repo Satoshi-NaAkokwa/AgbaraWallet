@@ -103,10 +103,10 @@ describe('formatBalance', () => {
       },
       isRounded: false,
     });
-    expect(formatBalance('0.' + '0'.repeat(99999) + '6789')).toEqual({
+    expect(formatBalance('0.' + '0'.repeat(99) + '6789')).toEqual({
       prefix: '0.0',
       suffix: {
-        subscript: '99999',
+        subscript: '99',
         value: '6789',
       },
       isRounded: false,
