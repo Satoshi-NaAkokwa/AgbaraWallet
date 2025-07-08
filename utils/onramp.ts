@@ -3,8 +3,10 @@ import {
   BuyQuote,
   BuyQuoteError,
   BuyQuoteSuccess,
+  CurrencyTypes,
   FetchBuyQuotesResponse,
   FiatCurrency,
+  FungibleToken,
   GetDefaultsResponse,
   PaymentMethodsResponse,
   QuoteError,
@@ -12,10 +14,40 @@ import {
 } from '../types';
 import { BigNumber } from './bignumber';
 import { getFiatBtcEquivalent, getStxTokenEquivalent } from '../currency';
+import {
+  STARKNET_STRK_TOKEN_ADDRESS,
+  STARKNET_USDC_TOKEN_ADDRESS,
+  STARKNET_WBTC_TOKEN_ADDRESS,
+} from '../starknet/constants';
+
+export const SUPPORTED_STARKNET_FT_TOKENS = {
+  [STARKNET_WBTC_TOKEN_ADDRESS]: {
+    name: 'Wrapped BTC',
+    symbol: 'WBTC',
+    onramperId: 'wbtc_starknet',
+    network: 'starknet',
+    decimals: 8,
+  },
+  [STARKNET_STRK_TOKEN_ADDRESS]: {
+    name: 'Starknet',
+    symbol: 'STRK',
+    onramperId: 'strk_starknet',
+    network: 'starknet',
+    decimals: 18,
+  },
+  [STARKNET_USDC_TOKEN_ADDRESS]: {
+    name: 'USD Coin',
+    symbol: 'USDC',
+    onramperId: 'usdc_starknet',
+    network: 'starknet',
+    decimals: 6,
+  },
+};
 
 export const SUPPORTED_CRYPTO_CURRENCIES = [
   { name: 'Bitcoin', symbol: 'BTC', onramperId: 'btc', network: 'bitcoin', decimals: 8 },
   { name: 'Stacks', symbol: 'STX', onramperId: 'stx_stacks', network: 'stacks', decimals: 6 },
+  ...Object.values(SUPPORTED_STARKNET_FT_TOKENS),
 ] as const;
 
 const PRESET_AMOUNTS: Record<FiatCurrency['code'], string[]> = {
@@ -54,6 +86,7 @@ export function convertFiatToCrypto(
   btcFiatRate: BigNumber,
   stxBtcRate: BigNumber,
   selectedCrypto: (typeof SUPPORTED_CRYPTO_CURRENCIES)[number]['symbol'],
+  ft?: FungibleToken,
 ) {
   const fiatValue = BigNumber(buyAmount || '0');
 
@@ -62,11 +95,19 @@ export function convertFiatToCrypto(
   }
 
   if (selectedCrypto === 'BTC') {
-    return getFiatBtcEquivalent(fiatValue, btcFiatRate).decimalPlaces(8).toString();
+    return getFiatBtcEquivalent(fiatValue, btcFiatRate).decimalPlaces(8).toFixed();
   }
 
   if (selectedCrypto === 'STX') {
-    return getStxTokenEquivalent(fiatValue, btcFiatRate, stxBtcRate).decimalPlaces(6).toString();
+    return getStxTokenEquivalent(fiatValue, btcFiatRate, stxBtcRate).decimalPlaces(6).toFixed();
+  }
+
+  const ftTokenSymbols = Object.values(SUPPORTED_STARKNET_FT_TOKENS).map((token) => token.symbol);
+  if (ftTokenSymbols.includes(selectedCrypto) && ft?.tokenFiatRate && ft.tokenFiatRate > 0) {
+    return fiatValue
+      .dividedBy(ft.tokenFiatRate)
+      .decimalPlaces(ft.decimals ?? 0)
+      .toFixed();
   }
 }
 
@@ -104,15 +145,9 @@ export const getDefaultFiatCurrency = (
   const recommendedFiatCurrencyCode = defaults?.message.recommended.source;
   const fiatCurrencies = supportedCurrencies?.message.fiat;
 
-  if (recommendedFiatCurrencyCode && fiatCurrencies) {
-    const recommendedFiatCurrency = fiatCurrencies.find((fiat) => fiat.code === recommendedFiatCurrencyCode);
+  const defaultFiatCurrency = fiatCurrencies?.find((fiat) => fiat.code === recommendedFiatCurrencyCode);
 
-    return recommendedFiatCurrency;
-  }
-
-  if (fiatCurrencies) {
-    return fiatCurrencies.find((fiat) => fiat.code === 'USD') || fiatCurrencies[0];
-  }
+  return defaultFiatCurrency || fiatCurrencies?.find((fiat) => fiat.code === 'USD') || fiatCurrencies?.[0];
 };
 
 export const getDefaultPaymentMethod = (
@@ -168,4 +203,14 @@ export const getQuotesErrorMessage = (
   }
 
   return { code: 'no_quotes_for_params' };
+};
+
+export const getIsAllowedOnrampCurrency = (currency: CurrencyTypes, ft?: FungibleToken) => {
+  const isChainToken = currency === 'BTC' || currency === 'STX';
+  const isValidFT =
+    (currency === 'SN' || currency === 'FT') &&
+    ft &&
+    SUPPORTED_STARKNET_FT_TOKENS[ft.principal as keyof typeof SUPPORTED_STARKNET_FT_TOKENS];
+
+  return isChainToken || isValidFT;
 };
