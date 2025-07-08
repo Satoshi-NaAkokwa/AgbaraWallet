@@ -1,17 +1,30 @@
 import { describe, expect, it } from 'vitest';
+import { enhanceTx, mapRuneToRuneInfo } from '../../../../api/btc';
+import { RuneInfo } from '../../../../types';
+import { BigNumber } from '../../../../utils/bignumber';
 import {
+  consolidateBtc,
+  getRuneInfoMock,
   inscriptionBurn,
   inscriptionBurnAndSend,
   inscriptionInscribeAndReceive,
   inscriptionInscribeHasMore,
   inscriptionInscribeOne,
-  inscriptionSendTwo,
   inscriptionReceiveTwo,
+  inscriptionSendTwo,
+  multipleAssetsBrc20AndRunes,
+  multipleAssetsBurnTwo,
+  multipleAssetsBurnTwoConsolidateOne,
+  multipleAssetsReceiveTwo,
+  multipleAssetsSendTwo,
+  multipleAssetsSendTwoConsolidateOne,
   ownBtcAddresses,
+  receiveBtcWithMultipleExternalAddresses,
   runeAirDropAddressesHasMore,
   runeBurnAndInscriptionSend,
   runeBurnAndMintBurned,
   runeBurnMinted,
+  runeBurnOneAndConsolidateTwo,
   runeBurnPartial,
   runeConsolidate,
   runeEtchWithInscription,
@@ -24,23 +37,11 @@ import {
   runePartialSendOne,
   runeReceiveTwo,
   runeSendOneAddessesHasMore,
+  runeSendOneConsolidateOne,
   runeSendTwo,
   runeSplit,
-  getRuneInfoMock,
-  multipleAssetsSendTwo,
-  multipleAssetsReceiveTwo,
-  multipleAssetsBurnTwo,
-  runeSendOneConsolidateOne,
-  runeBurnOneAndConsolidateTwo,
-  multipleAssetsSendTwoConsolidateOne,
-  multipleAssetsBurnTwoConsolidateOne,
-  receiveBtcWithMultipleExternalAddresses,
   sendBtcToTwoAddresses,
-  consolidateBtc,
 } from '../../../mocks/btc.indexer.txs';
-import { BigNumber } from '../../../../utils/bignumber';
-import { enhanceTx, mapRuneToRuneInfo } from '../../../../api/btc';
-import { RuneInfo } from '../../../../types';
 
 // MARK: Inscriptions assets
 describe('enhanceTx: inscriptions assets', () => {
@@ -148,7 +149,7 @@ describe('enhanceTx: inscriptions assets', () => {
         blockHeight: 858563,
         blockTime: 1724707788,
         assetInTx: 'inscriptions',
-        txType: 'trade',
+        txType: 'inscribe',
         inscriptions: {
           hasMore: true,
           items: [
@@ -705,6 +706,16 @@ describe('enhanceTx: runes assets', () => {
             },
           ],
         },
+        brc20: {
+          ownActivity: {
+            hasMore: false,
+            items: [],
+          },
+          allActivity: {
+            hasMore: false,
+            items: [],
+          },
+        },
       },
     },
     {
@@ -817,6 +828,16 @@ describe('enhanceTx: runes assets', () => {
             },
           ],
         },
+        brc20: {
+          ownActivity: {
+            hasMore: false,
+            items: [],
+          },
+          allActivity: {
+            hasMore: false,
+            items: [],
+          },
+        },
       },
     },
     {
@@ -894,6 +915,16 @@ describe('enhanceTx: runes assets', () => {
               inscriptionId: 'inscription840000:3',
             },
           ],
+        },
+        brc20: {
+          ownActivity: {
+            hasMore: false,
+            items: [],
+          },
+          allActivity: {
+            hasMore: false,
+            items: [],
+          },
         },
       },
     },
@@ -1030,6 +1061,16 @@ describe('enhanceTx: runes assets', () => {
             },
           ],
         },
+        brc20: {
+          ownActivity: {
+            hasMore: false,
+            items: [],
+          },
+          allActivity: {
+            hasMore: false,
+            items: [],
+          },
+        },
       },
     },
     {
@@ -1125,8 +1166,8 @@ describe('enhanceTx: runes assets', () => {
             {
               address: 'bc1pzrq4kaftwdzu284qmkzyl5yf96nfywschsnkj68d4h7w230fhpdssx2e4l',
               type: 'tr',
-              isInput: false,
-              isOutput: true,
+              isInput: true,
+              isOutput: false,
             },
           ],
           isOwnTaproot: false,
@@ -1136,7 +1177,7 @@ describe('enhanceTx: runes assets', () => {
         blockHeight: 854341,
         blockTime: 1722177765,
         assetInTx: 'runes',
-        txType: 'trade',
+        txType: 'receive',
         runes: {
           hasMore: true,
           items: [
@@ -1585,6 +1626,16 @@ describe('enhanceTx: multiple assets', () => {
             },
           ],
         },
+        brc20: {
+          ownActivity: {
+            hasMore: false,
+            items: [],
+          },
+          allActivity: {
+            hasMore: false,
+            items: [],
+          },
+        },
       },
     },
     {
@@ -1650,6 +1701,16 @@ describe('enhanceTx: multiple assets', () => {
             },
           ],
         },
+        brc20: {
+          ownActivity: {
+            hasMore: false,
+            items: [],
+          },
+          allActivity: {
+            hasMore: false,
+            items: [],
+          },
+        },
       },
     },
     {
@@ -1697,6 +1758,16 @@ describe('enhanceTx: multiple assets', () => {
               inscriptionId: 'inscription840080:127',
             },
           ],
+        },
+        brc20: {
+          ownActivity: {
+            hasMore: false,
+            items: [],
+          },
+          allActivity: {
+            hasMore: false,
+            items: [],
+          },
         },
       },
     },
@@ -1760,6 +1831,16 @@ describe('enhanceTx: multiple assets', () => {
             },
           ],
         },
+        brc20: {
+          ownActivity: {
+            hasMore: false,
+            items: [],
+          },
+          allActivity: {
+            hasMore: false,
+            items: [],
+          },
+        },
       },
     },
     {
@@ -1808,6 +1889,96 @@ describe('enhanceTx: multiple assets', () => {
               inscriptionId: 'inscription840000:3',
             },
           ],
+        },
+        brc20: {
+          ownActivity: {
+            hasMore: false,
+            items: [],
+          },
+          allActivity: {
+            hasMore: false,
+            items: [],
+          },
+        },
+      },
+    },
+    {
+      name: 'should enhance multiple assets brc20 + runes',
+      tx: multipleAssetsBrc20AndRunes,
+      runesInfoDictionary: new Map<string, RuneInfo>([
+        ['1:0', mapRuneToRuneInfo(getRuneInfoMock('1:0'))],
+        ['840000:3', mapRuneToRuneInfo(getRuneInfoMock('840000:3'))],
+      ]),
+      expected: {
+        id: 'b48dfbc306abd032db4bf732e3194a72c6c8cc1779d21b4cc1e2dd0df4d41793',
+        fees: 2984,
+        satsAmount: -290,
+        addressesInTx: {
+          external: [],
+          hasMore: false,
+          isOwnNative: false,
+          isOwnNested: true,
+          isOwnTaproot: true,
+        },
+        blockHeight: 883418,
+        blockTime: 1739359270,
+        assetInTx: 'multipleAssets',
+        txType: 'trade',
+        runes: {
+          hasMore: false,
+          items: [
+            {
+              address: 'bc1phrkher5h44sx4pelukf6kwahladmhzs9l96us8mcnqhxsd90cfyq9gm0l2',
+              incoming: '285789160',
+              outgoing: '385789160',
+              received: '0',
+              runeId: '840000:3',
+              sent: '100000000',
+              symbol: '#',
+              name: 'RUNE840000:3',
+              divisibility: new BigNumber(4),
+              inscriptionId: 'inscription840000:3',
+            },
+          ],
+        },
+        inscriptions: {
+          hasMore: false,
+          items: [
+            {
+              address: 'bc1phrkher5h44sx4pelukf6kwahladmhzs9l96us8mcnqhxsd90cfyq9gm0l2',
+              burned: false,
+              contentType: 'text/plain;charset=utf-8',
+              inscribed: false,
+              inscriptionId: 'a1801c8f87a6751826ee902f6143fbf4a212644853428a6f5330b65650aa88a3i0',
+              received: true,
+              sent: false,
+            },
+          ],
+        },
+        brc20: {
+          ownActivity: {
+            hasMore: false,
+            items: [
+              {
+                incoming: '100000000',
+                address: 'bc1phrkher5h44sx4pelukf6kwahladmhzs9l96us8mcnqhxsd90cfyq9gm0l2',
+                outgoing: '0',
+                sent: '0',
+                received: '100000000',
+                ticker: 'ordi',
+              },
+            ],
+          },
+          allActivity: {
+            hasMore: false,
+            items: [
+              {
+                incoming: '100000000',
+                outgoing: '100000000',
+                ticker: 'ordi',
+              },
+            ],
+          },
         },
       },
     },

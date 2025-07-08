@@ -1,4 +1,6 @@
+import { HDKey } from '@scure/bip32';
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import { validateAndParseAddress } from 'starknet';
 import { API_TIMEOUT_MILLI, XVERSE_API_BASE_URL } from '../../constant';
 import { runeTokenToFungibleToken } from '../../fungibleTokens';
 import {
@@ -99,8 +101,6 @@ import { getXClientVersion } from '../../utils/xClientVersion';
 import { DerivationType, MasterVault } from '../../vaults';
 import AddressRegistrars from './addressRegistrar';
 import { AuthenticatedClient } from './authenticatedClient';
-import { HDKey } from '@scure/bip32';
-import { validateAndParseAddress } from 'starknet';
 const produceHistoricalDataObject = (timestamp: number, price: number) => ({
   x: timestamp,
   y: price,
@@ -467,7 +467,6 @@ export class XverseApi {
   getAppFeatures = async (context?: Partial<AppFeaturesContext>, headers?: Record<string, string>) => {
     const response = await this.client.post<
       AppFeaturesResponse,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- this is the axios default
       AxiosResponse<AppFeaturesResponse, any>,
       AppFeaturesBody
     >('/v1/app-features', { context: { ...context, network: this.network } }, { headers });
@@ -540,6 +539,10 @@ export class XverseApi {
       options?: {
         offset?: number;
         limit?: number;
+        token?: {
+          type: 'brc20' | 'rune';
+          id: string;
+        };
       },
     ): Promise<ApiAddressHistoryResult> => {
       const response = await this.authenticatedClient.get<ApiAddressHistoryResult>(`/v1/account/history`, {
@@ -556,6 +559,10 @@ export class XverseApi {
       options?: {
         offset?: number;
         limit?: number;
+        token?: {
+          type: 'brc20' | 'rune';
+          id: string;
+        };
       },
     ): Promise<ApiAddressHistoryResult> => {
       const addresses = Object.values(account.btcAddresses).map((a) => a.address);

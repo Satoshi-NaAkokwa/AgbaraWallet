@@ -1,11 +1,10 @@
-import { Account, AccountBtcAddresses, BtcTransactionData, EsploraTransaction, Rune } from '../types';
-import EsploraApiProvider from './esplora/esploraAPiProvider';
-import { parseBtcTransactionData, parseOrdinalsBtcTransactions } from './helper';
-
+import { BigNumber } from 'bignumber.js';
 import { RunesApi } from '../api/runes/provider';
+import { Account, AccountBtcAddresses, BtcTransactionData, EsploraTransaction, Rune } from '../types';
 import {
   ApiAddressTransaction,
   AssetInTx,
+  Brc20TxType,
   BtcTxHistory,
   BtcTxType,
   EnhancedRuneIO,
@@ -14,13 +13,13 @@ import {
   InscriptionEvent,
   InscriptionTxType,
   MultipleAssetsTxType,
-  PartialInscriptionEvents,
   RuneInfo,
   RuneIO,
-  RunesActivity,
   RunesAllEvent,
   RunesTxType,
 } from '../types/api/xverse/history';
+import EsploraApiProvider from './esplora/esploraAPiProvider';
+import { parseBtcTransactionData, parseOrdinalsBtcTransactions } from './helper';
 import { XverseApi } from './xverse';
 
 export async function fetchBtcOrdinalMempoolTransactions(ordinalsAddress: string, esploraProvider: EsploraApiProvider) {
@@ -97,7 +96,7 @@ const excludeAddressTxTypes = ['etch', 'mint', 'consolidate', 'burn', 'mintBurn'
 const getAddressesInTx = (
   tx: ApiAddressTransaction,
   addresses: AccountBtcAddresses,
-  txType: BtcTxType | InscriptionTxType | RunesTxType | MultipleAssetsTxType,
+  txType: BtcTxType | InscriptionTxType | RunesTxType | Brc20TxType | MultipleAssetsTxType,
 ) => {
   if (excludeAddressTxTypes.includes(txType)) {
     return null;
@@ -139,30 +138,68 @@ const getAddressesInTx = (
 
 const getAssetsInTx = (tx: ApiAddressTransaction): AssetInTx => {
   const hasRunesActivity = tx.runes.allActivity.items.length > 0;
+  const hasBrc20Activity = tx.brc20.allActivity.items.length > 0;
   const hasInscriptionsActivity = tx.inscriptions.items.length > 0;
 
-  if (hasRunesActivity && !hasInscriptionsActivity) {
+  const hasBrc20Action = tx.brc20.allActivity.items.some(
+    (item) => item.action === 'deploy' || item.action === 'mint' || item.action === 'transfer',
+  );
+  const hasInscribeOnlyActivity = tx.inscriptions.items.every((inscription) => inscription.inscribed);
+  const hasInscriptionSendOnlyActivity = tx.inscriptions.items.every(
+    (inscription) => inscription.sent && !inscription.received && !inscription.inscribed,
+  );
+  const hasInscriptionReceiveOnlyActivity = tx.inscriptions.items.every(
+    (inscription) => !inscription.sent && inscription.received && !inscription.inscribed,
+  );
+
+  if (hasRunesActivity && !hasBrc20Activity && !hasInscriptionsActivity) {
     return 'runes';
   }
 
-  if (hasInscriptionsActivity && !hasRunesActivity) {
+  // each BRC-20 transaction is associated with an inscription, so we do the below check to not count
+  // inscription actions if there are brc-20 actions
+  if (
+    hasBrc20Activity &&
+    !hasRunesActivity &&
+    ((hasBrc20Action && hasInscribeOnlyActivity) ||
+      (!hasBrc20Action &&
+        hasInscriptionSendOnlyActivity &&
+        tx.brc20.ownActivity.items.length === tx.inscriptions.items.length) ||
+      (!hasBrc20Action &&
+        hasInscriptionReceiveOnlyActivity &&
+        tx.brc20.ownActivity.items.length === tx.inscriptions.items.length))
+  ) {
+    return 'brc20';
+  }
+
+  if (hasInscriptionsActivity && !hasBrc20Activity && !hasRunesActivity) {
     return 'inscriptions';
   }
 
-  if (hasInscriptionsActivity && hasRunesActivity) {
-    return 'multipleAssets';
+  if (!hasInscriptionsActivity && !hasBrc20Activity && !hasRunesActivity) {
+    return 'btc';
   }
 
-  return 'btc';
+  return 'multipleAssets';
 };
 
 // this can be negative if amount is leaving the wallet or positive if amount is entering the wallet
 const calculateSatsOwnActivity = (tx: ApiAddressTransaction) => {
-  const sats = tx.ownActivity.reduce((acc, activity) => {
-    return acc + (activity.received - activity.sent);
-  }, 0);
+  const movements = tx.ownActivity.reduce(
+    (acc, activity) => {
+      acc.incoming += activity.incoming;
+      acc.outgoing += activity.outgoing;
+      acc.nett += activity.received - activity.sent;
+      return acc;
+    },
+    {
+      incoming: 0,
+      outgoing: 0,
+      nett: 0,
+    },
+  );
 
-  return sats;
+  return movements;
 };
 
 const getTypeFromInscription = (inscription: InscriptionEvent): InscriptionTxType => {
@@ -185,22 +222,37 @@ const getTypeFromInscription = (inscription: InscriptionEvent): InscriptionTxTyp
   return 'send';
 };
 
-const getInscriptionsTxType = (inscriptions: PartialInscriptionEvents): InscriptionTxType => {
+const getInscriptionsTxType = (tx: ApiAddressTransaction): InscriptionTxType => {
+  const { inscriptions } = tx;
+
+  const { nett: totalBtcReceived, outgoing: ownOutgoingSats, incoming: ownIncomingSats } = calculateSatsOwnActivity(tx);
+
   // when there are more inscriptions in the tx we treated it as a trade cuz we can't know the type of each inscription
-  if (inscriptions.hasMore) {
+  // a trade is also only true if the user sent AND received sats
+  if (inscriptions.hasMore && ownOutgoingSats > 0 && ownIncomingSats > 0) {
     return 'trade';
   }
 
   const firstInscriptionType = getTypeFromInscription(inscriptions.items[0]);
-  if (inscriptions.items.length === 1) {
-    return firstInscriptionType;
-  }
 
   const hasMultipleInscriptionTypes = inscriptions.items.some(
     (inscription) => getTypeFromInscription(inscription) !== firstInscriptionType,
   );
 
-  return hasMultipleInscriptionTypes ? 'trade' : firstInscriptionType;
+  if (hasMultipleInscriptionTypes) {
+    return 'trade';
+  }
+
+  if (
+    // sending inscription and getting more btc back than sent is likely a sell
+    (firstInscriptionType === 'send' && totalBtcReceived > 546) ||
+    // receiving an inscription and sending more btc than receiving is likely a buy
+    (firstInscriptionType === 'receive' && totalBtcReceived < -546)
+  ) {
+    return 'trade';
+  }
+
+  return firstInscriptionType;
 };
 
 const getTypeFromRune = (runeIO: RuneIO | undefined, allActivity: RunesAllEvent[]): RunesTxType => {
@@ -243,16 +295,21 @@ const getTypeFromRune = (runeIO: RuneIO | undefined, allActivity: RunesAllEvent[
   return BigInt(runeIO.received) - BigInt(runeIO.sent) > 0n ? 'receive' : 'send';
 };
 
-const getRunesTxType = (runes: RunesActivity): RunesTxType => {
+const getRunesTxType = (tx: ApiAddressTransaction): RunesTxType => {
+  const { runes } = tx;
+
+  const { nett: totalBtcReceived, outgoing: ownOutgoingSats, incoming: ownIncomingSats } = calculateSatsOwnActivity(tx);
+
   // when there are more runes in the tx we treated it as a trade cuz we can't know the type of each rune
-  if (runes.ownActivity.hasMore) {
+  // a trade is also only true if the user sent AND received sats
+  if (runes.ownActivity.hasMore && ownOutgoingSats > 0 && ownIncomingSats > 0) {
     return 'trade';
   }
 
   const firstRuneType = getTypeFromRune(runes.ownActivity.items[0], runes.allActivity.items);
 
   // we check for 1 or 0 cuz when etching, own activity can be empty is there is no minting
-  if (runes.ownActivity.items.length <= 1) {
+  if (runes.ownActivity.items.length === 0) {
     return firstRuneType;
   }
 
@@ -260,13 +317,72 @@ const getRunesTxType = (runes: RunesActivity): RunesTxType => {
     runes.ownActivity.items.map((rune) => getTypeFromRune(rune, runes.allActivity.items)),
   );
 
+  let runeType = firstRuneType;
+
   // when one or multiple runes are leaving the wallet and there is also consolidations/splits
   // we want to return the type of the rune that is leaving the wallet
   if (runeTypes.size === 2 && runeTypes.has('consolidate') && (runeTypes.has('send') || runeTypes.has('burn'))) {
-    return runeTypes.has('send') ? 'send' : 'burn';
+    if (runeTypes.has('burn')) {
+      return 'burn';
+    } else {
+      runeType = 'send';
+    }
+  } else if (runeTypes.size > 1) {
+    return 'trade';
   }
 
-  return runeTypes.size > 1 ? 'trade' : firstRuneType;
+  if (
+    // if rune is sent and we get more btc back than sent, it's likely a sell
+    (runeType === 'send' && totalBtcReceived > 546) ||
+    // if rune is received and we send more btc than received, it's likely a buy
+    (runeType === 'receive' && totalBtcReceived < -546)
+  ) {
+    return 'trade';
+  }
+
+  return runeType;
+};
+
+const getBrc20TxType = (tx: ApiAddressTransaction): Brc20TxType => {
+  const { brc20: brc20Activity } = tx;
+
+  const { nett: totalBtcReceived, outgoing: ownOutgoingSats, incoming: ownIncomingSats } = calculateSatsOwnActivity(tx);
+
+  // when there are more brc20 in the tx we treated it as a trade cuz we can't know the type of each brc20
+  // a trade is also only true if the user sent AND received sats
+  if (brc20Activity.ownActivity.hasMore && ownOutgoingSats > 0 && ownIncomingSats > 0) {
+    return 'trade';
+  }
+
+  if (brc20Activity.allActivity.items.length === 1 && brc20Activity.allActivity.items[0].action === 'deploy') {
+    return 'deploy';
+  }
+
+  if (brc20Activity.allActivity.items.length === 1 && brc20Activity.allActivity.items[0].action === 'mint') {
+    return 'mint';
+  }
+
+  if (brc20Activity.allActivity.items.length === 1 && brc20Activity.allActivity.items[0].action === 'transfer') {
+    return 'transfer';
+  }
+
+  if (brc20Activity.ownActivity.items.every((item) => item.incoming === item.outgoing)) {
+    return 'consolidate';
+  }
+
+  // brc20 has no concept of change, so we check if only all events have same type for send/receive
+  if (brc20Activity.ownActivity.items.every((item) => BigNumber(item.incoming).gt(0) && item.outgoing === '0')) {
+    if (totalBtcReceived > 546) {
+      return 'receive';
+    }
+  }
+  if (brc20Activity.ownActivity.items.every((item) => BigNumber(item.outgoing).gt(0) && item.incoming === '0')) {
+    if (totalBtcReceived < -546) {
+      return 'send';
+    }
+  }
+
+  return 'trade';
 };
 
 export const mapRuneToRuneInfo = (rune: Rune): RuneInfo => ({
@@ -324,18 +440,23 @@ const getRunesObjectForTxWithRuneAssets = (
 };
 
 const getMultipleAssetsTxType = (tx: ApiAddressTransaction): MultipleAssetsTxType => {
-  const inscriptionsTxType = getInscriptionsTxType(tx.inscriptions);
-  const runesTxType = getRunesTxType(tx.runes);
+  const inscriptionsTxType = getInscriptionsTxType(tx);
+  const runesTxType = getRunesTxType(tx);
+  const brc20TxType = getBrc20TxType(tx);
   // etch with inscribed inscription
   if (runesTxType === 'etch' && inscriptionsTxType === 'inscribe') {
     return 'etch';
+  }
+
+  if ((brc20TxType === 'deploy' || brc20TxType === 'mint') && inscriptionsTxType === 'inscribe') {
+    return brc20TxType;
   }
 
   return inscriptionsTxType === runesTxType ? inscriptionsTxType : 'trade';
 };
 
 const getBtcTxType = (tx: ApiAddressTransaction): BtcTxType => {
-  const satsAmount = calculateSatsOwnActivity(tx);
+  const { nett: satsAmount } = calculateSatsOwnActivity(tx);
 
   // v2 will discriminate between consolidate and recovers
   const hasNoExternalActivity = satsAmount + (tx.totalIn - tx.totalOut) === 0;
@@ -358,18 +479,18 @@ export const enhanceTx = ({
   const baseTxObject = {
     id: tx.txid,
     fees: tx.totalIn - tx.totalOut,
-    satsAmount: calculateSatsOwnActivity(tx),
+    satsAmount: calculateSatsOwnActivity(tx).nett,
     blockHeight: tx.blockHeight,
     blockTime: tx.blockTime,
   };
 
   // inscriptions
   if (assetInTx === 'inscriptions') {
-    const txType = getInscriptionsTxType(tx.inscriptions);
+    const txType = getInscriptionsTxType(tx);
     return {
       ...baseTxObject,
-      assetInTx: 'inscriptions',
-      txType: getInscriptionsTxType(tx.inscriptions),
+      assetInTx,
+      txType: getInscriptionsTxType(tx),
       inscriptions: tx.inscriptions,
       addressesInTx: getAddressesInTx(tx, addresses, txType),
     };
@@ -377,25 +498,38 @@ export const enhanceTx = ({
 
   // runes
   if (assetInTx === 'runes') {
-    const txType = getRunesTxType(tx.runes);
+    const txType = getRunesTxType(tx);
     return {
       ...baseTxObject,
-      assetInTx: 'runes',
+      assetInTx,
       txType,
       runes: getRunesObjectForTxWithRuneAssets(tx, runesInfoDictionary, txType),
       addressesInTx: getAddressesInTx(tx, addresses, txType),
     };
   }
 
+  // brc20
+  if (assetInTx === 'brc20') {
+    const txType = getBrc20TxType(tx);
+    return {
+      ...baseTxObject,
+      assetInTx,
+      txType,
+      brc20: tx.brc20,
+      addressesInTx: getAddressesInTx(tx, addresses, txType),
+    };
+  }
+
   // multiple assets
   if (assetInTx === 'multipleAssets') {
-    const runeTxType = getRunesTxType(tx.runes);
+    const runeTxType = getRunesTxType(tx);
     const txType = getMultipleAssetsTxType(tx);
     return {
       ...baseTxObject,
-      assetInTx: 'multipleAssets',
+      assetInTx,
       txType,
       inscriptions: tx.inscriptions,
+      brc20: tx.brc20,
       runes: getRunesObjectForTxWithRuneAssets(tx, runesInfoDictionary, runeTxType),
       addressesInTx: getAddressesInTx(tx, addresses, txType),
     };
@@ -450,6 +584,7 @@ export const fetchPastBtcTransactions = async ({
   clientRunesInfo,
   runesApiClient,
   xverseApiClient,
+  token,
 }: {
   account: Account;
   offset: number;
@@ -457,10 +592,15 @@ export const fetchPastBtcTransactions = async ({
   clientRunesInfo: Map<string, RuneInfo>;
   runesApiClient: RunesApi;
   xverseApiClient: XverseApi;
+  token?: {
+    type: 'brc20' | 'rune';
+    id: string;
+  };
 }): Promise<BtcTxHistory> => {
   const { transactions: txs } = await xverseApiClient.account.fetchAccountBtcHistory(account, {
     offset,
     limit,
+    token,
   });
   const runesInfoDictionary = await getRunesInfoDictionary({ txs, clientRunesInfo, runesApiClient });
   const enhancedTxs = txs.map((tx) => enhanceTx({ tx, addresses: account.btcAddresses, runesInfoDictionary }));

@@ -19,11 +19,17 @@ export type ApiAddressTransaction = {
 
   runes: RunesActivity;
   inscriptions: PartialInscriptionEvents;
+  brc20: Brc20Activity;
 };
 
 export type RunesActivity = {
   ownActivity: RunesOwnActivity;
   allActivity: RunesAllActivity;
+};
+
+export type Brc20Activity = {
+  ownActivity: Brc20OwnActivity;
+  allActivity: Brc20AllActivity;
 };
 
 export type BtcOwnAddressActivity = {
@@ -43,6 +49,23 @@ export type RunesAllEvent = {
   isBurn: boolean;
 };
 
+export type Brc20AllEvent = {
+  ticker: string;
+  outgoing: string;
+  incoming: string;
+  action?: 'deploy' | 'mint' | 'transfer';
+  actionAmount?: string;
+};
+
+export type Brc20OwnEvent = {
+  ticker: string;
+  address: string;
+  sent: string;
+  received: string;
+  outgoing: string;
+  incoming: string;
+};
+
 export type AddressDestination = {
   address?: string;
   type: string;
@@ -57,6 +80,16 @@ export type RunesAllActivity = {
 
 export type RunesOwnActivity = {
   items: RuneIO[];
+  hasMore: boolean;
+};
+
+export type Brc20AllActivity = {
+  items: Brc20AllEvent[];
+  hasMore: boolean;
+};
+
+export type Brc20OwnActivity = {
+  items: Brc20OwnEvent[];
   hasMore: boolean;
 };
 
@@ -109,7 +142,7 @@ export type EnhancedRuneIO = RuneIO & Partial<RuneInfo>;
 // Which allows clients to handle different ui based in the transfer direction by each asset
 // Depending on the asset type, the schema changes a bit to accommodate the different needs of each asset
 
-export type AssetInTx = 'btc' | 'inscriptions' | 'runes' | 'multipleAssets';
+export type AssetInTx = 'btc' | 'inscriptions' | 'runes' | 'brc20' | 'multipleAssets';
 
 export type BaseTxType = 'send' | 'receive';
 
@@ -119,7 +152,9 @@ export type InscriptionTxType = BaseTxType | 'inscribe' | 'burn' | 'trade';
 
 export type RunesTxType = BaseTxType | 'mint' | 'mintBurn' | 'etch' | 'burn' | 'consolidate' | 'trade';
 
-export type MultipleAssetsTxType = BaseTxType | 'burn' | 'trade' | 'etch';
+export type Brc20TxType = BaseTxType | 'mint' | 'deploy' | 'transfer' | 'consolidate' | 'trade';
+
+export type MultipleAssetsTxType = BaseTxType | 'burn' | 'trade' | 'etch' | 'deploy' | 'mint';
 
 export type EnhancedTx = {
   id: string;
@@ -138,10 +173,12 @@ export type EnhancedTx = {
   | { assetInTx: 'btc'; txType: BtcTxType }
   | { assetInTx: 'inscriptions'; txType: InscriptionTxType; inscriptions: PartialInscriptionEvents }
   | { assetInTx: 'runes'; txType: RunesTxType; runes: EnhancedRunesOwnActivity }
+  | { assetInTx: 'brc20'; txType: Brc20TxType; brc20: Brc20Activity }
   | {
       assetInTx: 'multipleAssets';
       txType: MultipleAssetsTxType;
       inscriptions: PartialInscriptionEvents;
+      brc20: Brc20Activity;
       runes: EnhancedRunesOwnActivity;
     }
 );

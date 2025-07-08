@@ -1,5 +1,5 @@
-import { BigNumber } from '../../utils/bignumber';
 import { AccountBtcAddresses, ApiAddressTransaction, Rune } from '../../types';
+import { BigNumber } from '../../utils/bignumber';
 
 // MARK:  Mock RunesApi getRuneInfo method
 export const getRuneInfoMock = (runeId: string): Rune => ({
@@ -42,7 +42,45 @@ export const ownBtcAddresses: AccountBtcAddresses = {
 };
 
 // MARK: Inscriptions txs
-export const inscriptionBurnAndSend: ApiAddressTransaction = {
+const createTestApiAddressTransaction = (diff: Partial<ApiAddressTransaction>): ApiAddressTransaction => ({
+  blockHeight: 0,
+  blockTime: 0,
+  txid: '0000000000000000000000000000000000000000000000000000000000000000',
+  ownActivity: [],
+  totalIn: 0,
+  totalOut: 0,
+  addressList: {
+    hasMore: false,
+    items: [],
+  },
+  runes: {
+    allActivity: {
+      items: [],
+      hasMore: false,
+    },
+    ownActivity: {
+      hasMore: false,
+      items: [],
+    },
+  },
+  brc20: {
+    allActivity: {
+      items: [],
+      hasMore: false,
+    },
+    ownActivity: {
+      hasMore: false,
+      items: [],
+    },
+  },
+  inscriptions: {
+    hasMore: false,
+    items: [],
+  },
+  ...diff,
+});
+
+export const inscriptionBurnAndSend: ApiAddressTransaction = createTestApiAddressTransaction({
   addressList: {
     hasMore: false,
     items: [
@@ -100,22 +138,12 @@ export const inscriptionBurnAndSend: ApiAddressTransaction = {
       sent: 938135,
     },
   ],
-  runes: {
-    allActivity: {
-      hasMore: false,
-      items: [],
-    },
-    ownActivity: {
-      hasMore: false,
-      items: [],
-    },
-  },
   totalIn: 3270204,
   totalOut: 3261704,
   txid: '8ce5ff910a34d35aa1b3b3ff85d2adff5eafeb604d559926673fbf8dc4a6c70c',
-};
+});
 
-export const inscriptionBurn: ApiAddressTransaction = {
+export const inscriptionBurn: ApiAddressTransaction = createTestApiAddressTransaction({
   addressList: {
     hasMore: false,
     items: [
@@ -164,22 +192,12 @@ export const inscriptionBurn: ApiAddressTransaction = {
       sent: 330,
     },
   ],
-  runes: {
-    allActivity: {
-      hasMore: false,
-      items: [],
-    },
-    ownActivity: {
-      hasMore: false,
-      items: [],
-    },
-  },
   totalIn: 376603,
   totalOut: 375422,
   txid: '6efb5078c623fa4d06fa3239c1faad302e853040596b41a33374b1800b3daf0d',
-};
+});
 
-export const inscriptionInscribeHasMore: ApiAddressTransaction = {
+export const inscriptionInscribeHasMore: ApiAddressTransaction = createTestApiAddressTransaction({
   addressList: {
     hasMore: false,
     items: [
@@ -309,22 +327,12 @@ export const inscriptionInscribeHasMore: ApiAddressTransaction = {
       sent: 0,
     },
   ],
-  runes: {
-    allActivity: {
-      hasMore: false,
-      items: [],
-    },
-    ownActivity: {
-      hasMore: false,
-      items: [],
-    },
-  },
   totalIn: 527682,
   totalOut: 369978,
   txid: '54ebc9b442ee70dada61445418d288c7f31ea8d332c5ae9d64bb52d824e00696',
-};
+});
 
-export const inscriptionInscribeAndReceive: ApiAddressTransaction = {
+export const inscriptionInscribeAndReceive: ApiAddressTransaction = createTestApiAddressTransaction({
   addressList: {
     hasMore: false,
     items: [
@@ -376,22 +384,12 @@ export const inscriptionInscribeAndReceive: ApiAddressTransaction = {
       sent: 0,
     },
   ],
-  runes: {
-    allActivity: {
-      hasMore: false,
-      items: [],
-    },
-    ownActivity: {
-      hasMore: false,
-      items: [],
-    },
-  },
   totalIn: 9508,
   totalOut: 1092,
   txid: 'ebd6de8f405bd2b1f056eabf11e4bbe98bb406269088e323fa67bc25024515cc',
-};
+});
 
-export const inscriptionInscribeOne: ApiAddressTransaction = {
+export const inscriptionInscribeOne: ApiAddressTransaction = createTestApiAddressTransaction({
   addressList: {
     hasMore: false,
     items: [
@@ -440,22 +438,12 @@ export const inscriptionInscribeOne: ApiAddressTransaction = {
       sent: 0,
     },
   ],
-  runes: {
-    allActivity: {
-      hasMore: false,
-      items: [],
-    },
-    ownActivity: {
-      hasMore: false,
-      items: [],
-    },
-  },
   totalIn: 33552263,
   totalOut: 33548399,
   txid: '375580abbd09cdb7d5dd1e153d8d6dc9020fd391fa4fe4ffbd4e6b4c450c4785',
-};
+});
 
-export const inscriptionReceiveTwo: ApiAddressTransaction = {
+export const inscriptionReceiveTwo: ApiAddressTransaction = createTestApiAddressTransaction({
   addressList: {
     hasMore: false,
     items: [
@@ -513,22 +501,12 @@ export const inscriptionReceiveTwo: ApiAddressTransaction = {
       sent: 0,
     },
   ],
-  runes: {
-    allActivity: {
-      hasMore: false,
-      items: [],
-    },
-    ownActivity: {
-      hasMore: false,
-      items: [],
-    },
-  },
   totalIn: 11480,
   totalOut: 8800,
   txid: '11a6e22bb4325221528b9b35d845c04ff913b928e0c0d40f9b6fd466204ab748',
-};
+});
 
-export const inscriptionSendTwo: ApiAddressTransaction = {
+export const inscriptionSendTwo: ApiAddressTransaction = createTestApiAddressTransaction({
   addressList: {
     hasMore: false,
     items: [
@@ -593,23 +571,13 @@ export const inscriptionSendTwo: ApiAddressTransaction = {
       sent: 2600,
     },
   ],
-  runes: {
-    allActivity: {
-      hasMore: false,
-      items: [],
-    },
-    ownActivity: {
-      hasMore: false,
-      items: [],
-    },
-  },
   totalIn: 11480,
   totalOut: 8800,
   txid: '11a6e22bb4325221528b9b35d845c04ff913b928e0c0d40f9b6fd466204ab749',
-};
+});
 
 // MARK: Runes txs
-export const runeAirDropAddressesHasMore: ApiAddressTransaction = {
+export const runeAirDropAddressesHasMore: ApiAddressTransaction = createTestApiAddressTransaction({
   addressList: {
     hasMore: true,
     items: [
@@ -677,10 +645,6 @@ export const runeAirDropAddressesHasMore: ApiAddressTransaction = {
   },
   blockHeight: 840654,
   blockTime: 1713961641,
-  inscriptions: {
-    hasMore: false,
-    items: [],
-  },
   ownActivity: [
     {
       address: 'bc1phrkher5h44sx4pelukf6kwahladmhzs9l96us8mcnqhxsd90cfyq9gm0l2',
@@ -721,9 +685,9 @@ export const runeAirDropAddressesHasMore: ApiAddressTransaction = {
   totalIn: 503838,
   totalOut: 39858,
   txid: 'e79cbd2fb7c1e8e0163ebca1e257bd44d0a5128185c1d90e2f97d2ba67bcd39e',
-};
+});
 
-export const runeSendOneAddessesHasMore: ApiAddressTransaction = {
+export const runeSendOneAddessesHasMore: ApiAddressTransaction = createTestApiAddressTransaction({
   addressList: {
     hasMore: true,
     items: [
@@ -791,10 +755,6 @@ export const runeSendOneAddessesHasMore: ApiAddressTransaction = {
   },
   blockHeight: 840654,
   blockTime: 1713961641,
-  inscriptions: {
-    hasMore: false,
-    items: [],
-  },
   ownActivity: [
     {
       address: 'bc1phrkher5h44sx4pelukf6kwahladmhzs9l96us8mcnqhxsd90cfyq9gm0l2',
@@ -835,9 +795,9 @@ export const runeSendOneAddessesHasMore: ApiAddressTransaction = {
   totalIn: 503838,
   totalOut: 39858,
   txid: 'e79cbd2fb7c1e8e0163ebca1e257bd44d0a5128185c1d90e2f97d2ba67bcd39f',
-};
+});
 
-export const runeBurnAndMintBurned: ApiAddressTransaction = {
+export const runeBurnAndMintBurned: ApiAddressTransaction = createTestApiAddressTransaction({
   addressList: {
     hasMore: false,
     items: [
@@ -857,10 +817,6 @@ export const runeBurnAndMintBurned: ApiAddressTransaction = {
   },
   blockHeight: 843090,
   blockTime: 1715481005,
-  inscriptions: {
-    hasMore: false,
-    items: [],
-  },
   ownActivity: [
     {
       address: 'bc1phrkher5h44sx4pelukf6kwahladmhzs9l96us8mcnqhxsd90cfyq9gm0l2',
@@ -909,9 +865,9 @@ export const runeBurnAndMintBurned: ApiAddressTransaction = {
   totalIn: 109623,
   totalOut: 109491,
   txid: '018a0989a5ccaae713ec902794a88186a7a66c33f85ed2abc98e09892d108ce8',
-};
+});
 
-export const runeBurnMinted: ApiAddressTransaction = {
+export const runeBurnMinted: ApiAddressTransaction = createTestApiAddressTransaction({
   addressList: {
     hasMore: false,
     items: [
@@ -931,10 +887,6 @@ export const runeBurnMinted: ApiAddressTransaction = {
   },
   blockHeight: 843090,
   blockTime: 1715481005,
-  inscriptions: {
-    hasMore: false,
-    items: [],
-  },
   ownActivity: [
     {
       address: 'bc1phrkher5h44sx4pelukf6kwahladmhzs9l96us8mcnqhxsd90cfyq9gm0l2',
@@ -966,9 +918,9 @@ export const runeBurnMinted: ApiAddressTransaction = {
   totalIn: 109491,
   totalOut: 106059,
   txid: '0013cb4112c6cabc9bf09a29714c36c6ebd678467c3df9e328a261efc419d566',
-};
+});
 
-export const runeBurnPartial: ApiAddressTransaction = {
+export const runeBurnPartial: ApiAddressTransaction = createTestApiAddressTransaction({
   addressList: {
     hasMore: false,
     items: [
@@ -994,10 +946,6 @@ export const runeBurnPartial: ApiAddressTransaction = {
   },
   blockHeight: 863340,
   blockTime: 1727603401,
-  inscriptions: {
-    hasMore: false,
-    items: [],
-  },
   ownActivity: [
     {
       address: 'bc1phrkher5h44sx4pelukf6kwahladmhzs9l96us8mcnqhxsd90cfyq9gm0l2',
@@ -1038,9 +986,9 @@ export const runeBurnPartial: ApiAddressTransaction = {
   totalIn: 2346,
   totalOut: 1200,
   txid: 'fc7a6d09f020ba6a4835c157232318b0032f9e1fe2e6f62d8b98aab702feeb36',
-};
+});
 
-export const runeBurnAndInscriptionSend: ApiAddressTransaction = {
+export const runeBurnAndInscriptionSend: ApiAddressTransaction = createTestApiAddressTransaction({
   addressList: {
     hasMore: false,
     items: [
@@ -1120,9 +1068,9 @@ export const runeBurnAndInscriptionSend: ApiAddressTransaction = {
   totalIn: 135130,
   totalOut: 120546,
   txid: '666a69e52a20b86d6fa2b29b724dd0f4020a74b5cddf3a574d0c6638d9828c75',
-};
+});
 
-export const runeConsolidate: ApiAddressTransaction = {
+export const runeConsolidate: ApiAddressTransaction = createTestApiAddressTransaction({
   addressList: {
     hasMore: false,
     items: [
@@ -1142,10 +1090,6 @@ export const runeConsolidate: ApiAddressTransaction = {
   },
   blockHeight: 862073,
   blockTime: 1726809864,
-  inscriptions: {
-    hasMore: false,
-    items: [],
-  },
   ownActivity: [
     {
       address: 'bc1q7wgqsjkjf26vmhhkwcfl5famhcytvunphn4phh',
@@ -1186,9 +1130,9 @@ export const runeConsolidate: ApiAddressTransaction = {
   totalIn: 35610,
   totalOut: 19000,
   txid: '3dc854f7f0bfc5ffe05ae1bdd76166de91609a78e7b2919b6b7a6e944f9b6404',
-};
+});
 
-export const runeSplit: ApiAddressTransaction = {
+export const runeSplit: ApiAddressTransaction = createTestApiAddressTransaction({
   addressList: {
     hasMore: false,
     items: [
@@ -1214,10 +1158,6 @@ export const runeSplit: ApiAddressTransaction = {
   },
   blockHeight: 858508,
   blockTime: 1724667380,
-  inscriptions: {
-    hasMore: false,
-    items: [],
-  },
   ownActivity: [
     {
       address: 'bc1phrkher5h44sx4pelukf6kwahladmhzs9l96us8mcnqhxsd90cfyq9gm0l2',
@@ -1258,9 +1198,9 @@ export const runeSplit: ApiAddressTransaction = {
   totalIn: 95528,
   totalOut: 81806,
   txid: '6638bff14bf7949c1ddbd4abcdc304b7d9c7b4300f58286f90d1c62a81483d61',
-};
+});
 
-export const runeEtchWithInscription: ApiAddressTransaction = {
+export const runeEtchWithInscription: ApiAddressTransaction = createTestApiAddressTransaction({
   addressList: {
     hasMore: false,
     items: [
@@ -1331,9 +1271,9 @@ export const runeEtchWithInscription: ApiAddressTransaction = {
   totalIn: 5790,
   totalOut: 546,
   txid: 'd7f65eb2c538f828ce64360bdd5fc1cae8c223158d1406d508e7df7a15d46dcb',
-};
+});
 
-export const runeEtchWithPremine: ApiAddressTransaction = {
+export const runeEtchWithPremine: ApiAddressTransaction = createTestApiAddressTransaction({
   addressList: {
     hasMore: false,
     items: [
@@ -1359,10 +1299,6 @@ export const runeEtchWithPremine: ApiAddressTransaction = {
   },
   blockHeight: 840000,
   blockTime: 1713571767,
-  inscriptions: {
-    hasMore: false,
-    items: [],
-  },
   ownActivity: [
     {
       address: 'bc1phrkher5h44sx4pelukf6kwahladmhzs9l96us8mcnqhxsd90cfyq9gm0l2',
@@ -1403,9 +1339,9 @@ export const runeEtchWithPremine: ApiAddressTransaction = {
   totalIn: 290783340,
   totalOut: 10330,
   txid: 'e79134080a83fe3e0e06ed6990c5a9b63b362313341745707a2bff7d788a1376',
-};
+});
 
-export const runeEtchWithInscriptionAndPremine: ApiAddressTransaction = {
+export const runeEtchWithInscriptionAndPremine: ApiAddressTransaction = createTestApiAddressTransaction({
   addressList: {
     hasMore: false,
     items: [
@@ -1498,9 +1434,9 @@ export const runeEtchWithInscriptionAndPremine: ApiAddressTransaction = {
   totalIn: 290783340,
   totalOut: 10330,
   txid: 'e79134080a83fe3e0e06ed6990c5a9b63b362313341745707a2bff7d788a1375',
-};
+});
 
-export const runeMintAndSendInscriptionsHasMore: ApiAddressTransaction = {
+export const runeMintAndSendInscriptionsHasMore: ApiAddressTransaction = createTestApiAddressTransaction({
   addressList: {
     hasMore: false,
     items: [
@@ -1655,9 +1591,9 @@ export const runeMintAndSendInscriptionsHasMore: ApiAddressTransaction = {
   totalIn: 250045,
   totalOut: 249525,
   txid: '2c307f0a4e36b4af92f62c96398cb9c59f46f91d401ae9bd3c54ad19ea5fa099',
-};
+});
 
-export const runeMintWithExistingRuneBalance: ApiAddressTransaction = {
+export const runeMintWithExistingRuneBalance: ApiAddressTransaction = createTestApiAddressTransaction({
   addressList: {
     hasMore: false,
     items: [
@@ -1721,9 +1657,9 @@ export const runeMintWithExistingRuneBalance: ApiAddressTransaction = {
   totalIn: 4242,
   totalOut: 3339,
   txid: '6a66a1ca2f3940d66f6607248086ec8ad7cca5191068af6b57a6d76bfa0fa115',
-};
+});
 
-export const runeMintWithoutRuneBalance: ApiAddressTransaction = {
+export const runeMintWithoutRuneBalance: ApiAddressTransaction = createTestApiAddressTransaction({
   addressList: {
     hasMore: false,
     items: [
@@ -1755,10 +1691,6 @@ export const runeMintWithoutRuneBalance: ApiAddressTransaction = {
   },
   blockHeight: 869959,
   blockTime: 1731399775,
-  inscriptions: {
-    hasMore: false,
-    items: [],
-  },
   ownActivity: [
     {
       address: 'bc1phrkher5h44sx4pelukf6kwahladmhzs9l96us8mcnqhxsd90cfyq9gm0l2',
@@ -1799,32 +1731,28 @@ export const runeMintWithoutRuneBalance: ApiAddressTransaction = {
   totalIn: 10866,
   totalOut: 8956,
   txid: 'd80d7ae9b5a136577a6b937c3e8895439e0f7087009f9dcefbcc3c1b49a1b782',
-};
+});
 
-export const runeOwnActivityHasMore: ApiAddressTransaction = {
+export const runeOwnActivityHasMore: ApiAddressTransaction = createTestApiAddressTransaction({
   addressList: {
     hasMore: false,
     items: [
       {
         address: 'bc1phrkher5h44sx4pelukf6kwahladmhzs9l96us8mcnqhxsd90cfyq9gm0l2',
         type: 'tr',
-        isInput: true,
-        isOutput: false,
+        isInput: false,
+        isOutput: true,
       },
       {
         address: 'bc1pzrq4kaftwdzu284qmkzyl5yf96nfywschsnkj68d4h7w230fhpdssx2e4l',
         type: 'tr',
-        isInput: false,
-        isOutput: true,
+        isInput: true,
+        isOutput: false,
       },
     ],
   },
   blockHeight: 854341,
   blockTime: 1722177765,
-  inscriptions: {
-    hasMore: false,
-    items: [],
-  },
   ownActivity: [
     {
       address: 'bc1phrkher5h44sx4pelukf6kwahladmhzs9l96us8mcnqhxsd90cfyq9gm0l2',
@@ -2009,9 +1937,9 @@ export const runeOwnActivityHasMore: ApiAddressTransaction = {
   totalIn: 10699078,
   totalOut: 10697778,
   txid: 'd8633d61d6b56851c5f9ed83424ba8efed514af0255cf4dab60904370670544c',
-};
+});
 
-export const runeReceiveTwo: ApiAddressTransaction = {
+export const runeReceiveTwo: ApiAddressTransaction = createTestApiAddressTransaction({
   addressList: {
     hasMore: false,
     items: [
@@ -2037,10 +1965,6 @@ export const runeReceiveTwo: ApiAddressTransaction = {
   },
   blockHeight: 840806,
   blockTime: 1714041958,
-  inscriptions: {
-    hasMore: false,
-    items: [],
-  },
   ownActivity: [
     {
       address: 'bc1phrkher5h44sx4pelukf6kwahladmhzs9l96us8mcnqhxsd90cfyq9gm0l2',
@@ -2097,9 +2021,9 @@ export const runeReceiveTwo: ApiAddressTransaction = {
   totalIn: 500546,
   totalOut: 479622,
   txid: '10d3b216297998b724c69b1d1fa9bf016924bbecd19803ca2c962258a0a77a0b',
-};
+});
 
-export const runeSendTwo: ApiAddressTransaction = {
+export const runeSendTwo: ApiAddressTransaction = createTestApiAddressTransaction({
   addressList: {
     hasMore: false,
     items: [
@@ -2131,10 +2055,6 @@ export const runeSendTwo: ApiAddressTransaction = {
   },
   blockHeight: 854341,
   blockTime: 1722177765,
-  inscriptions: {
-    hasMore: false,
-    items: [],
-  },
   ownActivity: [
     {
       address: 'bc1phrkher5h44sx4pelukf6kwahladmhzs9l96us8mcnqhxsd90cfyq9gm0l2',
@@ -2198,9 +2118,9 @@ export const runeSendTwo: ApiAddressTransaction = {
   totalIn: 5893249,
   totalOut: 5871249,
   txid: '398fb42bd308473d5ea09c161252fd4add6887688b995bc007512913c245973b',
-};
+});
 
-export const runePartialSendOne: ApiAddressTransaction = {
+export const runePartialSendOne: ApiAddressTransaction = createTestApiAddressTransaction({
   blockHeight: 883191,
   blockTime: 1739204894,
   txid: '94fdcfa4fae93644d60b51bd7996c6d3d92eebf87444fe88b1d04758c2acfb6b',
@@ -2279,13 +2199,9 @@ export const runePartialSendOne: ApiAddressTransaction = {
       ],
     },
   },
-  inscriptions: {
-    hasMore: false,
-    items: [],
-  },
-};
+});
 
-export const runeSendOneConsolidateOne: ApiAddressTransaction = {
+export const runeSendOneConsolidateOne: ApiAddressTransaction = createTestApiAddressTransaction({
   blockHeight: 883418,
   blockTime: 1739359270,
   txid: 'b48dfbc306abd032db4bf732e3194a72c6c8cc1779d21b4cc1e2dd0df4d41793',
@@ -2380,13 +2296,9 @@ export const runeSendOneConsolidateOne: ApiAddressTransaction = {
       ],
     },
   },
-  inscriptions: {
-    hasMore: false,
-    items: [],
-  },
-};
+});
 
-export const runeBurnOneAndConsolidateTwo: ApiAddressTransaction = {
+export const runeBurnOneAndConsolidateTwo: ApiAddressTransaction = createTestApiAddressTransaction({
   blockHeight: 883310,
   blockTime: 1739280871,
   txid: '7eb47951b6ce807be294dff1f663b6018cfc976f1818e164c574f0c020dfe339',
@@ -2497,14 +2409,10 @@ export const runeBurnOneAndConsolidateTwo: ApiAddressTransaction = {
       ],
     },
   },
-  inscriptions: {
-    hasMore: false,
-    items: [],
-  },
-};
+});
 
 // MARK: Multiple assets
-export const multipleAssetsSendTwo: ApiAddressTransaction = {
+export const multipleAssetsSendTwo: ApiAddressTransaction = createTestApiAddressTransaction({
   blockHeight: 883191,
   blockTime: 1739204894,
   txid: '94fdcfa4fae93644d60b51bd7996c6d3d92eebf87444fe88b1d04758c2acfb6b',
@@ -2597,9 +2505,9 @@ export const multipleAssetsSendTwo: ApiAddressTransaction = {
       },
     ],
   },
-};
+});
 
-export const multipleAssetsReceiveTwo: ApiAddressTransaction = {
+export const multipleAssetsReceiveTwo: ApiAddressTransaction = createTestApiAddressTransaction({
   blockHeight: 883192,
   blockTime: 1739204895,
   txid: '94fdcfa4fae93644d60b51bd7996c6d3d92eebf87444fe88b1d04758c2acfb6c',
@@ -2685,9 +2593,9 @@ export const multipleAssetsReceiveTwo: ApiAddressTransaction = {
       },
     ],
   },
-};
+});
 
-export const multipleAssetsBurnTwo: ApiAddressTransaction = {
+export const multipleAssetsBurnTwo: ApiAddressTransaction = createTestApiAddressTransaction({
   blockHeight: 883193,
   blockTime: 1739204896,
   txid: '94fdcfa4fae93644d60b51bd7996c6d3d92eebf87444fe88b1d04758c2acfb6d',
@@ -2774,9 +2682,9 @@ export const multipleAssetsBurnTwo: ApiAddressTransaction = {
       },
     ],
   },
-};
+});
 
-export const multipleAssetsSendTwoConsolidateOne: ApiAddressTransaction = {
+export const multipleAssetsSendTwoConsolidateOne: ApiAddressTransaction = createTestApiAddressTransaction({
   blockHeight: 883418,
   blockTime: 1739359270,
   txid: 'b48dfbc306abd032db4bf732e3194a72c6c8cc1779d21b4cc1e2dd0df4d41793',
@@ -2885,9 +2793,9 @@ export const multipleAssetsSendTwoConsolidateOne: ApiAddressTransaction = {
       },
     ],
   },
-};
+});
 
-export const multipleAssetsBurnTwoConsolidateOne: ApiAddressTransaction = {
+export const multipleAssetsBurnTwoConsolidateOne: ApiAddressTransaction = createTestApiAddressTransaction({
   blockHeight: 883418,
   blockTime: 1739359270,
   txid: 'b48dfbc306abd032db4bf732e3194a72c6c8cc1779d21b4cc1e2dd0df4d41793',
@@ -2990,10 +2898,140 @@ export const multipleAssetsBurnTwoConsolidateOne: ApiAddressTransaction = {
       },
     ],
   },
-};
+});
+
+export const multipleAssetsBrc20AndRunes: ApiAddressTransaction = createTestApiAddressTransaction({
+  blockHeight: 883418,
+  blockTime: 1739359270,
+  txid: 'b48dfbc306abd032db4bf732e3194a72c6c8cc1779d21b4cc1e2dd0df4d41793',
+  ownActivity: [
+    {
+      sent: 276,
+      received: 0,
+      outgoing: 876,
+      incoming: 600,
+      address: 'bc1phrkher5h44sx4pelukf6kwahladmhzs9l96us8mcnqhxsd90cfyq9gm0l2',
+    },
+    {
+      sent: 14,
+      received: 0,
+      outgoing: 28911,
+      incoming: 28897,
+      address: '3AFJakCxnJwX8kooj8cWZ8nh7RLu58Aymb',
+    },
+  ],
+  totalIn: 88457,
+  totalOut: 85473,
+  addressList: {
+    hasMore: false,
+    items: [
+      {
+        address: undefined,
+        type: 'op_return',
+        isInput: false,
+        isOutput: true,
+      },
+      {
+        address: 'bc1phrkher5h44sx4pelukf6kwahladmhzs9l96us8mcnqhxsd90cfyq9gm0l2',
+        type: 'tr',
+        isInput: true,
+        isOutput: true,
+      },
+      {
+        address: '3AFJakCxnJwX8kooj8cWZ8nh7RLu58Aymb',
+        type: 'sh',
+        isInput: true,
+        isOutput: true,
+      },
+    ],
+  },
+  runes: {
+    allActivity: {
+      items: [
+        {
+          runeId: '1:0',
+          outgoing: '45',
+          incoming: '45',
+          isMint: false,
+          isEtch: false,
+          isBurn: false,
+        },
+        {
+          runeId: '840000:3',
+          outgoing: '385789160',
+          incoming: '385789160',
+          isMint: false,
+          isEtch: false,
+          isBurn: true,
+        },
+      ],
+      hasMore: false,
+    },
+    ownActivity: {
+      hasMore: false,
+      items: [
+        {
+          runeId: '1:0',
+          address: 'bc1phrkher5h44sx4pelukf6kwahladmhzs9l96us8mcnqhxsd90cfyq9gm0l2',
+          sent: '0',
+          received: '0',
+          outgoing: '45',
+          incoming: '45',
+        },
+        {
+          runeId: '840000:3',
+          address: 'bc1phrkher5h44sx4pelukf6kwahladmhzs9l96us8mcnqhxsd90cfyq9gm0l2',
+          sent: '100000000',
+          received: '0',
+          outgoing: '385789160',
+          incoming: '285789160',
+        },
+      ],
+    },
+  },
+  inscriptions: {
+    hasMore: false,
+    items: [
+      {
+        address: 'bc1phrkher5h44sx4pelukf6kwahladmhzs9l96us8mcnqhxsd90cfyq9gm0l2',
+        burned: false,
+        contentType: 'text/plain;charset=utf-8',
+        inscribed: false,
+        inscriptionId: 'a1801c8f87a6751826ee902f6143fbf4a212644853428a6f5330b65650aa88a3i0',
+        received: true,
+        sent: false,
+      },
+    ],
+  },
+  brc20: {
+    ownActivity: {
+      hasMore: false,
+      items: [
+        {
+          incoming: '100000000',
+          address: 'bc1phrkher5h44sx4pelukf6kwahladmhzs9l96us8mcnqhxsd90cfyq9gm0l2',
+          outgoing: '0',
+          sent: '0',
+          received: '100000000',
+          ticker: 'ordi',
+        },
+      ],
+    },
+    allActivity: {
+      hasMore: false,
+      items: [
+        {
+          incoming: '100000000',
+          outgoing: '100000000',
+          ticker: 'ordi',
+        },
+      ],
+    },
+  },
+});
 
 // MARK: btc txs
-export const receiveBtcWithMultipleExternalAddresses: ApiAddressTransaction = {
+export const receiveBtcWithMultipleExternalAddresses: ApiAddressTransaction = createTestApiAddressTransaction({
   blockHeight: 887139,
   blockTime: 1741593618,
   txid: '80f115b06250a8ed3811d917fc26648f2a4592a21702d6360586cd34c939d642',
@@ -3049,23 +3087,9 @@ export const receiveBtcWithMultipleExternalAddresses: ApiAddressTransaction = {
       },
     ],
   },
-  runes: {
-    allActivity: {
-      items: [],
-      hasMore: false,
-    },
-    ownActivity: {
-      hasMore: false,
-      items: [],
-    },
-  },
-  inscriptions: {
-    hasMore: false,
-    items: [],
-  },
-};
+});
 
-export const sendBtcToTwoAddresses: ApiAddressTransaction = {
+export const sendBtcToTwoAddresses: ApiAddressTransaction = createTestApiAddressTransaction({
   blockHeight: 886582,
   blockTime: 1741272617,
   txid: '0102dcc296785aa4ce5e966cccce486e313aac89ab8f2d05d7ea81988a90fb77',
@@ -3103,23 +3127,9 @@ export const sendBtcToTwoAddresses: ApiAddressTransaction = {
       },
     ],
   },
-  runes: {
-    allActivity: {
-      items: [],
-      hasMore: false,
-    },
-    ownActivity: {
-      hasMore: false,
-      items: [],
-    },
-  },
-  inscriptions: {
-    hasMore: false,
-    items: [],
-  },
-};
+});
 
-export const consolidateBtc: ApiAddressTransaction = {
+export const consolidateBtc: ApiAddressTransaction = createTestApiAddressTransaction({
   blockHeight: 887252,
   blockTime: 1741655145,
   txid: '79b8b804a4e7aa77153a8f1628a76b9eb2cde7d417d6382e57b43ed4a5fd8cd4',
@@ -3158,18 +3168,4 @@ export const consolidateBtc: ApiAddressTransaction = {
       },
     ],
   },
-  runes: {
-    allActivity: {
-      items: [],
-      hasMore: false,
-    },
-    ownActivity: {
-      hasMore: false,
-      items: [],
-    },
-  },
-  inscriptions: {
-    hasMore: false,
-    items: [],
-  },
-};
+});
