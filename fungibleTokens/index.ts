@@ -1,5 +1,6 @@
 import { BigNumber } from '../utils/bignumber';
 import {
+  Brc20Token,
   CurrencyTypes,
   type FungibleToken,
   FungibleTokenProtocol,
@@ -100,6 +101,17 @@ export const mapTokenToFt = (token: Token): FungibleToken => ({
   runeInscriptionId: token.logo,
 });
 
+export const ftDecimals = (value: number | string | BigNumber, decimals: number): string => {
+  return new BigNumber(value).shiftedBy(-decimals).toFixed();
+};
+
+export function getFtBalance(ft: FungibleToken) {
+  if (ft && ft.decimals) {
+    return ftDecimals(ft.balance, ft.decimals);
+  }
+  return BigNumber(ft?.balance).toFixed();
+}
+
 export const mapFtToCurrencyType = (ft?: FungibleToken): CurrencyTypes => {
   const principalToCurrencyTypeMap: Record<string, CurrencyTypes> = {
     BTC: 'BTC',
@@ -138,3 +150,15 @@ export const getTrackingIdentifier = (token?: FungibleToken): string => {
 
   return token.name || identifier;
 };
+
+export const brc20TokenToFungibleToken = (coin: Brc20Token): FungibleToken => ({
+  name: coin.name,
+  principal: coin.ticker ?? coin.name,
+  balance: '0',
+  total_sent: '',
+  total_received: '',
+  assetName: coin.name ?? coin.ticker,
+  ticker: coin.ticker,
+  protocol: 'brc-20',
+  supported: coin.supported,
+});
