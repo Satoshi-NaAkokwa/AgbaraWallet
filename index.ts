@@ -35,6 +35,7 @@ export * from './types';
 export * from './utils';
 export * from './vaults';
 export * from './wallet';
+export * from './portfolio';
 
 import { resources, store, utils } from './permissions';
 export const permissions = {
