@@ -6,3 +6,4 @@ export * from './rbf';
 export { default as rbf } from './rbf';
 export * as runesTransaction from './runes';
 export * from './stacks';
+export * from './history';
