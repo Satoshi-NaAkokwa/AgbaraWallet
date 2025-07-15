@@ -140,7 +140,10 @@ export type AnalyticsEventProperties = {
   [AnalyticsEvents.SetupWallet]: SetupWalletProps;
   [AnalyticsEvents.BackupWallet]: BackupWalletProps;
   [AnalyticsEvents.RestoreWallet]: RestoreWalletProps;
-  [AnalyticsEvents.InitiateBuyFlow]: { source: BaseSource | 'send_stx' | 'send_btc'; selectedToken: string };
+  [AnalyticsEvents.InitiateBuyFlow]: {
+    source: BaseSource | 'send_stx' | 'send_btc' | 'send_sn';
+    selectedToken: string;
+  };
   [AnalyticsEvents.InitiateSendFlow]: {
     source: BaseSource | 'qr_scan';
     addressType: AddressType;
