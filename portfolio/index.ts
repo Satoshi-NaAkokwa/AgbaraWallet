@@ -1,6 +1,7 @@
 import { FungibleTokenWithStates } from '../types';
 import { microstacksToStx, satsToBtc } from '../currency';
 import { getFtBalance } from '../fungibleTokens';
+import { BigNumber } from '../utils/bignumber';
 
 export const calculateTotalBalance = ({
   stxBalance,
