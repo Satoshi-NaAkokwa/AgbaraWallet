@@ -207,7 +207,7 @@ export const groupStacksTxByDate = (
 
   if (pendings.length > 0) {
     result.unshift({
-      title: 'PENDING',
+      title: 'Pending',
       data: pendings,
     });
   }
