@@ -1,5 +1,6 @@
 import { TransactionContext, type InputToSign } from './context';
 import { createTransactionContext } from './contextFactory';
+import { groupBtcTxsByDate } from './history';
 import { EnhancedPsbt } from './enhancedPsbt';
 import { EnhancedTransaction } from './enhancedTransaction';
 import { ExtendedUtxo } from './extendedUtxo';
@@ -28,7 +29,15 @@ const SPLIT_UTXO_MIN_VALUE = 1500; // the minimum value for a sat range to be sp
 
 const DUST_VALUE = 546; // the value of an inscription we prefer to use
 
-export { ActionType, createTransactionContext, EnhancedPsbt, EnhancedTransaction, ExtendedUtxo, TransactionContext };
+export {
+  ActionType,
+  createTransactionContext,
+  groupBtcTxsByDate,
+  EnhancedPsbt,
+  EnhancedTransaction,
+  ExtendedUtxo,
+  TransactionContext,
+};
 export type {
   EnhancedInput,
   EnhancedOutput,
