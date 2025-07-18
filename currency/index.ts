@@ -1,14 +1,25 @@
 import { BigNumber } from '../utils/bignumber';
-import { FungibleToken } from '../types';
-import type { CurrencyTypes } from '../types/fungibleTokens';
+import { FungibleToken, type CurrencyTypes } from '../types';
 
-const satsToBtc = (sats: BigNumber): BigNumber => sats.multipliedBy(0.00000001);
+const satsToBtc = (sats: BigNumber | number | string | undefined): BigNumber => {
+  if (!sats) return BigNumber(0);
+  return BigNumber(sats).multipliedBy(0.00000001);
+};
 
-const btcToSats = (btc: BigNumber): BigNumber => btc.multipliedBy(100000000);
+const btcToSats = (btc: BigNumber | number | string | undefined): BigNumber => {
+  if (!btc) return BigNumber(0);
+  return BigNumber(btc).multipliedBy(100000000);
+};
 
-const microstacksToStx = (microstacks: BigNumber): BigNumber => microstacks.multipliedBy(0.000001);
+const microstacksToStx = (microstacks: BigNumber | number | string | undefined): BigNumber => {
+  if (!microstacks) return BigNumber(0);
+  return BigNumber(microstacks).multipliedBy(0.000001);
+};
 
-const stxToMicrostacks = (stacks: BigNumber): BigNumber => stacks.multipliedBy(1000000);
+const stxToMicrostacks = (stx: BigNumber | number | string | undefined): BigNumber => {
+  if (!stx) return BigNumber(0);
+  return BigNumber(stx).multipliedBy(1000000);
+};
 
 const getStxFiatEquivalent = (stxAmount: BigNumber, stxBtcRate: BigNumber, btcFiatRate: BigNumber): BigNumber =>
   microstacksToStx(stxAmount).multipliedBy(stxBtcRate).multipliedBy(btcFiatRate);

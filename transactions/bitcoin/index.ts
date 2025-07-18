@@ -4,6 +4,7 @@ import { groupBtcTxsByDate } from './history';
 import { EnhancedPsbt } from './enhancedPsbt';
 import { EnhancedTransaction } from './enhancedTransaction';
 import { ExtendedUtxo } from './extendedUtxo';
+import { estimateVSize } from './utils/transactionVsizeEstimator';
 import {
   ActionType,
   EnhancedInput,
@@ -33,6 +34,7 @@ export {
   ActionType,
   createTransactionContext,
   groupBtcTxsByDate,
+  estimateVSize,
   EnhancedPsbt,
   EnhancedTransaction,
   ExtendedUtxo,
