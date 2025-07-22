@@ -1,3 +1,5 @@
+import { UserExplorerStorage } from '../../types';
+import { UserDefaultExplorers } from '../../utils/explorer';
 import { inferStoreDefinition } from '../types';
 
 export type WalletOptionsStore = {
@@ -10,6 +12,7 @@ export type WalletOptionsStore = {
   hasActivatedRBFKey: boolean;
   rareSatsNoticeDismissed: boolean;
   showDataCollectionAlert: boolean;
+  preferredExplorers: UserExplorerStorage;
 };
 
 const defaultValue: WalletOptionsStore = {
@@ -22,6 +25,7 @@ const defaultValue: WalletOptionsStore = {
   hasActivatedRBFKey: false,
   rareSatsNoticeDismissed: false,
   showDataCollectionAlert: true,
+  preferredExplorers: UserDefaultExplorers,
 };
 
 const storeName = 'walletOptions' as const;
@@ -34,6 +38,9 @@ export const walletOptionsStore = inferStoreDefinition({
   createMutators: (storeManager) => ({
     updateOptions: async (newOptions: Partial<WalletOptionsStore>) => {
       await storeManager.updateStoreValue(storeName, newOptions);
+    },
+    updatePreferredExplorers: async (newExplorers: UserExplorerStorage) => {
+      await storeManager.updateStoreValue(storeName, { preferredExplorers: newExplorers });
     },
   }),
   utils: {},
