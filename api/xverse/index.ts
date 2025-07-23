@@ -125,9 +125,10 @@ export class XverseApi {
 
   static readonly addressRegistrars = AddressRegistrars;
 
-  constructor(vault: MasterVault, network: NetworkType) {
+  constructor(vault: MasterVault, network: NetworkType, customBaseUrl?: string) {
+    const baseURL = customBaseUrl || XVERSE_API_BASE_URL(network);
     this.client = axios.create({
-      baseURL: XVERSE_API_BASE_URL(network),
+      baseURL,
       headers: {
         'Content-Type': 'application/json',
         'X-Client-Version': getXClientVersion() || undefined,
@@ -136,7 +137,7 @@ export class XverseApi {
 
     this.authenticatedClient = new AuthenticatedClient(
       {
-        baseURL: XVERSE_API_BASE_URL(network),
+        baseURL,
         headers: {
           'Content-Type': 'application/json',
           'X-Client-Version': getXClientVersion() || undefined,

@@ -1,4 +1,5 @@
 import { UserExplorerStorage } from '../../types';
+import { CustomNetwork } from '../../utils/customNetwork';
 import { UserDefaultExplorers } from '../../utils/explorer';
 import { inferStoreDefinition } from '../types';
 
@@ -13,6 +14,7 @@ export type WalletOptionsStore = {
   rareSatsNoticeDismissed: boolean;
   showDataCollectionAlert: boolean;
   preferredExplorers: UserExplorerStorage;
+  customNetworks: Array<CustomNetwork>;
 };
 
 const defaultValue: WalletOptionsStore = {
@@ -26,6 +28,7 @@ const defaultValue: WalletOptionsStore = {
   rareSatsNoticeDismissed: false,
   showDataCollectionAlert: true,
   preferredExplorers: UserDefaultExplorers,
+  customNetworks: [],
 };
 
 const storeName = 'walletOptions' as const;
@@ -41,6 +44,9 @@ export const walletOptionsStore = inferStoreDefinition({
     },
     updatePreferredExplorers: async (newExplorers: UserExplorerStorage) => {
       await storeManager.updateStoreValue(storeName, { preferredExplorers: newExplorers });
+    },
+    updateCustomNetworks: async (customNetworks: Array<CustomNetwork>) => {
+      await storeManager.updateStoreValue(storeName, { customNetworks });
     },
   }),
   utils: {},

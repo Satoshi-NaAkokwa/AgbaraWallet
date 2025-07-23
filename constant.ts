@@ -90,6 +90,8 @@ export const initialNetworksList: SettingsNetwork[] = [
 
 export const NFT_BASE_URI = 'https://stacks.gamma.io/api/v1/collections';
 
+export const PROTECTED_CUSTOM_REGTEST_ENDPOINT: Array<string> = ['https://api-regtest-midl.xverse.app'];
+
 const xverseApiNetworkSuffix = (network: NetworkType, mainnetOverride = '') => {
   switch (network) {
     case 'Mainnet':

@@ -1,7 +1,7 @@
 export * from './btc';
 export * from './esplora/esploraAPiProvider';
 export * from './gamma';
-export { getNetworkURL, parseStxTransactionData } from './helper';
+export { getNetworkURL, parseStxTransactionData, validateCustomIndexerUrl } from './helper';
 export { default as mempoolApi } from './mempool';
 export * from './ordinals';
 export * from './ordinals/provider';
