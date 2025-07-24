@@ -1,5 +1,6 @@
 import * as v from 'valibot';
 import { SettingsNetwork } from '../types';
+import { defaultMainnet, defaultRegtest, defaultSignet, defaultTestnet, defaultTestnet4 } from '../constant';
 
 export const customNetworkSchema = v.object({
   /* For easier discrimination with xverse-core's `SettingsNetwork`s */
@@ -45,3 +46,11 @@ export type GenericNetwork = SettingsNetwork | CustomNetwork;
 export type CustomChainId = 'btc' | 'stx';
 
 export type CustomNetworkInputs = Omit<CustomNetwork, 'type' | '_type' | 'id'>;
+
+export const DefaultNetworkConfig: Record<SettingsNetwork['type'], SettingsNetwork> = {
+  Mainnet: defaultMainnet,
+  Testnet: defaultTestnet,
+  Testnet4: defaultTestnet4,
+  Signet: defaultSignet,
+  Regtest: defaultRegtest,
+};
