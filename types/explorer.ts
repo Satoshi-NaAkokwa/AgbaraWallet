@@ -21,6 +21,10 @@ export type UserExplorerMap = Record<
     name: string;
     allowCustom?: boolean;
     fallback: string;
+    singleTestnet?: boolean;
+    // for chains that only have one testnet, eg. STACKS
+    // instead of listing all network type just to have the same url, this variable will unify everything
+    // so if user network.type is on Signet, this chain will always fall back to the Testnet's explorer
     explorers: Partial<
       Record<
         NetworkType,

@@ -48,6 +48,7 @@ export const DefaultExplorerMapping: UserExplorerMap = {
     name: 'Stacks',
     allowCustom: true,
     fallback: 'https://explorer.hiro.so/txid/{txId}',
+    singleTestnet: true,
     explorers: {
       Mainnet: {
         hiro: {
@@ -95,7 +96,12 @@ export const UserDefaultExplorers: UserExplorerStorage = {
 
 export const getExplorerForNetworkChain = (params: GetExplorerForNetworkParams) => {
   const { chain, explorerId, txId, network = 'Mainnet' } = params;
-  const networkExplorers = DefaultExplorerMapping[chain].explorers[network];
+  let networkExplorers;
+  if (network !== 'Mainnet' && DefaultExplorerMapping[chain].singleTestnet) {
+    networkExplorers = DefaultExplorerMapping[chain].explorers['Testnet'];
+  } else {
+    networkExplorers = DefaultExplorerMapping[chain].explorers[network];
+  }
 
   let url;
   if (explorerId) {
