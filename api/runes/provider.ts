@@ -87,9 +87,10 @@ export class RunesApi {
 
   private network: NetworkType;
 
-  constructor(network: NetworkType, customAdapter?: AxiosAdapter) {
+  constructor(network: NetworkType, customAdapter?: AxiosAdapter, customBaseUrl?: string) {
+    const baseURL = customBaseUrl || XVERSE_API_BASE_URL(network);
     this.clientBigNumber = axios.create({
-      baseURL: `${XVERSE_API_BASE_URL(network)}`,
+      baseURL,
       headers: {
         'Content-Type': 'application/json',
         'X-Client-Version': getXClientVersion() || undefined,
@@ -276,9 +277,9 @@ export class RunesApi {
 
 const apiClients: Partial<Record<NetworkType, RunesApi>> = {};
 
-export const getRunesClient = (network: NetworkType, adapter?: AxiosAdapter): RunesApi => {
+export const getRunesClient = (network: NetworkType, adapter?: AxiosAdapter, customBaseUrl?: string): RunesApi => {
   if (!apiClients[network]) {
-    apiClients[network] = new RunesApi(network, adapter);
+    apiClients[network] = new RunesApi(network, adapter, customBaseUrl);
   }
   return apiClients[network] as RunesApi;
 };

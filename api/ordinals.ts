@@ -137,8 +137,12 @@ export async function getNonOrdinalUtxo(
   return nonOrdinalOutputs;
 }
 
-export async function getOrdinalsFtBalance(network: NetworkType, address: string): Promise<FungibleToken[]> {
-  const url = `${XVERSE_API_BASE_URL(network)}/v1/ordinals/token/balances/${address}`;
+export async function getOrdinalsFtBalance(
+  network: NetworkType,
+  address: string,
+  customBaseUrl?: string,
+): Promise<FungibleToken[]> {
+  const url = `${customBaseUrl || XVERSE_API_BASE_URL(network)}/v1/ordinals/token/balances/${address}`;
   return axios
     .get(url, {
       timeout: API_TIMEOUT_MILLI,
@@ -178,8 +182,9 @@ export async function getBrc20History(
   network: NetworkType,
   address: string,
   token: string,
+  customBaseUrl?: string,
 ): Promise<Brc20HistoryTransactionData[]> {
-  const url = `${XVERSE_API_BASE_URL(network)}/v1/ordinals/token/${token}/history/${address}`;
+  const url = `${customBaseUrl || XVERSE_API_BASE_URL(network)}/v1/ordinals/token/${token}/history/${address}`;
   return axios
     .get(url, {
       timeout: API_TIMEOUT_MILLI,
@@ -212,6 +217,7 @@ export const getAddressUtxoOrdinalBundles = async (
     hideUnconfirmed?: boolean;
     /** Filter out UTXOs that only have one or more inscriptions or other assets (and no rare sats) */
     hideSpecialWithoutSatributes?: boolean;
+    customBaseUrl?: string;
   },
 ): Promise<AddressBundleResponse> => {
   const params: Record<string, unknown> = {
@@ -236,7 +242,7 @@ export const getAddressUtxoOrdinalBundles = async (
   }
 
   const response = await axios.get<AddressBundleResponse>(
-    `${XVERSE_API_BASE_URL(network)}/v2/address/${address}/ordinal-utxo`,
+    `${options?.customBaseUrl || XVERSE_API_BASE_URL(network)}/v2/address/${address}/ordinal-utxo`,
     {
       params,
       transformResponse: (data) => JSONBigOnDemand.parse(data),
@@ -250,9 +256,10 @@ export const getUtxoOrdinalBundle = async (
   network: NetworkType,
   txid: string,
   vout: number,
+  customBaseUrl?: string,
 ): Promise<UtxoBundleResponse> => {
   const response = await axios.get<UtxoBundleResponse>(
-    `${XVERSE_API_BASE_URL(network)}/v2/ordinal-utxo/${txid}:${vout}`,
+    `${customBaseUrl || XVERSE_API_BASE_URL(network)}/v2/ordinal-utxo/${txid}:${vout}`,
     {
       transformResponse: (data) => JSONBigOnDemand.parse(data),
     },
