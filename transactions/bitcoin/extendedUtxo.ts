@@ -1,7 +1,8 @@
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../../utils/bignumber';
 import { UtxoCache } from '../../api';
 import EsploraProvider from '../../api/esplora/esploraAPiProvider';
 import { UTXO, UtxoOrdinalBundle } from '../../types';
+import { normalizeRuneName } from '../../utils';
 import { getOutpointFromUtxo } from './utils';
 
 export class ExtendedUtxo {
@@ -51,17 +52,10 @@ export class ExtendedUtxo {
       return Promise.resolve(this._hex);
     }
 
-    return new Promise(async (resolve, reject) => {
-      try {
-        const hex = await this._esploraApiProvider.getTransactionHex(this._utxo.txid);
-
-        if (hex) {
-          this._hex = hex;
-        }
-
-        resolve(hex);
-      } catch (error) {
-        reject(error);
+    return this._esploraApiProvider.getTransactionHex(this._utxo.txid).then((hex) => {
+      if (hex) {
+        this._hex = hex;
+        return hex;
       }
     });
   }
@@ -137,7 +131,9 @@ export class ExtendedUtxo {
       return undefined;
     }
 
-    const runeEntry = bundleData.runes?.find((rune) => rune[0] === runeName.toUpperCase());
+    const normalizedRuneName = normalizeRuneName(runeName);
+
+    const runeEntry = bundleData.runes?.find((rune) => normalizeRuneName(rune[0]) === normalizedRuneName);
     const runeBalance = BigNumber(runeEntry?.[1].amount ?? 0);
 
     return runeBalance;
@@ -151,10 +147,13 @@ export class ExtendedUtxo {
       return undefined;
     }
 
-    const runeEntry = bundleData.runes?.reduce((acc, rune) => {
-      acc[rune[0]] = rune[1].amount;
-      return acc;
-    }, {} as { [runeName: string]: BigNumber });
+    const runeEntry = bundleData.runes?.reduce(
+      (acc, rune) => {
+        acc[rune[0]] = rune[1].amount;
+        return acc;
+      },
+      {} as { [runeName: string]: BigNumber },
+    );
 
     return runeEntry;
   }

@@ -1,4 +1,3 @@
-import BigNumber from 'bignumber.js';
 import { CoreInfo, DelegationInfo } from '../stacks';
 
 export interface Pool {

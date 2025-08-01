@@ -9,3 +9,4 @@ export * from './messageSigning';
 export * from './mixpanel';
 export * from './network';
 export * from './storage';
+export * from './explorer';

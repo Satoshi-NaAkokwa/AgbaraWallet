@@ -1,10 +1,11 @@
-import { StacksNetwork } from '@stacks/network';
-import BigNumber from 'bignumber.js';
+import { type StacksNetwork } from '@stacks/network';
+import { BigNumber } from '../utils/bignumber';
 import {
   Brc20HistoryTransactionData,
   Brc20TxHistoryItem,
   BtcTransactionData,
   EsploraTransaction,
+  NetworkType,
   StacksMainnet,
   StxMempoolTransactionData,
   StxMempoolTransactionDataResponse,
@@ -15,7 +16,12 @@ import {
   Vout,
 } from '../types';
 
-import { HIRO_MAINNET_DEFAULT, HIRO_TESTNET_DEFAULT } from '../constant';
+import {
+  HIRO_MAINNET_DEFAULT,
+  HIRO_TESTNET_DEFAULT,
+  PROTECTED_CUSTOM_REGTEST_ENDPOINT,
+  XVERSE_API_BASE_URL,
+} from '../constant';
 
 export function sumOutputsForAddress(outputs: Vout[], address: string): number {
   let total = 0;
@@ -250,7 +256,7 @@ export function mapTransferTransactionData({
     incoming: senderAddress !== stxAddress,
     amount: new BigNumber(
       postConditions.find((x) => x !== undefined)?.type === 'fungible'
-        ? postConditions.find((x) => x !== undefined)?.amount ?? 0
+        ? (postConditions.find((x) => x !== undefined)?.amount ?? 0)
         : 0,
     ),
     post_conditions: [],
@@ -395,4 +401,17 @@ export function getFetchableUrl(uri: string, protocol: string): string | null {
     return `${publicIpfs}/${url[1]}`;
   }
   return null;
+}
+
+/**
+ * Validates if the provided indexer URL is allowed based on the application specification.
+ * Only URLs present in `PROTECTED_CUSTOM_REGTEST_ENDPOINT` (e.g., MIDL) are permitted.
+ * Alternatively, if a valid `network` type is provided, its corresponding XVERSE API base URL is also accepted.
+ *
+ * @param {string} url - The indexer URL to be validated.
+ * @param {NetworkType=} [network] - Optional. The network type to validate against known network endpoints.
+ * @returns {boolean} Returns `true` if the URL is whitelisted; otherwise, returns `false`.
+ */
+export function validateCustomIndexerUrl(url: string, network?: NetworkType): boolean {
+  return PROTECTED_CUSTOM_REGTEST_ENDPOINT.includes(url) || (!!network && Boolean(XVERSE_API_BASE_URL(network)));
 }

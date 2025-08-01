@@ -1,8 +1,11 @@
+import { HDKey } from '@scure/bip32';
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import BigNumber from 'bignumber.js';
-import { API_TIMEOUT_MILLI, XVERSE_API_BASE_URL } from '../constant';
-import { runeTokenToFungibleToken } from '../fungibleTokens';
+import { validateAndParseAddress } from 'starknet';
+import { API_TIMEOUT_MILLI, XVERSE_API_BASE_URL } from '../../constant';
+import { runeTokenToFungibleToken } from '../../fungibleTokens';
 import {
+  Account,
+  ApiAddressHistoryResult,
   APIGetRunesActivityForAddressResponse,
   AppFeaturesBody,
   AppFeaturesContext,
@@ -40,6 +43,8 @@ import {
   GetSourceTokensRequest,
   GetUtxosRequest,
   GetUtxosResponse,
+  GlobalTransactionsHistoryRequest,
+  GlobalTransactionsHistoryResponse,
   HistoricalDataParamsPeriod,
   HistoricalDataResponsePrices,
   Inscription,
@@ -57,6 +62,7 @@ import {
   PlaceXcOrderRequest,
   PlaceXcOrderResponse,
   PrincipalToFungibleToken,
+  Protocol,
   SignedUrlResponse,
   SimplePriceResponse,
   StackerInfo,
@@ -68,11 +74,33 @@ import {
   SupportedCurrency,
   TokenBasic,
   TokenFiatRateResponse,
+  TokenStatsAndInfoResponseType,
   TopTokens,
   TopTokensResponse,
-} from '../types';
-import { getXClientVersion } from '../utils/xClientVersion';
-
+} from '../../types';
+import {
+  CollectionDetailsResponse,
+  GetAddressCollectionOrdinalsResponse,
+  GetAddressCollectionStacksResponse,
+  ListCollectionsRequest,
+  ListCollectionsResponse,
+} from '../../types/api/xverse/collections';
+import { StarknetTokenBalancesRequest, StarknetTokenBalancesResponse } from '../../types/api/xverse/starknet';
+import {
+  GetBrc20BalanceBody,
+  GetBrc20MarketDataBody,
+  GetRuneBalanceBody,
+  GetRunesMarketDataBody,
+  GetSip10MarketDataBody,
+  TokenBalanceV3,
+  TokenMarketDataV3,
+} from '../../types/api/xverse/v3';
+import { AxiosRateLimit } from '../../utils/axiosRateLimit';
+import { BigNumber } from '../../utils/bignumber';
+import { getXClientVersion } from '../../utils/xClientVersion';
+import { DerivationType, MasterVault } from '../../vaults';
+import AddressRegistrars from './addressRegistrar';
+import { AuthenticatedClient } from './authenticatedClient';
 const produceHistoricalDataObject = (timestamp: number, price: number) => ({
   x: timestamp,
   y: price,
@@ -89,15 +117,39 @@ const produceHistoricalDataObject = (timestamp: number, price: number) => ({
 export class XverseApi {
   private client: AxiosInstance;
 
+  private authenticatedClient: AuthenticatedClient;
+
   private network: NetworkType;
 
-  constructor(network: NetworkType) {
+  rateLimiter: AxiosRateLimit;
+
+  static readonly addressRegistrars = AddressRegistrars;
+
+  constructor(vault: MasterVault, network: NetworkType, customBaseUrl?: string) {
+    const baseURL = customBaseUrl || XVERSE_API_BASE_URL(network);
     this.client = axios.create({
-      baseURL: XVERSE_API_BASE_URL(network),
+      baseURL,
       headers: {
         'Content-Type': 'application/json',
         'X-Client-Version': getXClientVersion() || undefined,
       },
+    });
+
+    this.authenticatedClient = new AuthenticatedClient(
+      {
+        baseURL,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Client-Version': getXClientVersion() || undefined,
+        },
+      },
+      vault,
+      network,
+    );
+
+    // we create a shared rate limiter for the client and the authenticated client
+    this.rateLimiter = new AxiosRateLimit([this.client, this.authenticatedClient], {
+      maxRPS: 10,
     });
 
     this.network = network;
@@ -111,6 +163,11 @@ export class XverseApi {
   fetchStxToBtcRate = async (): Promise<BigNumber> => {
     const response = await this.client.get('/v1/prices/stx/btc', { timeout: API_TIMEOUT_MILLI });
     return new BigNumber(response.data.stxBtcRate.toString());
+  };
+
+  fetchStrkToBtcRate = async (): Promise<BigNumber> => {
+    const response = await this.client.get('/v1/prices/strk/btc', { timeout: API_TIMEOUT_MILLI });
+    return new BigNumber(response.data.strkBtcRate.toString());
   };
 
   fetchBtcToCurrencyRate = async ({ fiatCurrency }: { fiatCurrency: SupportedCurrency }): Promise<BigNumber> => {
@@ -150,6 +207,13 @@ export class XverseApi {
         currency: fiatCurrency,
         tickers: tickers,
       },
+    });
+    return response.data;
+  };
+
+  getTokenStatsAndInfo = async (id: string, protocol: Protocol): Promise<TokenStatsAndInfoResponseType> => {
+    const response = await this.client.get<TokenStatsAndInfoResponseType>('/v2/token-stats-and-info', {
+      params: { id, protocol },
     });
     return response.data;
   };
@@ -247,6 +311,73 @@ export class XverseApi {
     return response.data;
   };
 
+  getAllCollections = async ({
+    ordinalsAddress,
+    stacksAddress,
+    filters,
+    limit = 20,
+    offset = 0,
+    currency = 'USD',
+  }: ListCollectionsRequest): Promise<ListCollectionsResponse> => {
+    const response = await this.client.post<ListCollectionsResponse>(`/v1/nft/collections`, {
+      ordinalsAddress,
+      stacksAddress,
+      limit,
+      offset,
+      filters,
+      currency,
+    });
+    return response.data;
+  };
+
+  getOrdinalCollectionDetails = async (collectionId: string): Promise<CollectionDetailsResponse> => {
+    const response = await this.client.get<CollectionDetailsResponse>(
+      `/v1/nft/ordinals/collections/${collectionId}/info`,
+    );
+    return response.data;
+  };
+
+  getStacksCollectionDetails = async (collectionId: string): Promise<CollectionDetailsResponse> => {
+    const response = await this.client.get<CollectionDetailsResponse>(
+      `/v1/nft/stacks/collections/${collectionId}/info`,
+    );
+    return response.data;
+  };
+
+  getAddressCollectionOrdinals = async (
+    address: string,
+    collectionId: string,
+    offset?: number,
+    limit?: number,
+    filters?: CollectionsListFilters,
+    currency = 'USD',
+  ): Promise<GetAddressCollectionOrdinalsResponse> => {
+    const response = await this.client.post(`/v1/nft/ordinals/address/${address}/collections/${collectionId}`, {
+      limit,
+      offset,
+      filters,
+      currency,
+    });
+    return response.data;
+  };
+
+  getAddressCollectionStacks = async (
+    address: string,
+    collectionId: string,
+    offset?: number,
+    limit?: number,
+    filters?: CollectionsListFilters,
+    currency = 'USD',
+  ): Promise<GetAddressCollectionStacksResponse> => {
+    const response = await this.client.post(`/v1/nft/stacks/address/${address}/collections/${collectionId}`, {
+      limit,
+      offset,
+      filters,
+      currency,
+    });
+    return response.data;
+  };
+
   getCollectionSpecificInscriptions = async (
     address: string,
     collectionId: string,
@@ -337,11 +468,143 @@ export class XverseApi {
   getAppFeatures = async (context?: Partial<AppFeaturesContext>, headers?: Record<string, string>) => {
     const response = await this.client.post<
       AppFeaturesResponse,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- this is the axios default
       AxiosResponse<AppFeaturesResponse, any>,
       AppFeaturesBody
     >('/v1/app-features', { context: { ...context, network: this.network } }, { headers });
     return response.data;
+  };
+
+  auth = {
+    ensureAccountRegistered: async (account: Account) => {
+      const addresses = Object.values(account.btcAddresses).map((a) => a.address);
+      const alreadyAuthorized = await this.authenticatedClient.hasScope(addresses);
+
+      if (alreadyAuthorized) {
+        return;
+      }
+
+      if (account.accountType === 'ledger' || account.accountType === 'keystone') {
+        const addressesToRegister = Object.values(account.btcAddresses).map((a) => a.address);
+        return this.authenticatedClient.extend(addressesToRegister);
+      }
+
+      return this.authenticatedClient.extendSoftwareAccountScope(account);
+    },
+
+    batchEnsureSoftwareAccountRegistered: async (
+      accounts: Account[],
+      config?: {
+        rootNode: HDKey;
+        derivationType: DerivationType;
+      },
+    ) => {
+      // check walletId matches in all accounts
+      const walletId = accounts[0].walletId;
+      const isThereAnyAccountWithDifferentWalletId = accounts.some((account) => account.walletId !== walletId);
+      if (isThereAnyAccountWithDifferentWalletId) {
+        throw new Error('All accounts must belong to the same wallet');
+      }
+
+      const addresses = accounts
+        .map((account) => Object.values(account.btcAddresses).map((btcItem) => btcItem.address))
+        .flat();
+      const alreadyAuthorized = await this.authenticatedClient.hasScope(addresses);
+
+      if (alreadyAuthorized) {
+        return;
+      }
+
+      // is not all in scope, we batch check scope
+      const batchSize = 3;
+      const batches: Account[][] = [];
+      for (let i = 0; i < accounts.length; i += batchSize) {
+        batches.push(accounts.slice(i, i + batchSize));
+      }
+      const scopeChecks = await Promise.all(
+        batches.map((batch) =>
+          this.authenticatedClient.hasScope(batch.flatMap((a) => Object.values(a.btcAddresses).map((b) => b.address))),
+        ),
+      );
+
+      // we batch extend the scope for the ones that are not in scope
+      const toRegister = batches.filter((_, i) => !scopeChecks[i]);
+      for (const batch of toRegister) {
+        await this.authenticatedClient.batchExtendSoftwareAccountScope(batch, config);
+      }
+    },
+  };
+
+  account = {
+    fetchAddressBtcHistory: async (
+      addresses: string[],
+      options?: {
+        offset?: number;
+        limit?: number;
+        token?: {
+          type: 'brc20' | 'rune';
+          id: string;
+        };
+      },
+    ): Promise<ApiAddressHistoryResult> => {
+      const response = await this.authenticatedClient.get<ApiAddressHistoryResult>(`/v1/account/history`, {
+        params: {
+          addresses,
+          ...options,
+        },
+      });
+      return response.data;
+    },
+
+    fetchAccountBtcHistory: async (
+      account: Account,
+      options?: {
+        offset?: number;
+        limit?: number;
+        token?: {
+          type: 'brc20' | 'rune';
+          id: string;
+        };
+      },
+    ): Promise<ApiAddressHistoryResult> => {
+      const addresses = Object.values(account.btcAddresses).map((a) => a.address);
+      return this.account.fetchAddressBtcHistory(addresses, options);
+    },
+
+    getGlobalTxHistory: async (params: {
+      cursor: string | undefined;
+      addresses: {
+        bitcoin?: string[];
+        stacks?: string;
+        starknet?: string;
+      };
+      limit: number;
+    }): Promise<GlobalTransactionsHistoryResponse> => {
+      if (!params.cursor && !params.addresses.bitcoin && !params.addresses.stacks && !params.addresses.starknet) {
+        throw new Error('At least one address is required');
+      }
+
+      const body: GlobalTransactionsHistoryRequest = params.cursor
+        ? {
+            type: 'cursor',
+            cursor: params.cursor,
+            limit: params.limit,
+          }
+        : {
+            type: 'initial',
+            addresses: {
+              bitcoin: params.addresses.bitcoin,
+              stacks: params.addresses.stacks,
+              starknet: params.addresses.starknet
+                ? {
+                    address: params.addresses.starknet,
+                  }
+                : undefined,
+            },
+            limit: params.limit,
+          };
+      const result = await this.authenticatedClient.post('/v2/global-history', body);
+      return result.data;
+    },
   };
 
   listings = {
@@ -378,6 +641,63 @@ export class XverseApi {
         body,
       );
       return response.data;
+    },
+  };
+
+  starknet = {
+    getHistory: async (params: {
+      address: string;
+      limit: number;
+      cursor?: string;
+      contractAddress?: string;
+    }): Promise<GlobalTransactionsHistoryResponse> => {
+      const { address, ...body } = params;
+      const response = await this.client.post<GlobalTransactionsHistoryResponse>(
+        `/v1/starknet/address/${address}/history`,
+        body,
+      );
+
+      // Normalize Starknet transaction addresses
+      const normalizedResponse: GlobalTransactionsHistoryResponse = {
+        ...response.data,
+        transactions: response.data.transactions.map((transaction) => {
+          if (transaction.type === 'starknet') {
+            try {
+              return {
+                ...transaction,
+                data: {
+                  ...transaction.data,
+                  contractAddress: validateAndParseAddress(transaction.data.contractAddress),
+                  fromAddress: validateAndParseAddress(transaction.data.fromAddress),
+                  toAddress: validateAndParseAddress(transaction.data.toAddress),
+                },
+              };
+            } catch (error) {
+              console.warn('Failed to normalize Starknet addresses:', error);
+              return transaction;
+            }
+          }
+          return transaction;
+        }),
+      };
+
+      return normalizedResponse;
+    },
+
+    getTokenBalances: async (body: StarknetTokenBalancesRequest): Promise<StarknetTokenBalancesResponse> => {
+      const response = await this.client.get<StarknetTokenBalancesResponse>('/starknet/v1/tokenBalances', {
+        params: body,
+      });
+
+      // Normalize the contract addresses
+      const normalizedResponse: StarknetTokenBalancesResponse = {
+        ...response.data,
+        tokenBalances: response.data.tokenBalances.map((token) => ({
+          ...token,
+          contractAddress: validateAndParseAddress(token.contractAddress),
+        })),
+      };
+      return normalizedResponse;
     },
   };
 
@@ -440,6 +760,31 @@ export class XverseApi {
     /** Gets order history. This is for XC providers. */
     getOrderHistory: async (body: GetOrderHistoryRequest): Promise<GetOrderHistoryResponse> => {
       const response = await this.client.post<GetOrderHistoryResponse>('/v1/swaps/get-order-history', body);
+      return response.data;
+    },
+  };
+
+  v3 = {
+    getRunesBalance: async (body: GetRuneBalanceBody): Promise<TokenBalanceV3> => {
+      const response = await this.client.get<TokenBalanceV3>(
+        `/v3/address/${body.address}/runes/balance?includeUnconfirmed=${body.includeUnconfirmed}`,
+      );
+      return response.data;
+    },
+    getRunesMarketData: async (body: GetRunesMarketDataBody): Promise<TokenMarketDataV3> => {
+      const response = await this.client.post<TokenMarketDataV3>('/v3/runes/market-data', body);
+      return response.data;
+    },
+    getBrc20Balance: async (body: GetBrc20BalanceBody): Promise<TokenBalanceV3> => {
+      const response = await this.client.get<TokenBalanceV3>(`/v3/address/${body.address}/brc20/balance`);
+      return response.data;
+    },
+    getBrc20MarketData: async (body: GetBrc20MarketDataBody): Promise<TokenMarketDataV3> => {
+      const response = await this.client.post<TokenMarketDataV3>('/v3/brc20/market-data', body);
+      return response.data;
+    },
+    getSip10MarketData: async (body: GetSip10MarketDataBody): Promise<TokenMarketDataV3> => {
+      const response = await this.client.post<TokenMarketDataV3>('/v3/sip10/market-data', body);
       return response.data;
     },
   };

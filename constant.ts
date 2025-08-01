@@ -90,6 +90,8 @@ export const initialNetworksList: SettingsNetwork[] = [
 
 export const NFT_BASE_URI = 'https://stacks.gamma.io/api/v1/collections';
 
+export const PROTECTED_CUSTOM_REGTEST_ENDPOINT: Array<string> = ['https://api-regtest-midl.xverse.app'];
+
 const xverseApiNetworkSuffix = (network: NetworkType, mainnetOverride = '') => {
   switch (network) {
     case 'Mainnet':
@@ -179,3 +181,5 @@ export const supportedCoins = [
 export const ORDINALS_FT_INDEXER_API_URL = 'https://unisat.io/brc20-api-v2/address';
 
 export const GAMMA_COLLECTION_API = 'https://api.gamma.io/nft-data-service/v1/collections';
+
+export const ONRAMPER_API_URL = 'https://api.onramper.com';

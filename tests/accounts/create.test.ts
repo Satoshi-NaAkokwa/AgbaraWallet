@@ -40,6 +40,11 @@ describe('account from seed phrase', () => {
       walletId: 'walletId',
       accountType: 'software',
       masterPubKey: '024d30279814a0e609534af1d1969b7c24a6918029e1f9cb2134a427ebfb1f17c3',
+      strkAddresses: {
+        'argent-x-v0_4_0-with-0-guardians': {
+          address: '0x010c1b27d0a93a9a0d72bbad1557f42548adc32aa0ac36974f8fbee3e855869f',
+        },
+      },
       stxAddress: 'SP1FWDM2J68TZBYCGR0VRTB3FFDAR5GP19PHB7M3Y',
       stxPublicKey: '03b1973efe29dcf47d6afc5d3d813ce7b5354f5a9f04209027a077f79c72aacff5',
       btcAddresses: {
@@ -73,6 +78,11 @@ describe('account from seed phrase', () => {
       walletId: 'walletId',
       accountType: 'software',
       masterPubKey: '024d30279814a0e609534af1d1969b7c24a6918029e1f9cb2134a427ebfb1f17c3',
+      strkAddresses: {
+        'argent-x-v0_4_0-with-0-guardians': {
+          address: '0x010c1b27d0a93a9a0d72bbad1557f42548adc32aa0ac36974f8fbee3e855869f',
+        },
+      },
       stxAddress: 'SP27YCF0YG7KRY1X0CFJKYTB3C902ZZ84GS7WJ17G',
       stxPublicKey: '03d83268738daa68ac4e9b5fc13ef20765c315d1dd1efddf49f8d19c1407fbcbce',
       btcAddresses: {
@@ -106,6 +116,11 @@ describe('account from seed phrase', () => {
       walletId: 'walletId',
       accountType: 'software',
       masterPubKey: '024d30279814a0e609534af1d1969b7c24a6918029e1f9cb2134a427ebfb1f17c3',
+      strkAddresses: {
+        'argent-x-v0_4_0-with-0-guardians': {
+          address: '0x01d97973f29ba492160a59090ab3c4cfde2e2c34dc8720d16def149f809d7d8e',
+        },
+      },
       stxAddress: 'ST147ST7ESA3RES888QQMV6AK7GZK93ZR75HPGC8G',
       stxPublicKey: '025df9b0ea2c81e4f8360bf9a16638ed3678bc84dbdc04124f5db86996999aa9a8',
       btcAddresses: {

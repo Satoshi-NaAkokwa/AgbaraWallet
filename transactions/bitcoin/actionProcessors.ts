@@ -59,19 +59,22 @@ export const applySendUtxoActions = async (
   const inputs: ExtendedUtxo[] = [];
   const outputs: Omit<TransactionOutput, 'inscriptions' | 'satributes'>[] = [];
 
-  const actionMap = actions.reduce((acc, action) => {
-    const { toAddress } = action;
-    if (!acc[toAddress]) {
-      acc[toAddress] = [[], []];
-    }
-    const [singular, combinable] = acc[toAddress];
-    if (action.combinable) {
-      acc[toAddress] = [singular, [...combinable, action]];
-    } else {
-      acc[toAddress] = [[...singular, action], combinable];
-    }
-    return acc;
-  }, {} as Record<string, [SendUtxoAction[], SendUtxoAction[]]>);
+  const actionMap = actions.reduce(
+    (acc, action) => {
+      const { toAddress } = action;
+      if (!acc[toAddress]) {
+        acc[toAddress] = [[], []];
+      }
+      const [singular, combinable] = acc[toAddress];
+      if (action.combinable) {
+        acc[toAddress] = [singular, [...combinable, action]];
+      } else {
+        acc[toAddress] = [[...singular, action], combinable];
+      }
+      return acc;
+    },
+    {} as Record<string, [SendUtxoAction[], SendUtxoAction[]]>,
+  );
 
   for (const [toAddress, [singular, combinable]] of Object.entries(actionMap)) {
     const actionGroups = [...singular.map((action) => [action]), combinable];
@@ -129,21 +132,24 @@ export const applySplitUtxoActions = async (
   const outputs: Omit<TransactionOutput, 'inscriptions' | 'satributes'>[] = [];
 
   // group actions by UTXO
-  const outpointActionMap = actions.reduce((map, action) => {
-    const { location } = action;
-    const outpoint = getOutpointFromLocation(location);
+  const outpointActionMap = actions.reduce(
+    (map, action) => {
+      const { location } = action;
+      const outpoint = getOutpointFromLocation(location);
 
-    if (usedOutpoints.has(outpoint)) {
-      throw new Error(`UTXO already used: ${outpoint}`);
-    }
+      if (usedOutpoints.has(outpoint)) {
+        throw new Error(`UTXO already used: ${outpoint}`);
+      }
 
-    if (!(outpoint in map)) {
-      map[outpoint] = [];
-    }
+      if (!(outpoint in map)) {
+        map[outpoint] = [];
+      }
 
-    map[outpoint].push(action);
-    return map;
-  }, {} as Record<string, SplitUtxoAction[]>);
+      map[outpoint].push(action);
+      return map;
+    },
+    {} as Record<string, SplitUtxoAction[]>,
+  );
 
   const outpointActionList = Object.entries(outpointActionMap);
   // sort internal actions from smallest offset to biggest

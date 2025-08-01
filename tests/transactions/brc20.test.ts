@@ -60,8 +60,8 @@ describe('brc20TransferEstimateFees', () => {
           getSummary: async () =>
             ({
               fee: 1070,
-            } as any),
-        } as any),
+            }) as any,
+        }) as any,
     );
 
     const result = await brc20TransferEstimateFees(
@@ -115,8 +115,8 @@ describe('brc20TransferEstimateFees', () => {
           getSummary: async () =>
             ({
               fee: 1070,
-            } as any),
-        } as any),
+            }) as any,
+        }) as any,
     );
 
     const result = await brc20TransferEstimateFees(
@@ -270,9 +270,9 @@ describe('brc20TransferExecute', () => {
           getSummary: async () =>
             ({
               fee: 1070,
-            } as any),
+            }) as any,
           getTransactionHexAndId,
-        } as any),
+        }) as any,
     );
 
     // Execute the generator function

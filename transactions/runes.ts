@@ -1,8 +1,9 @@
 import { hex } from '@scure/base';
-import { BigNumber } from 'bignumber.js';
+import { BigNumber } from '../utils/bignumber';
 import { getRunesClient } from '../api';
 import { DEFAULT_DUST_VALUE } from '../constant';
 import { Edict } from '../types';
+import { normalizeRuneName } from '../utils';
 import { processPromisesBatch } from '../utils/promises';
 import { ActionType, EnhancedTransaction, ExtendedUtxo, TransactionContext, TransactionOptions } from './bitcoin';
 import { Action } from './bitcoin/types';
@@ -19,12 +20,15 @@ const getUtxosWithRuneBalance = async (extendedUtxos: ExtendedUtxo[], runeName: 
   });
 
   // get only utxos with positive balance of desired rune
-  const runeUtxos = runeUtxosRaw.reduce((acc, utxo) => {
-    if (!!utxo.balance && utxo.balance.gt(0)) {
-      acc.push(utxo as { utxo: ExtendedUtxo; balance: BigNumber });
-    }
-    return acc;
-  }, [] as { utxo: ExtendedUtxo; balance: BigNumber }[]);
+  const runeUtxos = runeUtxosRaw.reduce(
+    (acc, utxo) => {
+      if (!!utxo.balance && utxo.balance.gt(0)) {
+        acc.push(utxo as { utxo: ExtendedUtxo; balance: BigNumber });
+      }
+      return acc;
+    },
+    [] as { utxo: ExtendedUtxo; balance: BigNumber }[],
+  );
 
   return runeUtxos;
 };
@@ -45,10 +49,14 @@ export const sendManyRunes = async (
     throw new Error('Amount must be positive');
   }
 
-  const runeTotalsToSend = recipients.reduce((acc, { runeName, amount }) => {
-    acc[runeName] = BigNumber(acc[runeName] ?? 0).plus(amount.toString());
-    return acc;
-  }, {} as Record<string, BigNumber>);
+  const runeTotalsToSend = recipients.reduce(
+    (acc, { runeName, amount }) => {
+      const normalizedRuneName = normalizeRuneName(runeName);
+      acc[normalizedRuneName] = BigNumber(acc[normalizedRuneName] ?? 0).plus(amount.toString());
+      return acc;
+    },
+    {} as Record<string, BigNumber>,
+  );
 
   const allocatedRunes: Record<string, BigNumber> = {};
 
@@ -71,17 +79,20 @@ export const sendManyRunes = async (
       const utxoBundle = await utxo.getBundleData();
 
       for (const [rune, runeDetails] of utxoBundle?.runes ?? []) {
-        allocatedRunes[rune] = BigNumber(allocatedRunes[rune] ?? 0).plus(runeDetails.amount);
+        const normalizedRuneName = normalizeRuneName(rune);
+        allocatedRunes[normalizedRuneName] = BigNumber(allocatedRunes[normalizedRuneName] ?? 0).plus(
+          runeDetails.amount,
+        );
       }
 
       selectedOutpoints.add(utxo.outpoint);
 
-      if (allocatedRunes[runeName].gte(totalToSend)) {
+      if (allocatedRunes[runeName]?.gte(totalToSend)) {
         break;
       }
     }
 
-    if (allocatedRunes[runeName].lt(totalToSend)) {
+    if (!allocatedRunes[runeName] || allocatedRunes[runeName].lt(totalToSend)) {
       throw new Error(`Not enough runes to send for ${runeName}`);
     }
   }

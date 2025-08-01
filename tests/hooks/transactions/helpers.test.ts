@@ -1,4 +1,4 @@
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../../../utils/bignumber';
 import { calculateStxRbfData } from '../../../hooks/transactions/helpers';
 import { AppInfo } from '../../../types';
 import { describe, expect, it } from 'vitest';

@@ -1,6 +1,7 @@
 export * from './appConfig';
 export * from './appFeatures';
 export * from './coins';
+export * from './history';
 export * from './listings';
 export * from './misc';
 export * from './ordinals';
@@ -9,4 +10,5 @@ export * from './sponsor';
 export * from './stacking';
 export * from './swaps';
 export * from './transaction';
+export * from './starknet';
 export * from './wallet';

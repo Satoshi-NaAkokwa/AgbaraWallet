@@ -1,6 +1,6 @@
 // import { ContractCallPayload, TransactionTypes } from '@stacks/connect';
 // import { PayloadType } from '@stacks/transactions';
-// import { BigNumber } from 'bignumber.js';
+// import { BigNumber } from '../../../utils/bignumber';
 import { afterEach, describe, it, vi } from 'vitest';
 // import { afterEach, describe, expect, it, vi } from 'vitest';
 

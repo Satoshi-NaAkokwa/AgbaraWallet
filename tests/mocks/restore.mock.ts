@@ -15,6 +15,11 @@ export const walletAccounts: Account[] = [
     walletId: 'walletId' as WalletId,
     accountType: 'software',
     masterPubKey: '024d30279814a0e609534af1d1969b7c24a6918029e1f9cb2134a427ebfb1f17c3',
+    strkAddresses: {
+      'argent-x-v0_4_0-with-0-guardians': {
+        address: '0x01d97973f29ba492160a59090ab3c4cfde2e2c34dc8720d16def149f809d7d8e',
+      },
+    },
     stxAddress: 'SP147ST7ESA3RES888QQMV6AK7GZK93ZR74A0GM7V',
     stxPublicKey: '025df9b0ea2c81e4f8360bf9a16638ed3678bc84dbdc04124f5db86996999aa9a8',
     btcAddresses: {
@@ -37,6 +42,11 @@ export const walletAccounts: Account[] = [
     walletId: 'walletId' as WalletId,
     accountType: 'software',
     masterPubKey: '024d30279814a0e609534af1d1969b7c24a6918029e1f9cb2134a427ebfb1f17c3',
+    strkAddresses: {
+      'argent-x-v0_4_0-with-0-guardians': {
+        address: '0x053b1ace0e8bdcfffccc55b330b89a0def3e43e15a62d7c55bf9acf396952479',
+      },
+    },
     stxAddress: 'SP1BKESAFFV8ACW007HACXB93VHRFHP83BT24Z3NF',
     stxPublicKey: '0302ec9c40f8d5daf319bf4b1556c7f51f1eb449dd96d05e7ed42a1056451dd656',
     btcAddresses: {

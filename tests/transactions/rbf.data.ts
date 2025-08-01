@@ -1,4 +1,4 @@
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../../utils/bignumber';
 import EsploraApiProvider from '../../api/esplora/esploraAPiProvider';
 import { RBFProps } from '../../transactions';
 import { BtcTransactionData, EsploraTransaction, UTXO } from '../../types';

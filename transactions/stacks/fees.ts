@@ -1,5 +1,5 @@
 import { bytesToHex } from '@noble/hashes/utils';
-import { StacksNetwork } from '@stacks/network';
+import { type StacksNetwork } from '@stacks/network';
 import { MempoolFeePriorities } from '@stacks/stacks-blockchain-api-types';
 import {
   estimateTransactionByteLength,
@@ -11,6 +11,11 @@ import {
 } from '@stacks/transactions';
 import { FeeEstimation, getMempoolFeePriorities, XverseApi } from '../../api';
 import { AppInfo } from '../../types';
+
+/**
+ * Transactions with a lower fee are likely to be rejected.
+ */
+export const absoluteMinFee = [2500, 3000, 3500];
 
 /**
  * stxFeeReducer - given initialFee, and appInfo (stacks fee multiplier and threshold config),
@@ -49,6 +54,7 @@ export const stxFeeReducer = ({
   ) {
     newFee = BigInt(appInfo.thresholdHighStacksFee);
   }
+  newFee = newFee < BigInt(absoluteMinFee[1]) ? BigInt(absoluteMinFee[1]) : newFee;
 
   return newFee;
 };
@@ -124,6 +130,12 @@ export const modifyRecommendedStxFees = (
   let adjustedLow = Math.round(baseFees.low * multiplier);
   let adjustedMedium = Math.round(baseFees.medium * multiplier);
   let adjustedHigh = Math.round(baseFees.high * multiplier);
+
+  if (adjustedMedium < absoluteMinFee[1]) {
+    adjustedLow = absoluteMinFee[0];
+    adjustedMedium = absoluteMinFee[1];
+    adjustedHigh = absoluteMinFee[2];
+  }
 
   if (highCap && highCap < adjustedMedium) {
     adjustedLow = adjustedLow < highCap ? adjustedLow : Math.round(highCap * 0.75);

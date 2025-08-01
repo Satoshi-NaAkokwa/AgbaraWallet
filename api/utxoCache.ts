@@ -1,6 +1,6 @@
 import { Mutex } from 'async-mutex';
 import { isAxiosError } from 'axios';
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../utils/bignumber';
 import {
   ExtendedStorageAdapter,
   NetworkType,
@@ -11,6 +11,7 @@ import {
 import { JSONBigOnDemand } from '../utils/bignumber';
 import BitcoinEsploraApiProvider from './esplora/esploraAPiProvider';
 import { getAddressUtxoOrdinalBundles, getUtxoOrdinalBundle } from './ordinals';
+import { XVERSE_API_BASE_URL } from '../constant';
 
 export type UtxoCacheStruct<R extends BigNumber | number = BigNumber> = {
   [utxoId: string]: UtxoOrdinalBundle<R>;
@@ -29,6 +30,7 @@ type UtxoCacheConfig = {
   cacheStorageController: ExtendedStorageAdapter;
   network: NetworkType;
   electrsApi: BitcoinEsploraApiProvider;
+  customBaseUrl?: string;
 };
 
 // TODO: refactor below classes so the local cache manages the cache storage controller
@@ -80,6 +82,8 @@ export class UtxoCache {
 
   private readonly _network: NetworkType;
 
+  public readonly _customBaseUrl: string;
+
   private readonly _electrsApi: BitcoinEsploraApiProvider;
 
   private readonly _addressMutexes: { [address: string]: Mutex } = {};
@@ -102,6 +106,7 @@ export class UtxoCache {
     this._cacheStorageController = config.cacheStorageController;
     this._network = config.network;
     this._electrsApi = config.electrsApi;
+    this._customBaseUrl = config.customBaseUrl ?? XVERSE_API_BASE_URL(config.network);
   }
 
   private _getAddressCacheStorageKey = (address: string): string =>
@@ -278,7 +283,7 @@ export class UtxoCache {
     vout: number,
   ): Promise<[xVersion: number, bundle: UtxoOrdinalBundle] | [undefined, undefined]> => {
     try {
-      const apiBundleData = await getUtxoOrdinalBundle(this._network, txid, vout);
+      const apiBundleData = await getUtxoOrdinalBundle(this._network, txid, vout, this._customBaseUrl);
 
       const { xVersion, ...utxo } = apiBundleData;
       return [xVersion, this._mapUtxoApiBundleToBundle(utxo)];
@@ -395,6 +400,7 @@ export class UtxoCache {
     while (offset < totalCount) {
       const response = await getAddressUtxoOrdinalBundles(this._network, address, offset, limit, {
         hideUnconfirmed: true,
+        customBaseUrl: this._customBaseUrl,
       });
 
       const { results, total, limit: actualLimit, xVersion: serverXVersion } = response;

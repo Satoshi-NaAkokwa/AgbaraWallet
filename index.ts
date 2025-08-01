@@ -18,20 +18,24 @@ export {
 } from './constant';
 export * from './currency';
 export * from './encryption';
+export * from './formatting';
 export * from './fungibleTokens';
+export * from './swaps';
 export * from './gaia';
 export * from './hooks';
 export * from './keystone';
 export * from './ledger';
-export type * as Permissions from './permissions';
+export * from './persistentStoreManager';
 export * from './stacking';
 export * from './stacksCollectible';
+export * from './starknet';
 export * from './transactions';
 export { getBtcNetwork, getBtcNetworkDefinition } from './transactions/btcNetwork';
 export * from './types';
 export * from './utils';
 export * from './vaults';
 export * from './wallet';
+export * from './portfolio';
 
 import { resources, store, utils } from './permissions';
 export const permissions = {
@@ -39,3 +43,4 @@ export const permissions = {
   utils,
   store,
 };
+export type * as Permissions from './permissions';

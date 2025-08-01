@@ -1,4 +1,4 @@
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../../../utils/bignumber';
 import { describe, expect, it, vi } from 'vitest';
 import { Action, ActionType } from '../../../transactions/bitcoin/types';
 import {

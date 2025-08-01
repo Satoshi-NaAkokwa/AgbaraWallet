@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { getFungibleTokenStates } from '../fungibleTokens';
 import { type FungibleToken } from '../types';
+import { STARKNET_WBTC_TOKEN_ADDRESS } from '../starknet/constants';
 
 const sip10Token: FungibleToken = {
   assetName: 'odin-tkn',
@@ -165,6 +166,81 @@ describe('getFungibleTokenStates', () => {
       expected: {
         isSpam: true,
         isEnabled: true,
+        showToggle: true,
+      },
+    },
+    {
+      name: 'should enable WBTC without balance due to balance constraint removal',
+      inputs: {
+        fungibleToken: {
+          name: 'Wrapped Bitcoin',
+          principal: STARKNET_WBTC_TOKEN_ADDRESS,
+          balance: '0',
+          total_sent: '',
+          total_received: '',
+          assetName: 'Wrapped Bitcoin',
+          ticker: 'WBTC',
+          protocol: 'starknet' as const,
+          tokenFiatRate: 45000,
+          supported: true,
+        },
+        manageTokens: {},
+        spamTokens: [],
+        showSpamTokens: false,
+      },
+      expected: {
+        isSpam: false,
+        isEnabled: true,
+        showToggle: true,
+      },
+    },
+    {
+      name: 'should enable unsupported Starknet token when user explicitly enables it',
+      inputs: {
+        fungibleToken: {
+          name: 'Some Starknet Token',
+          principal: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+          balance: '1000000',
+          total_sent: '',
+          total_received: '',
+          assetName: 'Some Starknet Token',
+          ticker: 'SST',
+          protocol: 'starknet' as const,
+          tokenFiatRate: null,
+          supported: false,
+        },
+        manageTokens: { '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef': true },
+        spamTokens: [],
+        showSpamTokens: false,
+      },
+      expected: {
+        isSpam: false,
+        isEnabled: true,
+        showToggle: true,
+      },
+    },
+    {
+      name: 'should show toggle for WBTC even when explicitly disabled by user',
+      inputs: {
+        fungibleToken: {
+          name: 'Wrapped Bitcoin',
+          principal: STARKNET_WBTC_TOKEN_ADDRESS,
+          balance: '0',
+          total_sent: '',
+          total_received: '',
+          assetName: 'Wrapped Bitcoin',
+          ticker: 'WBTC',
+          protocol: 'starknet' as const,
+          tokenFiatRate: null,
+          supported: true,
+        },
+        manageTokens: { [STARKNET_WBTC_TOKEN_ADDRESS]: false },
+        spamTokens: [],
+        showSpamTokens: false,
+      },
+      expected: {
+        isSpam: false,
+        isEnabled: false,
         showToggle: true,
       },
     },

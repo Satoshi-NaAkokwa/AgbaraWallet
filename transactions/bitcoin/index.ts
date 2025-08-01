@@ -1,8 +1,10 @@
 import { TransactionContext, type InputToSign } from './context';
 import { createTransactionContext } from './contextFactory';
+import { groupBtcTxsByDate } from './history';
 import { EnhancedPsbt } from './enhancedPsbt';
 import { EnhancedTransaction } from './enhancedTransaction';
 import { ExtendedUtxo } from './extendedUtxo';
+import { estimateVSize } from './utils/transactionVsizeEstimator';
 import {
   ActionType,
   EnhancedInput,
@@ -28,7 +30,16 @@ const SPLIT_UTXO_MIN_VALUE = 1500; // the minimum value for a sat range to be sp
 
 const DUST_VALUE = 546; // the value of an inscription we prefer to use
 
-export { ActionType, createTransactionContext, EnhancedPsbt, EnhancedTransaction, ExtendedUtxo, TransactionContext };
+export {
+  ActionType,
+  createTransactionContext,
+  groupBtcTxsByDate,
+  estimateVSize,
+  EnhancedPsbt,
+  EnhancedTransaction,
+  ExtendedUtxo,
+  TransactionContext,
+};
 export type {
   EnhancedInput,
   EnhancedOutput,
@@ -249,20 +260,23 @@ export const sendOrdinalsWithSplit = async (
     }),
   );
 
-  const utxoToRecipientsMap = embellishedRecipients.reduce((acc, { location, toAddress }) => {
-    const [transactionId, vout, offsetStr] = location.split(':');
-    const outPoint = `${transactionId}:${vout}`;
-    const offset = +offsetStr;
+  const utxoToRecipientsMap = embellishedRecipients.reduce(
+    (acc, { location, toAddress }) => {
+      const [transactionId, vout, offsetStr] = location.split(':');
+      const outPoint = `${transactionId}:${vout}`;
+      const offset = +offsetStr;
 
-    if (!acc[outPoint]) {
-      acc[outPoint] = [];
-    }
+      if (!acc[outPoint]) {
+        acc[outPoint] = [];
+      }
 
-    acc[outPoint].push({ toAddress, offset, location });
-    acc[outPoint].sort((a, b) => a.offset - b.offset);
+      acc[outPoint].push({ toAddress, offset, location });
+      acc[outPoint].sort((a, b) => a.offset - b.offset);
 
-    return acc;
-  }, {} as Record<string, { toAddress: string; offset: number; location: string }[]>);
+      return acc;
+    },
+    {} as Record<string, { toAddress: string; offset: number; location: string }[]>,
+  );
 
   const actions: (SplitUtxoAction | SendUtxoAction)[] = [];
 

@@ -1,4 +1,4 @@
-export type Protocol = 'runes' | 'brc20' | 'sip10' | 'btc' | 'stx';
+export type Protocol = 'btc' | 'stx' | 'runes' | 'sip10' | 'starknet' | 'brc20';
 
 export type Provider = {
   code: string;
@@ -25,21 +25,25 @@ export type Token = TokenBasic & {
   logo?: string;
   name?: string;
   symbol?: string;
+  contract?: string;
   divisibility: number;
 };
 
 export type Quote = {
   provider: Provider;
-  bestMarketplaceProvider?: Provider;
   from: TokenBasic;
   to: TokenBasic;
+  receiveAmount: string;
   slippageSupported: boolean;
+  bestMarketplaceProvider?: Provider;
   slippageDecimals?: number;
   slippageThreshold?: number;
   feePercentage?: string;
+  providerFeePercentage?: string;
+  xverseFeePercentage?: string;
   feeFlat?: string;
   identifier?: unknown;
-  receiveAmount: string;
+  rate?: string;
 };
 
 export type UtxoQuote = {
@@ -69,17 +73,6 @@ export type MarketUtxo = {
   token: TokenBasic;
   amount: string;
   price: string;
-};
-
-export type XcQuote = {
-  provider: Provider;
-  from: TokenBasic;
-  to: TokenBasic;
-  slippageSupported: boolean;
-  feeFlat: string;
-  feePercentage: string;
-  receiveAmount: string;
-  rate: string;
 };
 
 export type GetSourceTokensRequest = {
@@ -124,7 +117,7 @@ export type GetQuotesResponse = {
   /** the list of quotes from STX providers */
   stx: StxQuote[];
   /** the list of quotes from Cross Chain providers */
-  xc: XcQuote[];
+  xc: Quote[];
 };
 
 export type GetUtxosRequest = {

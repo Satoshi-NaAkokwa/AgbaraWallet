@@ -11,8 +11,10 @@ import { getAccountFromRootNode } from '../account';
 import { StacksApiProvider } from '../api';
 import EsploraProvider from '../api/esplora/esploraAPiProvider';
 import { ENTROPY_BYTES } from '../constant';
+import { getValidatedStarknetAddress } from '../starknet';
 import { getBtcNetworkDefinition } from '../transactions/btcNetwork';
 import { type NetworkType } from '../types';
+import { safeCall } from '../utils';
 import { DerivationType, WalletId } from '../vaults';
 
 export { hashMessage };
@@ -70,6 +72,11 @@ export function validateBtcAddressIsTaproot(btcAddress: string): boolean {
   }
 }
 
+export function validateStarknetAddress(address: string): boolean {
+  const [error] = safeCall(() => getValidatedStarknetAddress(address));
+  return error === null;
+}
+
 const getBtcAddressBalanceAndHistory = async (btcClient: EsploraProvider, address: string | undefined) => {
   if (!address) return { balance: 0n, hasHistory: false };
   const addressData = await btcClient.getAddressData(address);
@@ -85,7 +92,7 @@ const getStxAddressBalanceAndHistory = async (stxClient: StacksApiProvider, addr
     stxClient.getAddressNonce(address),
   ]);
   const hasHistory = balance.totalBalance.gt(0) || nonce > 0;
-  return { balance: BigInt(balance.totalBalance.toString()), hasHistory };
+  return { balance: BigInt(balance.totalBalance.toFixed()), hasHistory };
 };
 
 const getBalancesAtIndex = async (options: {

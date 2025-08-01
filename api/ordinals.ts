@@ -1,5 +1,4 @@
 import axios, { isAxiosError } from 'axios';
-import BigNumber from 'bignumber.js';
 import EsploraApiProvider from '../api/esplora/esploraAPiProvider';
 import { OrdinalsApi } from '../api/ordinals/provider';
 import { API_TIMEOUT_MILLI, ORDINALS_URL, XVERSE_API_BASE_URL, XVERSE_INSCRIBE_URL } from '../constant';
@@ -22,7 +21,7 @@ import {
   UtxoOrdinalBundleApi,
   isApiSatributeKnown,
 } from '../types';
-import { JSONBigOnDemand } from '../utils/bignumber';
+import { JSONBigOnDemand, BigNumber } from '../utils/bignumber';
 import { parseBrc20TransactionData } from './helper';
 
 export function parseOrdinalTextContentData(content: string): string {
@@ -31,14 +30,14 @@ export function parseOrdinalTextContentData(content: string): string {
     if (contentData.p) {
       // check for sns protocol
       if (contentData.p === 'sns') {
-        return contentData.hasOwnProperty('name') ? contentData.name : content;
+        return Object.hasOwn(contentData, 'name') ? contentData.name : content;
       } else {
         return content;
       }
     } else {
       return content;
     }
-  } catch (error) {
+  } catch (_error) {
     return content;
   }
 }
@@ -68,10 +67,13 @@ export async function getOrdinalsByAddress(
   ]);
   const ordinals: BtcOrdinal[] = [];
 
-  const utxoMap = addressUTXOs.reduce((acc, utxo) => {
-    acc[`${utxo.txid}:${utxo.vout}`] = utxo;
-    return acc;
-  }, {} as Record<string, UTXO>);
+  const utxoMap = addressUTXOs.reduce(
+    (acc, utxo) => {
+      acc[`${utxo.txid}:${utxo.vout}`] = utxo;
+      return acc;
+    },
+    {} as Record<string, UTXO>,
+  );
 
   inscriptions.forEach((inscription) => {
     const utxo = utxoMap[inscription.output];
@@ -112,7 +114,7 @@ export async function getTextOrdinalContent(network: NetworkType, inscriptionId:
       transformResponse: [(data) => parseOrdinalTextContentData(data)],
     })
     .then((response) => response!.data)
-    .catch((error) => {
+    .catch((_error) => {
       return '';
     });
 }
@@ -135,8 +137,12 @@ export async function getNonOrdinalUtxo(
   return nonOrdinalOutputs;
 }
 
-export async function getOrdinalsFtBalance(network: NetworkType, address: string): Promise<FungibleToken[]> {
-  const url = `${XVERSE_API_BASE_URL(network)}/v1/ordinals/token/balances/${address}`;
+export async function getOrdinalsFtBalance(
+  network: NetworkType,
+  address: string,
+  customBaseUrl?: string,
+): Promise<FungibleToken[]> {
+  const url = `${customBaseUrl || XVERSE_API_BASE_URL(network)}/v1/ordinals/token/balances/${address}`;
   return axios
     .get(url, {
       timeout: API_TIMEOUT_MILLI,
@@ -167,7 +173,7 @@ export async function getOrdinalsFtBalance(network: NetworkType, address: string
         return [];
       }
     })
-    .catch((error) => {
+    .catch((_error) => {
       return [];
     });
 }
@@ -176,8 +182,9 @@ export async function getBrc20History(
   network: NetworkType,
   address: string,
   token: string,
+  customBaseUrl?: string,
 ): Promise<Brc20HistoryTransactionData[]> {
-  const url = `${XVERSE_API_BASE_URL(network)}/v1/ordinals/token/${token}/history/${address}`;
+  const url = `${customBaseUrl || XVERSE_API_BASE_URL(network)}/v1/ordinals/token/${token}/history/${address}`;
   return axios
     .get(url, {
       timeout: API_TIMEOUT_MILLI,
@@ -210,6 +217,7 @@ export const getAddressUtxoOrdinalBundles = async (
     hideUnconfirmed?: boolean;
     /** Filter out UTXOs that only have one or more inscriptions or other assets (and no rare sats) */
     hideSpecialWithoutSatributes?: boolean;
+    customBaseUrl?: string;
   },
 ): Promise<AddressBundleResponse> => {
   const params: Record<string, unknown> = {
@@ -234,7 +242,7 @@ export const getAddressUtxoOrdinalBundles = async (
   }
 
   const response = await axios.get<AddressBundleResponse>(
-    `${XVERSE_API_BASE_URL(network)}/v2/address/${address}/ordinal-utxo`,
+    `${options?.customBaseUrl || XVERSE_API_BASE_URL(network)}/v2/address/${address}/ordinal-utxo`,
     {
       params,
       transformResponse: (data) => JSONBigOnDemand.parse(data),
@@ -248,9 +256,10 @@ export const getUtxoOrdinalBundle = async (
   network: NetworkType,
   txid: string,
   vout: number,
+  customBaseUrl?: string,
 ): Promise<UtxoBundleResponse> => {
   const response = await axios.get<UtxoBundleResponse>(
-    `${XVERSE_API_BASE_URL(network)}/v2/ordinal-utxo/${txid}:${vout}`,
+    `${customBaseUrl || XVERSE_API_BASE_URL(network)}/v2/ordinal-utxo/${txid}:${vout}`,
     {
       transformResponse: (data) => JSONBigOnDemand.parse(data),
     },

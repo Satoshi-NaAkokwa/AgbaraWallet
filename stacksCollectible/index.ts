@@ -1,5 +1,5 @@
-import { StacksNetwork } from '@stacks/network';
-import BigNumber from 'bignumber.js';
+import { type StacksNetwork } from '@stacks/network';
+import { BigNumber } from '../utils/bignumber';
 import { getNftsCollectionData, getNftsData } from '../api';
 import { BNS_CONTRACT_ID } from '../constant';
 import { microstacksToStx } from '../currency';

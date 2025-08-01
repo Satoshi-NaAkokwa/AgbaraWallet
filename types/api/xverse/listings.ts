@@ -1,4 +1,3 @@
-import BigNumber from 'bignumber.js';
 import { BundleSatRange, UtxoRuneEntry } from './ordinals';
 
 export type ListingBundle<B extends BigNumber | number = BigNumber> = {

@@ -30,10 +30,9 @@ import {
   standardPrincipalCV,
   uintCV,
 } from '@stacks/transactions';
-import BigNumber from 'bignumber.js';
-import { XverseApi } from '../../api';
 import { getStxAddressKeyChain } from '../../account';
-import { PostConditionsOptions, StacksMainnet, StacksNetwork, StacksTestnet } from '../../types';
+import { XverseApi } from '../../api';
+import { PostConditionsOptions, StacksMainnet, StacksNetwork } from '../../types';
 import { DerivationType } from '../../vaults';
 import { applyMultiplierAndCapFeeAtThreshold, estimateStacksTransactionWithFallback } from './fees';
 import { makeFungiblePostCondition, makeNonFungiblePostCondition } from './helper';
@@ -65,11 +64,10 @@ export async function broadcastSignedTransaction(
   attachment: Buffer | undefined = undefined,
 ): Promise<string> {
   const result = await broadcastTransaction({ transaction: signedTx, network: txNetwork, attachment });
-  if (result.hasOwnProperty('error')) {
+  if (Object.hasOwn(result, 'error')) {
     const errorResult = result as TxBroadcastResultRejected;
     if (errorResult.reason.toString() === 'TooMuchChaining') {
       throw new Error(
-        // eslint-disable-next-line max-len
         `Too many pending transactions, pending transaction limit reached. Please wait until your previous transactions have been confirmed`,
       );
     }
@@ -111,6 +109,7 @@ type UnsignedStxTransferTxArgs = UnsignedTxArgs<ConnectSTXTransferPayload>;
 const generateUnsignedSTXTransferTx = async (args: UnsignedStxTransferTxArgs) => {
   const { payload, publicKey, nonce, sponsored, fee } = args;
   const { recipient, memo, amount, network, anchorMode } = payload;
+  const stacksNetwork = network && isStacksNetwork(network) ? network : StacksMainnet;
   const options = {
     recipient,
     memo,
@@ -120,7 +119,7 @@ const generateUnsignedSTXTransferTx = async (args: UnsignedStxTransferTxArgs) =>
     nonce,
     fee: fee ? BigInt(fee) : BigInt(0),
     sponsored,
-    network: network as StacksNetwork,
+    network: stacksNetwork,
   };
 
   return makeUnsignedSTXTokenTransfer(options);
@@ -189,6 +188,7 @@ const generateUnsignedContractDeployTx = async (args: UnsignedContractDeployTxAr
   const deserializedPostConditions = postConditions
     ? (postConditions.map((pc) => (typeof pc === 'string' ? deserializePostConditionWire(pc) : pc)) as PostCondition[])
     : [];
+  const stacksNetwork = network && isStacksNetwork(network) ? network : StacksMainnet;
   const options = {
     contractName,
     codeBody,
@@ -198,7 +198,7 @@ const generateUnsignedContractDeployTx = async (args: UnsignedContractDeployTxAr
     anchorMode: anchorMode ?? AnchorMode.Any,
     postConditionMode: postConditionMode || PostConditionMode.Deny,
     postConditions: deserializedPostConditions,
-    network: network === 'mainnet' ? StacksMainnet : StacksTestnet,
+    network: stacksNetwork,
   };
   return makeUnsignedContractDeploy(options);
 };

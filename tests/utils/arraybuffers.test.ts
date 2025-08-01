@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { toUint8, str2buf, buf2hex, concatBuffers } from '../../utils/arrayBuffers';
 
-
 describe('toUint8', () => {
   it('should convert a Buffer to a Uint8Array', () => {
     const buf = Buffer.from('hello world');

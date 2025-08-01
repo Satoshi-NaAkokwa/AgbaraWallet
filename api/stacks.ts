@@ -1,4 +1,4 @@
-import { StacksNetwork } from '@stacks/network';
+import { type StacksNetwork } from '@stacks/network';
 import {
   ClarityType,
   cvToHex,
@@ -13,7 +13,7 @@ import {
   UIntCV,
 } from '@stacks/transactions';
 import axios from 'axios';
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../utils/bignumber';
 import { API_TIMEOUT_MILLI } from '../constant';
 import {
   Account,
@@ -51,12 +51,12 @@ import {
   parseStxTransactionData,
 } from './helper';
 import { MempoolFeePriorities } from '@stacks/stacks-blockchain-api-types';
-import StacksApiProvider from './stacksApi';
+import { StacksApiProvider } from './stacksApi';
 import { safePromise } from '../utils';
 import { getOwner, getPrimaryName } from 'bns-v2-sdk';
 
-// TODO: these methods needs to be refactored
-// reference https://github.com/secretkeylabs/xverse-core/pull/217/files#r1298242728
+/* @deprecated use xverseApi.account.getGlobalTxHistory
+ * reference https://github.com/secretkeylabs/xverse-core/pull/217/files#r1298242728 */
 export async function getConfirmedTransactions({
   stxAddress,
   network,
@@ -119,6 +119,7 @@ export async function getMempoolTransactions({
   };
 }
 
+/* @deprecated xverse-api now support Transaction History using api-v2, use xverseApi.account.getGlobalTxHistory */
 export async function getTransferTransactions(
   stxAddress: string,
   network: StacksNetwork,
@@ -144,6 +145,7 @@ export async function getTransferTransactions(
   return transactions;
 }
 
+/* @deprecated use xverseApi.account.getGlobalTxHistory instead */
 export async function fetchStxAddressData(
   stxAddress: string,
   network: StacksNetwork,
@@ -324,7 +326,7 @@ export async function getContractInterface(
     });
 
     return response.data;
-  } catch (err) {
+  } catch (_err) {
     return null;
   }
 }
@@ -393,7 +395,7 @@ export async function getStacksInfo(network: string) {
       timeout: API_TIMEOUT_MILLI,
     });
     return response?.data;
-  } catch (err) {
+  } catch (_err) {
     return undefined;
   }
 }
@@ -439,7 +441,7 @@ export async function fetchDelegationState(stxAddress: string, network: StacksNe
 
     const delegationInfo = {
       delegated: true,
-      amount: delegatedAmount.toString(),
+      amount: delegatedAmount.toFixed(),
       delegatedTo: cvToString(delegatedTo),
       untilBurnHeight: untilBurnHeight,
     };
@@ -454,7 +456,7 @@ export async function fetchCoinMetaData(contract: string, network: StacksNetwork
       timeout: API_TIMEOUT_MILLI,
     });
     return response?.data;
-  } catch (err) {
+  } catch (_err) {
     return undefined;
   }
 }

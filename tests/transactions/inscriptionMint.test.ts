@@ -39,8 +39,8 @@ describe('inscriptionMintFeeEstimate', () => {
           getSummary: async () =>
             ({
               fee: 1100,
-            } as any),
-        } as any),
+            }) as any,
+        }) as any,
     );
 
     const content = 'a'.repeat(400000);
@@ -84,7 +84,7 @@ describe('inscriptionMintFeeEstimate', () => {
           getSummary: async () => {
             throw new Error('Insufficient funds');
           },
-        } as any),
+        }) as any,
     );
 
     const content = 'a'.repeat(400000);
@@ -261,8 +261,8 @@ describe('inscriptionMintExecute', () => {
           getTransactionHexAndId: async () =>
             ({
               hex: 'CommitHex',
-            } as any),
-        } as any),
+            }) as any,
+        }) as any,
     );
 
     vi.mocked(xverseInscribeApi.executeInscriptionOrder).mockResolvedValue({

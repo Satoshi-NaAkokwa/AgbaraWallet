@@ -9,11 +9,11 @@ import { VaultConfig } from './types';
 export class MasterVault {
   private readonly config: VaultConfig;
 
-  private readonly encryptionVault: EncryptionVault;
+  private encryptionVault: EncryptionVault;
 
-  private readonly seedVault: SeedVault;
+  private seedVault: SeedVault;
 
-  private readonly keyValueVault: KeyValueVault;
+  private keyValueVault: KeyValueVault;
 
   private readonly migrationMutex = new Mutex();
 
@@ -167,5 +167,8 @@ export class MasterVault {
     }
 
     await this.keyValueVault.clear();
+    this.encryptionVault = new EncryptionVault(this.config);
+    this.seedVault = new SeedVault(this.config, this.encryptionVault);
+    this.keyValueVault = new KeyValueVault(this.config, this.encryptionVault);
   };
 }

@@ -6,7 +6,7 @@ import { UtxoCache, UtxoCacheStruct } from '../../api/utxoCache';
 
 import { getAddressUtxoOrdinalBundles, getUtxoOrdinalBundle } from '../../api/ordinals';
 
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../../utils/bignumber';
 import { ExtendedStorageAdapter, UtxoRuneEntry } from '../../types';
 import { JSONBig } from '../../utils/bignumber';
 
@@ -18,9 +18,7 @@ describe('UtxoCache', () => {
   let mockCache: UtxoCacheStruct;
   let mockElectrsApi: ElectrsProvider;
 
-  beforeEach(() => {
-    vi.resetAllMocks();
-
+  const setupMocks = () => {
     mockCache = {
       'txid1:0': {
         txid: 'txid1',
@@ -53,6 +51,7 @@ describe('UtxoCache', () => {
     };
     mockStorageAdapter = {
       get: vi.fn(),
+      getMany: vi.fn(),
       set: vi.fn(),
       remove: vi.fn(),
       getAllKeys: vi.fn().mockResolvedValue([]),
@@ -60,6 +59,11 @@ describe('UtxoCache', () => {
     mockElectrsApi = {
       getUnspentUtxos: vi.fn(),
     } as any;
+  };
+
+  beforeEach(() => {
+    vi.resetAllMocks();
+    setupMocks();
     utxoCache = new UtxoCache({
       cacheStorageController: mockStorageAdapter,
       network: 'Mainnet',
@@ -98,7 +102,7 @@ describe('UtxoCache', () => {
     const cachedValue = await utxoCache.getUtxoByOutpoint('txid1:0', 'address1');
     expect(cachedValue).toEqual(mockUtxo);
 
-    expect(getUtxoOrdinalBundle).toHaveBeenCalledWith('Mainnet', 'txid1', 0);
+    expect(getUtxoOrdinalBundle).toHaveBeenCalledWith('Mainnet', 'txid1', 0, 'https://api-3.xverse.app');
     expect(mockStorageAdapter.set).toHaveBeenCalledWith(
       'utxoCache-Mainnet-address1',
       JSON.stringify({
@@ -172,8 +176,14 @@ describe('UtxoCache', () => {
 
     // should get all pages
     expect(getAddressUtxoOrdinalBundles).toHaveBeenCalledTimes(2);
-    expect(getAddressUtxoOrdinalBundles).toHaveBeenCalledWith('Mainnet', 'address1', 0, 500, { hideUnconfirmed: true });
-    expect(getAddressUtxoOrdinalBundles).toHaveBeenCalledWith('Mainnet', 'address1', 1, 1, { hideUnconfirmed: true });
+    expect(getAddressUtxoOrdinalBundles).toHaveBeenCalledWith('Mainnet', 'address1', 0, 500, {
+      hideUnconfirmed: true,
+      customBaseUrl: 'https://api-3.xverse.app',
+    });
+    expect(getAddressUtxoOrdinalBundles).toHaveBeenCalledWith('Mainnet', 'address1', 1, 1, {
+      customBaseUrl: 'https://api-3.xverse.app',
+      hideUnconfirmed: true,
+    });
 
     expect(mockStorageAdapter.set).toHaveBeenCalledWith(
       'utxoCache-Mainnet-address1',
@@ -262,8 +272,11 @@ describe('UtxoCache', () => {
 
     expect(cachedValue).toEqual(mockUtxo);
 
-    expect(getUtxoOrdinalBundle).toHaveBeenCalledWith('Mainnet', 'txid3', 0);
-    expect(getAddressUtxoOrdinalBundles).toHaveBeenCalledWith('Mainnet', 'address1', 0, 500, { hideUnconfirmed: true });
+    expect(getUtxoOrdinalBundle).toHaveBeenCalledWith('Mainnet', 'txid3', 0, 'https://api-3.xverse.app');
+    expect(getAddressUtxoOrdinalBundles).toHaveBeenCalledWith('Mainnet', 'address1', 0, 500, {
+      customBaseUrl: 'https://api-3.xverse.app',
+      hideUnconfirmed: true,
+    });
     expect(mockStorageAdapter.set).toHaveBeenCalledWith(
       'utxoCache-Mainnet-address1',
       JSONBig.stringify({
@@ -331,7 +344,10 @@ describe('UtxoCache', () => {
 
     expect(cachedValue).toEqual(mockUtxos[2]);
 
-    expect(getAddressUtxoOrdinalBundles).toHaveBeenCalledWith('Mainnet', 'address1', 0, 500, { hideUnconfirmed: true });
+    expect(getAddressUtxoOrdinalBundles).toHaveBeenCalledWith('Mainnet', 'address1', 0, 500, {
+      customBaseUrl: 'https://api-3.xverse.app',
+      hideUnconfirmed: true,
+    });
     expect(mockStorageAdapter.set).toHaveBeenCalledWith(
       'utxoCache-Mainnet-address1',
       JSONBig.stringify({
@@ -401,7 +417,10 @@ describe('UtxoCache', () => {
 
     expect(cachedValue).toEqual(mockUtxos[2]);
 
-    expect(getAddressUtxoOrdinalBundles).toHaveBeenCalledWith('Mainnet', 'address1', 0, 500, { hideUnconfirmed: true });
+    expect(getAddressUtxoOrdinalBundles).toHaveBeenCalledWith('Mainnet', 'address1', 0, 500, {
+      customBaseUrl: 'https://api-3.xverse.app',
+      hideUnconfirmed: true,
+    });
     expect(mockStorageAdapter.set).toHaveBeenCalledWith(
       'utxoCache-Mainnet-address1',
       JSONBig.stringify({
@@ -472,7 +491,10 @@ describe('UtxoCache', () => {
 
     expect(cachedValue).toEqual(mockUtxos[2]);
 
-    expect(getAddressUtxoOrdinalBundles).toHaveBeenCalledWith('Mainnet', 'address1', 0, 500, { hideUnconfirmed: true });
+    expect(getAddressUtxoOrdinalBundles).toHaveBeenCalledWith('Mainnet', 'address1', 0, 500, {
+      customBaseUrl: 'https://api-3.xverse.app',
+      hideUnconfirmed: true,
+    });
     expect(mockStorageAdapter.set).toHaveBeenCalledWith(
       'utxoCache-Mainnet-address1',
       JSONBig.stringify({
@@ -488,5 +510,122 @@ describe('UtxoCache', () => {
         xVersion: 1,
       }),
     );
+  });
+
+  describe('instantiate utxoCache with customBaseUrl', () => {
+    beforeEach(() => {
+      setupMocks();
+      utxoCache = new UtxoCache({
+        cacheStorageController: mockStorageAdapter,
+        network: 'Mainnet',
+        electrsApi: mockElectrsApi,
+        customBaseUrl: 'https://custom-api.example.com',
+      });
+    });
+
+    it('should use customBaseUrl when fetching utxo from API', async () => {
+      MockDate.set(0);
+      mockStorageAdapter.get = vi
+        .fn()
+        .mockResolvedValue(JSONBig.stringify({ utxos: {}, syncTime: 0, version: UtxoCache.VERSION, xVersion: 1 }));
+
+      const mockUtxo = {
+        txid: 'txid1',
+        vout: 0,
+        block_height: 123,
+        value: 456,
+        sat_ranges: [],
+        runes: [],
+      };
+      vi.mocked(getUtxoOrdinalBundle).mockResolvedValueOnce({ xVersion: 1, ...mockUtxo });
+
+      const cachedValue = await utxoCache.getUtxoByOutpoint('txid1:0', 'address1');
+      expect(cachedValue).toEqual(mockUtxo);
+      expect(getUtxoOrdinalBundle).toHaveBeenCalledWith('Mainnet', 'txid1', 0, 'https://custom-api.example.com');
+    });
+
+    it('should use customBaseUrl when initializing cache', async () => {
+      let storedCache: string | null = null;
+      mockStorageAdapter.get = vi.fn().mockImplementation((_key) => storedCache);
+      mockStorageAdapter.set = vi.fn().mockImplementation((_key, value) => {
+        storedCache = value;
+      });
+
+      const mockUtxos = [
+        {
+          txid: 'txid1',
+          vout: 0,
+          block_height: 123,
+          value: 456,
+          sat_ranges: [],
+          runes: [],
+        },
+      ];
+      vi.mocked(getAddressUtxoOrdinalBundles).mockResolvedValueOnce({
+        limit: 500,
+        offset: 0,
+        results: mockUtxos,
+        total: 1,
+        xVersion: 1,
+      });
+      MockDate.set(0);
+
+      vi.mocked(getUtxoOrdinalBundle).mockResolvedValueOnce({ ...mockUtxos[0], xVersion: 1 });
+
+      const result = await utxoCache.getUtxo('txid1', 0, 'address1');
+      await new Promise(process.nextTick);
+
+      expect(result).toEqual(mockUtxos[0]);
+      expect(getAddressUtxoOrdinalBundles).toHaveBeenCalledWith('Mainnet', 'address1', 0, 500, {
+        hideUnconfirmed: true,
+        customBaseUrl: 'https://custom-api.example.com',
+      });
+    });
+
+    it('should use customBaseUrl when re-syncing cache', async () => {
+      const msIn2Days = 1000 * 60 * 60 * 24 * 2;
+      MockDate.set(msIn2Days);
+
+      mockStorageAdapter.get = vi.fn().mockResolvedValueOnce(
+        JSON.stringify({
+          version: UtxoCache.VERSION,
+          syncTime: 0,
+          utxos: mockCache,
+          xVersion: 1,
+          syncComplete: true,
+        }),
+      );
+
+      const mockUtxos = [
+        {
+          txid: 'txid3',
+          vout: 0,
+          block_height: 123,
+          value: 456,
+          sat_ranges: [],
+          runes: [],
+        },
+      ];
+
+      vi.mocked(getAddressUtxoOrdinalBundles).mockResolvedValueOnce({
+        limit: 500,
+        offset: 0,
+        results: mockUtxos,
+        total: 1,
+        xVersion: 1,
+      });
+
+      vi.mocked(getUtxoOrdinalBundle).mockResolvedValueOnce({ ...mockUtxos[0], xVersion: 1 });
+
+      const cachedValue = await utxoCache.getUtxoByOutpoint('txid3:0', 'address1');
+      await new Promise(process.nextTick);
+
+      expect(cachedValue).toEqual(mockUtxos[0]);
+
+      expect(getAddressUtxoOrdinalBundles).toHaveBeenCalledWith('Mainnet', 'address1', 0, 500, {
+        customBaseUrl: 'https://custom-api.example.com',
+        hideUnconfirmed: true,
+      });
+    });
   });
 });

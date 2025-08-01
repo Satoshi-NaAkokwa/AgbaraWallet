@@ -1,7 +1,7 @@
 export * from './btc';
 export * from './esplora/esploraAPiProvider';
 export * from './gamma';
-export { getNetworkURL, parseStxTransactionData } from './helper';
+export { getNetworkURL, parseStxTransactionData, validateCustomIndexerUrl } from './helper';
 export { default as mempoolApi } from './mempool';
 export * from './ordinals';
 export * from './ordinals/provider';
@@ -12,3 +12,6 @@ export * from './stacksApi';
 export * from './stacksSponsor';
 export * from './utxoCache';
 export * from './xverse';
+export * from './avnu';
+export * from './onramper/provider';
+export { enhanceTx as enhanceBtcTx } from './btc';

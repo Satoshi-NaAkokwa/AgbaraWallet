@@ -9,7 +9,6 @@ import {
   standardPrincipalCV,
   uintCV,
 } from '@stacks/transactions';
-import BigNumber from 'bignumber.js';
 import { XverseApi } from '../../api';
 import { StacksNetwork, StacksTransactionWire } from '../../types';
 import { generateUnsignedTx } from './builders';
@@ -29,7 +28,7 @@ export async function generateUnsignedDelegateTransaction(
   const poolRewardAddressTuple = poxAddressToTuple(poolPoxAddress);
   const userRewardAddressTuple = poxAddressToTuple(rewardAddress);
   const funcArgs = [
-    uintCV(amount.toString()),
+    uintCV(amount.toFixed()),
     standardPrincipalCV(poolAddress),
     noneCV(),
     someCV(poolRewardAddressTuple),

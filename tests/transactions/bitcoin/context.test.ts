@@ -380,20 +380,24 @@ describe('ExtendedUtxo', () => {
 
   it('should try get hex from esplora and cache it', async () => {
     const dummyUtxo = { txid: 'txid', vout: 1 } as any;
-    const esploraApi = new EsploraProvider({ network: 'Mainnet' });
-    const extendedUtxo = new ExtendedUtxo(dummyUtxo, 'address', utxoCache, esploraApi);
+    const mockGetTransactionHex = vi.fn(() => Promise.resolve('hex'));
+    type This = { getTransactionHex: () => Promise<string> };
+    const MockedEsploraProvider = vi.fn(function (this: This): This {
+      this.getTransactionHex = mockGetTransactionHex;
+      return this;
+    });
+    const esploraApi = new MockedEsploraProvider() as any;
 
-    const getHexMock = vi.mocked(vi.mocked(EsploraProvider).mock.instances[0].getTransactionHex);
-    getHexMock.mockResolvedValueOnce('hex');
+    const extendedUtxo = new ExtendedUtxo(dummyUtxo, 'address', utxoCache, esploraApi as EsploraProvider);
 
     let hex = await extendedUtxo.hex;
 
+    expect(mockGetTransactionHex).toHaveBeenCalledTimes(1);
     expect(hex).toEqual('hex');
-    expect(getHexMock).toHaveBeenCalledTimes(1);
 
     // refire the get, should come from cached value
     hex = await extendedUtxo.hex;
-    expect(getHexMock).toHaveBeenCalledTimes(1);
+    expect(mockGetTransactionHex).toHaveBeenCalledTimes(1);
   });
 
   it('should try get hex from esplora and reject if call fails', async () => {
@@ -496,6 +500,11 @@ describe('createTransactionContext', () => {
             publicKey: addresses[0].taprootPubKey,
           },
         },
+        strkAddresses: {
+          'argent-x-v0_4_0-with-0-guardians': {
+            address: '0x06462ab7c0b54be2a4efa89fa94b4becfc33c78bb96949e83c9f35a07c488396',
+          },
+        },
       },
       walletId: 'walletId' as WalletId,
       network: 'Mainnet',
@@ -532,6 +541,11 @@ describe('createTransactionContext', () => {
           taproot: {
             address: addresses[0].taproot,
             publicKey: addresses[0].taprootPubKey,
+          },
+        },
+        strkAddresses: {
+          'argent-x-v0_4_0-with-0-guardians': {
+            address: '0x06462ab7c0b54be2a4efa89fa94b4becfc33c78bb96949e83c9f35a07c488396',
           },
         },
       },
