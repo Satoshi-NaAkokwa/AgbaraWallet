@@ -1,0 +1,113 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - '55432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  minio:
+    image: minio/minio:RELEASE.2024-06-13T22-53-53Z.fips
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    ports:
+      - '9002:9000'
+      - '9003:9001'
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:9002/minio/health/ready']
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  ganache:
+    image: trufflesuite/ganache:v7.9.1
+    command: ['--chain.chainId', '1337', '--wallet.totalAccounts', '10', '--miner.blockTime', '1']
+    ports:
+      - '8545:8545'
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          'http=require(''http'');req=http.request({host:''localhost'',port:8545,method:''POST'',headers:{''content-type'':''application/json''}},res=>process.exit(res.statusCode===200?0:1));req.on(''error'',()=>process.exit(1));req.end(''{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'');',
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  synapse:
+    image: node:20-alpine
+    command:
+      [
+        'sh',
+        '-lc',
+        'node -e "require(''http'').createServer((req,res)=>{if(req.url.startsWith(''/_matrix/client/versions'')){res.writeHead(200,{''Content-Type'':''application/json''});res.end(JSON.stringify({versions:[''r0.6.1'']}));} else {res.writeHead(404);res.end();}}).listen(8008,''0.0.0.0'');"',
+      ]
+    ports:
+      - '8008:8008'
+
+  identity:
+    image: node:20-alpine
+    command:
+      [
+        'sh',
+        '-lc',
+        'node -e "require(''http'').createServer((req,res)=>{if(req.url===''/health''){res.writeHead(200,{''Content-Type'':''application/json''});res.end(JSON.stringify({status:''ok''}));} else {res.writeHead(404);res.end();}}).listen(7000,''0.0.0.0'');"',
+      ]
+    ports:
+      - '7000:7000'
+
+  wallet:
+    image: node:20-alpine
+    command:
+      [
+        'sh',
+        '-lc',
+        'node -e "require(''http'').createServer((req,res)=>{if(req.url===''/health''){res.writeHead(200,{''Content-Type'':''application/json''});res.end(JSON.stringify({status:''ok''}));} else {res.writeHead(404);res.end();}}).listen(7001,''0.0.0.0'');"',
+      ]
+    ports:
+      - '7001:7001'
+
+  media:
+    image: node:20-alpine
+    command:
+      [
+        'sh',
+        '-lc',
+        'node -e "require(''http'').createServer((req,res)=>{if(req.url===''/health''){res.writeHead(200,{''Content-Type'':''application/json''});res.end(JSON.stringify({status:''ok''}));} else {res.writeHead(404);res.end();}}).listen(7002,''0.0.0.0'');"',
+      ]
+    ports:
+      - '7002:7002'
+
+  mapping:
+    image: node:20-alpine
+    command:
+      [
+        'sh',
+        '-lc',
+        'node -e "require(''http'').createServer((req,res)=>{if(req.url===''/health''){res.writeHead(200,{''Content-Type'':''application/json''});res.end(JSON.stringify({status:''ok''}));} else {res.writeHead(404);res.end();}}).listen(7003,''0.0.0.0'');"',
+      ]
+    ports:
+      - '7003:7003'
+
+  messaging:
+    image: node:20-alpine
+    command:
+      [
+        'sh',
+        '-lc',
+        'node -e "require(''http'').createServer((req,res)=>{if(req.url===''/health''){res.writeHead(200,{''Content-Type'':''application/json''});res.end(JSON.stringify({status:''ok''}));} else {res.writeHead(404);res.end();}}).listen(7004,''0.0.0.0'');"',
+      ]
+    ports:
+      - '7004:7004'
