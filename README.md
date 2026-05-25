@@ -1,4 +1,4 @@
-# Xverse Core
+# Agbara Wallet
 
 - Folders are separated according to functionality e.g. wallet works with getting assets and balances, transaction works with creating transaction objects.
 - Files under `/api` contains functions that are making external API calls, the file name should indicate which service it is calling.
